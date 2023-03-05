@@ -5,5 +5,6 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 
 sealed class ManageCategoriesEvent {
     data class  ToggleAddEditCard(val category: Category?): ManageCategoriesEvent()
+    data class EnteredName(val value: String): ManageCategoriesEvent()
     data class ColorChanged(val value: HSVColor): ManageCategoriesEvent()
 }

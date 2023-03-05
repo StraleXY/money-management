@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -32,9 +33,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyColorPicker
+import com.theminimalismhub.moneymanagement.core.composables.FramelessInputField
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloatingActionButton3
 
@@ -49,11 +53,8 @@ fun ManageCategoriesScreen(
 ) {
 
     val state = vm.state.value
-    val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
-    var currentRotation by remember { mutableStateOf(0f) }
-    val rotation = remember { Animatable(currentRotation) }
     val chipsHeight = remember { mutableStateOf(0f) }
     val headerHeight = remember { mutableStateOf(0f) }
     val animate = remember { mutableStateOf(false) }
@@ -62,17 +63,6 @@ fun ManageCategoriesScreen(
         vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null))
     }
 
-    suspend fun animateTo(angel: Float) {
-        rotation.animateTo(
-            targetValue = 0f,
-            animationSpec = keyframes {
-                durationMillis = 300
-                0f at 0
-                angel at 150
-                0f at 300
-            }
-        ) { currentRotation = value }
-    }
 
     Scaffold(
         floatingActionButton = {
@@ -148,6 +138,12 @@ fun ManageCategoriesScreen(
             FloatingCard(
                 visible = state.isAddEditOpen
             ) {
+                InputCategoryChip(
+                    color = state.currentColor,
+                    name = state.currentName,
+                    onChanged = { vm.onEvent(ManageCategoriesEvent.EnteredName(it)) }
+                )
+                Spacer(modifier = Modifier.height(24.dp))
                 HarmonyColorPicker(
                     modifier = Modifier.size(250.dp),
                     color = state.currentColor,
@@ -224,6 +220,69 @@ private fun FloatingCard(
                     content = content
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun InputCategoryChip(
+    modifier: Modifier = Modifier,
+    color: HSVColor,
+    name: String,
+    enabled: Boolean = true,
+    onChanged: (String) -> Unit
+) {
+
+    val scope = rememberCoroutineScope()
+    var currentRotation by remember { mutableStateOf(0f) }
+    val rotation = remember { Animatable(currentRotation) }
+
+    suspend fun animateTo(angel: Float) {
+        rotation.animateTo(
+            targetValue = 0f,
+            animationSpec = keyframes {
+                durationMillis = 300
+                0f at 0
+                angel at 150
+                0f at 300
+            }
+        ) { currentRotation = value }
+    }
+
+    Card(
+        modifier = modifier
+            .padding(5.dp)
+            .height(38.dp)
+            .graphicsLayer {
+                rotationY = currentRotation
+            },
+        elevation = Dp(8f),
+        shape = RoundedCornerShape(30.dp),
+        backgroundColor = Color(
+            ColorUtils.setAlphaComponent(
+                color.toColor().toArgb(),
+                (0.1f * 255L).roundToInt()
+            )
+        )
+
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 32.dp)
+        ) {
+            FramelessInputField(
+                text = name,
+                textColor = color.toColor(),
+                characterLimit = 30,
+                hint = stringResource(id = R.string.label_name),
+                enabled = enabled,
+                onValueChange = {
+                    val addition = it.length < name.length;
+                    scope.launch { animateTo((if (addition) -1 else 1) * Math.max(30f - it.length, 7f)) }
+                    onChanged(it)
+                }
+            )
         }
     }
 }

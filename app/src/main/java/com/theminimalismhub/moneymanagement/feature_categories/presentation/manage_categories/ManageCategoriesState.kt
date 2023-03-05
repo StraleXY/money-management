@@ -8,5 +8,6 @@ data class ManageCategoriesState(
     val outcomeCategories: List<Category> = emptyList(),
     val incomeCategories: List<Category> = emptyList(),
     val isAddEditOpen: Boolean = false,
+    val currentName: String = "",
     val currentColor: HSVColor = HSVColor.from(Color.White)
 )
