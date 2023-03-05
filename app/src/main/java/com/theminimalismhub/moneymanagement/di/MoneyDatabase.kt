@@ -6,13 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
-import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 
 @Database(
     entities = [
         Category::class,
         Account::class,
-        Finance::class
+        FinanceItem::class
     ],
     version = 1
 )
