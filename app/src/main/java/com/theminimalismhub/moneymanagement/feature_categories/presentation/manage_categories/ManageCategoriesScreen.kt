@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyColorPicker
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import kotlin.math.roundToInt
@@ -147,9 +148,11 @@ fun ManageCategoriesScreen(
             FloatingCard(
                 visible = state.isAddEditOpen
             ) {
-                Column(modifier = Modifier.height(200.dp)) {
-                    
-                }
+                HarmonyColorPicker(
+                    modifier = Modifier.size(250.dp),
+                    color = state.currentColor,
+                    isBrightnessFixed = false
+                ) { color -> vm.onEvent(ManageCategoriesEvent.ColorChanged(color)) }
             }
 
         }

@@ -26,6 +26,11 @@ class ManageCategoriesViewModel @Inject constructor(
                     )
                 }
             }
+            is ManageCategoriesEvent.ColorChanged -> {
+                _state.value = _state.value.copy(
+                    currentColor = event.value
+                )
+            }
         }
     }
 
