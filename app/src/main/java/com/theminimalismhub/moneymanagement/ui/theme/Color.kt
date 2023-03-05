@@ -2,7 +2,18 @@ package com.theminimalismhub.moneymanagement.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+val BackgroundDark = Color(0xff090909)
+val BackgroundLight = Color(0xffffffff)
+
+val PrimaryDark = Color(0xffffffff)
+val PrimaryLight = Color(0xff000000)
+val PrimaryVariantLight = Color(0xffe0e0e0)
+val PrimaryVariantDark = Color(0xFFe1e1e1)
+
+val SecondaryDark = Color(0xFF757575)
+val SecondaryLight = Color(0xFF303030)
+val SecondaryVariantLight = Color(0xFFefefef)
+val SecondaryVariantDark = Color(0xFF313131)
+
+val Black = Color.Black
+val White = Color.White
