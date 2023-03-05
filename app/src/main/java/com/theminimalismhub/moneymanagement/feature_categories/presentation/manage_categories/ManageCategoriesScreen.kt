@@ -2,12 +2,15 @@ package com.theminimalismhub.moneymanagement.feature_categories.presentation.man
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -17,16 +20,21 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
-import androidx.compose.material3.FloatingActionButtonDefaults.containerColor
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
+import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
+import kotlin.math.roundToInt
 import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloatingActionButton3
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -71,7 +79,7 @@ fun ManageCategoriesScreen(
                 onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null)) },
                 text = {
                     Text(
-                        text = "CANCEL",
+                        text = stringResource(id = R.string.action_cancel),
                         style = MaterialTheme.typography.button,
                         color = MaterialTheme.colors.onPrimary
                     )
@@ -79,7 +87,7 @@ fun ManageCategoriesScreen(
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add new category",
+                        contentDescription = stringResource(id = R.string.cs_new_category),
                         tint = MaterialTheme.colors.onPrimary,
                         modifier = Modifier
                             .size(26.dp)
@@ -95,7 +103,7 @@ fun ManageCategoriesScreen(
                     .height(
                         animateDpAsState(
                             targetValue = if (state.isAddEditOpen) 45.dp else 56.dp,
-                            tween(400)
+                            tween(350)
                         ).value
                     ),
                 containerColor = MaterialTheme.colors.primary,
@@ -113,8 +121,8 @@ fun ManageCategoriesScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ScreenHeader(
-                    title = stringResource(id = R.string.category_screen_title),
-                    hint = stringResource(id = R.string.category_screen_hint),
+                    title = stringResource(id = R.string.cs_title),
+                    hint = stringResource(id = R.string.cs_hint),
                     modifier = Modifier.onSizeChanged { headerHeight.value = it.height.toFloat() }
                 )
                 Spacer(modifier = Modifier.height(
@@ -124,26 +132,94 @@ fun ManageCategoriesScreen(
                         tween(if (state.isAddEditOpen) 250 else 350)
                     ).value)
                 )
-                FlowRow(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .onSizeChanged {
-                            if (it.height > 0) chipsHeight.value = it.height.toFloat()
-                        }
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    state.categories.forEach { category ->
-                        ActionChip(
-                            text = category.name,
-                            textColor = Color(category.color),
-                            backgroundStrength = 0.15f,
-                            borderThickness = 0.dp,
-                            onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(category)) }
-                        )
-                    }
+                CategoryContainer(
+                    chipsHeight = chipsHeight,
+                    categories = state.outcomeCategories,
+                    onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
+                )
+                CategoryContainer(
+                    chipsHeight = chipsHeight,
+                    categories = state.incomeCategories,
+                    onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
+                )
+            }
+            TranslucentOverlay(visible = state.isAddEditOpen)
+            FloatingCard(
+                visible = state.isAddEditOpen
+            ) {
+                Column(modifier = Modifier.height(200.dp)) {
+                    
                 }
+            }
+
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CategoryContainer(
+    chipsHeight: MutableState<Float>,
+    categories: List<Category>,
+    onClick: (Category) -> Unit
+) {
+    val containerHeight = remember { mutableStateOf(0f) }
+    FlowRow(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .onSizeChanged {
+                if (it.height == 0) return@onSizeChanged
+                chipsHeight.value += (containerHeight.value - it.height.toFloat())
+                containerHeight.value = it.height.toFloat()
+            }
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        categories.forEach { category ->
+            ActionChip(
+                text = category.name,
+                textColor = Color(category.color),
+                backgroundStrength = 0.15f,
+                borderThickness = 0.dp,
+                onClick = { onClick(category) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun FloatingCard(
+    visible: Boolean,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + slideInVertically(initialOffsetY = { fullHeight -> fullHeight / 2 }),
+        exit = fadeOut(tween(450))
+                + slideOutVertically(
+            targetOffsetY = { fullHeight -> fullHeight / 2 }, animationSpec = tween(450)
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .padding(bottom = 58.dp)
+                    .align(Alignment.BottomCenter),
+                elevation = Dp(8f),
+                shape = RoundedCornerShape(15.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(vertical = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    content = content
+                )
             }
         }
     }

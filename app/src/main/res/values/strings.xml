@@ -1,7 +1,12 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Money Management</string>
 
+    <!-- Actions -->
+    <string name="action_cancel" tools:ignore="ButtonCase">CANCEL</string>
+
     <!--Manage Categories Screen-->
-    <string name="category_screen_title">Manage Categories</string>
-    <string name="category_screen_hint">"\"Uncategorized\" is the default category that can not be deleted, but you can change it's color."</string>
+    <string name="cs_title">Manage Categories</string>
+    <string name="cs_hint">"\"Uncategorized\" is the default category that can not be deleted, but you can change it's color."</string>
+    <string name="cs_new_category">Add new category</string>
+
 </resources>
