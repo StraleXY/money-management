@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -149,8 +150,13 @@ fun ManageCategoriesScreen(
                     color = state.currentColor,
                     isBrightnessFixed = false
                 ) { color -> vm.onEvent(ManageCategoriesEvent.ColorChanged(color)) }
+                Text(
+                    modifier = Modifier
+                        .clickable { vm.onEvent(ManageCategoriesEvent.SaveCategory) },
+                    text = "SAVE",
+                    style = MaterialTheme.typography.button
+                )
             }
-
         }
     }
 }

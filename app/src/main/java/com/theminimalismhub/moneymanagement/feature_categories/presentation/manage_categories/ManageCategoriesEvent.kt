@@ -7,4 +7,5 @@ sealed class ManageCategoriesEvent {
     data class  ToggleAddEditCard(val category: Category?): ManageCategoriesEvent()
     data class EnteredName(val value: String): ManageCategoriesEvent()
     data class ColorChanged(val value: HSVColor): ManageCategoriesEvent()
+    object SaveCategory: ManageCategoriesEvent()
 }
