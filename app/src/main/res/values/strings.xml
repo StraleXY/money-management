@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Money Management</string>
+
+    <!--Manage Categories Screen-->
+    <string name="category_screen_title">Manage Categories</string>
+    <string name="category_screen_hint">"\"Uncategorized\" is the default category that can not be deleted, but you can change it's color."</string>
 </resources>

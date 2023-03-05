@@ -2,7 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_categories.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.theminimalismhub.moneymanagement.core.domain.model.FinanceType
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import java.io.Serializable
 
 @Entity

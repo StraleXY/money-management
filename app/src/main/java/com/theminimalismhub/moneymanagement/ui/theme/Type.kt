@@ -27,11 +27,9 @@ val titilium = FontFamily(
 // Set of Material typography styles to start with
 val Typography = Typography(
     h1 = TextStyle(
-        fontFamily = titilium,
+        fontFamily = economica,
         fontWeight = FontWeight.ExtraLight,
-        fontSize = 50.sp,
-        lineHeight = 60.sp,
-        textAlign = TextAlign.Center
+        fontSize = 50.sp
     ),
     h2 = TextStyle(
         fontFamily = economica,
