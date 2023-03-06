@@ -22,7 +22,6 @@ import androidx.core.view.updatePadding
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
-import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.NavGraphs
 import com.theminimalismhub.moneymanagement.ui.theme.MoneyManagementTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,6 +58,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     private fun adjustFontScale(configuration: Configuration) {
         if (configuration.fontScale > 0.875f) {
             configuration.fontScale = 0.875f

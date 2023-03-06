@@ -38,6 +38,7 @@ import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyColorPicker
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -45,8 +46,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloati
 
 @OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@RootNavGraph(start = true)
-@Destination
+@Destination(style = BaseTransition::class)
 @Composable
 fun ManageCategoriesScreen(
     navigator: DestinationsNavigator,
