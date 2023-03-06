@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,6 +36,7 @@ import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyColorPicker
 import com.theminimalismhub.moneymanagement.core.composables.FramelessInputField
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -139,11 +138,32 @@ fun ManageCategoriesScreen(
             FloatingCard(
                 visible = state.isAddEditOpen
             ) {
-                InputCategoryChip(
-                    color = state.currentColor,
-                    name = state.currentName,
-                    onChanged = { vm.onEvent(ManageCategoriesEvent.EnteredName(it)) }
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            vm.onEvent(ManageCategoriesEvent.ToggleType)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowCircleUp,
+                            contentDescription = "Category Type Toggle",
+                            modifier = Modifier
+                                .size(28.dp)
+                                .rotate(animateFloatAsState(
+                                    targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
+                                    animationSpec = spring(dampingRatio = 0.4f, stiffness = Spring.StiffnessLow)).value
+                                )
+                        )
+                    }
+                    InputCategoryChip(
+                        color = state.currentColor,
+                        name = state.currentName,
+                        onChanged = { vm.onEvent(ManageCategoriesEvent.EnteredName(it)) }
+                    )
+                    Spacer(modifier = Modifier.width(40.dp))
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 HarmonyColorPicker(
                     modifier = Modifier.size(250.dp),
