@@ -18,7 +18,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
-import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
@@ -31,11 +30,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
-import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyColorPicker
-import com.theminimalismhub.moneymanagement.core.composables.FramelessInputField
-import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import kotlinx.coroutines.launch
@@ -138,44 +135,67 @@ fun ManageCategoriesScreen(
             FloatingCard(
                 visible = state.isAddEditOpen
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = {
-                            vm.onEvent(ManageCategoriesEvent.ToggleType)
-                        }
+                        onClick = { vm.onEvent(ManageCategoriesEvent.ToggleType) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowCircleUp,
                             contentDescription = "Category Type Toggle",
                             modifier = Modifier
                                 .size(28.dp)
-                                .rotate(animateFloatAsState(
-                                    targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
-                                    animationSpec = spring(dampingRatio = 0.4f, stiffness = Spring.StiffnessLow)).value
+                                .rotate(
+                                    animateFloatAsState(
+                                        targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
+                                        animationSpec = spring(
+                                            dampingRatio = 0.4f,
+                                            stiffness = Spring.StiffnessLow
+                                        )
+                                    ).value
                                 )
                         )
                     }
                     InputCategoryChip(
                         color = state.currentColor,
                         name = state.currentName,
-                        onChanged = { vm.onEvent(ManageCategoriesEvent.EnteredName(it)) }
+                        onChanged = { vm.onEvent(ManageCategoriesEvent.EnteredName(it)) },
+                        exclusions = listOf("INCOME", "OUTCOME")
                     )
                     Spacer(modifier = Modifier.width(40.dp))
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(28.dp))
                 HarmonyColorPicker(
                     modifier = Modifier.size(250.dp),
                     color = state.currentColor,
                     isBrightnessFixed = false
                 ) { color -> vm.onEvent(ManageCategoriesEvent.ColorChanged(color)) }
-                Text(
-                    modifier = Modifier
-                        .clickable { vm.onEvent(ManageCategoriesEvent.SaveCategory) },
-                    text = "SAVE",
-                    style = MaterialTheme.typography.button
-                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    HoldableActionButton(
+                        modifier = Modifier,
+                        text = "DELETE",
+                        icon = Icons.Default.Delete,
+                        textStyle = MaterialTheme.typography.button,
+                        duration = 2500,
+                        circleColor = Color.Transparent,
+                        alternatedColor = MaterialTheme.colors.error,
+                        iconColor = MaterialTheme.colors.onBackground,
+                        onHold = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) }
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    ActionChip(
+                        text = "SAVE",
+                        icon = Icons.Default.Save,
+                        textStyle = MaterialTheme.typography.button,
+                        borderThickness = 0.dp,
+                        backgroundStrength = 0f,
+                        modifier = Modifier,
+                        onClick = { vm.onEvent(ManageCategoriesEvent.SaveCategory) }
+                    )
+                }
             }
         }
     }
@@ -241,7 +261,8 @@ private fun FloatingCard(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(vertical = 20.dp),
+                        .padding(vertical = 20.dp)
+                        .padding(top = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     content = content
                 )
@@ -250,18 +271,21 @@ private fun FloatingCard(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun InputCategoryChip(
     modifier: Modifier = Modifier,
     color: HSVColor,
     name: String,
     enabled: Boolean = true,
+    exclusions: List<String> = emptyList(),
     onChanged: (String) -> Unit
 ) {
 
     val scope = rememberCoroutineScope()
     var currentRotation by remember { mutableStateOf(0f) }
     val rotation = remember { Animatable(currentRotation) }
+    var text by remember { mutableStateOf(name) }
 
     suspend fun animateTo(angel: Float) {
         rotation.animateTo(
@@ -297,18 +321,49 @@ private fun InputCategoryChip(
             modifier = Modifier
                 .padding(horizontal = 32.dp)
         ) {
-            FramelessInputField(
-                text = name,
-                textColor = color.toColor(),
-                characterLimit = 30,
-                hint = stringResource(id = R.string.label_name),
-                enabled = enabled,
-                onValueChange = {
-                    val addition = it.length < name.length;
-                    scope.launch { animateTo((if (addition) -1 else 1) * Math.max(30f - it.length, 7f)) }
-                    onChanged(it)
+            Box() {
+                Row (horizontalArrangement = Arrangement.Center) {
+                    AnimatedVisibility(
+                        visible = exclusions.contains(name),
+                        enter = scaleIn() + fadeIn(),
+                        exit = scaleOut() + fadeOut()
+                    ) {
+                        Text(
+                            text = name,
+                            color = color.toColor(),
+                            style = MaterialTheme.typography.body1
+                        )
+                    }
                 }
-            )
+                Row (horizontalArrangement = Arrangement.Center) {
+                    AnimatedVisibility(
+                        visible = !exclusions.contains(name),
+                        enter = scaleIn() + fadeIn(),
+                        exit = scaleOut() + fadeOut()
+                    ) {
+                        FramelessInputField(
+                            text = if(!exclusions.contains(name)) name else text,
+                            textColor = color.toColor(),
+                            characterLimit = 30,
+                            hint = stringResource(id = R.string.label_name),
+                            enabled = enabled,
+                            onValueChange = {
+                                val addition = it.length < name.length;
+                                scope.launch {
+                                    animateTo(
+                                        (if (addition) -1 else 1) * Math.max(
+                                            30f - it.length,
+                                            7f
+                                        )
+                                    )
+                                }
+                                text = it
+                                onChanged(it)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }

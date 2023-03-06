@@ -9,4 +9,5 @@ sealed class ManageCategoriesEvent {
     data class EnteredName(val value: String): ManageCategoriesEvent()
     data class ColorChanged(val value: HSVColor): ManageCategoriesEvent()
     object SaveCategory: ManageCategoriesEvent()
+    object DeleteCategory: ManageCategoriesEvent()
 }

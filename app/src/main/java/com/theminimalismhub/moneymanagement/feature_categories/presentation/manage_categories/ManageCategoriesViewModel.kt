@@ -49,9 +49,15 @@ class ManageCategoriesViewModel @Inject constructor(
                 }
             }
             is ManageCategoriesEvent.ToggleType -> {
-                _state.value = _state.value.copy(
-                    currentType = FinanceType[(_state.value.currentType.value + 1) % 2]!!
-                )
+                viewModelScope.launch {
+                    val name = _state.value.currentName
+                    _state.value = _state.value.copy(
+                        currentType = FinanceType[(_state.value.currentType.value + 1) % 2]!!,
+                        currentName = if(_state.value.currentType == FinanceType.OUTCOME) "INCOME" else "OUTCOME"
+                    )
+                    delay(500)
+                    _state.value = _state.value.copy(currentName = name)
+                }
             }
             is ManageCategoriesEvent.EnteredName -> {
                 _state.value = _state.value.copy(
@@ -63,10 +69,11 @@ class ManageCategoriesViewModel @Inject constructor(
                     currentColor = event.value
                 )
             }
-            ManageCategoriesEvent.SaveCategory -> {
+            is ManageCategoriesEvent.SaveCategory -> {
                 viewModelScope.launch {
                     useCases.add(
                         Category(
+                            categoryId = state.value.currentId,
                             name = state.value.currentName,
                             color = state.value.currentColor.toColor().toArgb(),
                             isDeleted = false,
@@ -74,6 +81,10 @@ class ManageCategoriesViewModel @Inject constructor(
                         )
                     )
                 }
+                onEvent(ManageCategoriesEvent.ToggleAddEditCard(null))
+            }
+            is ManageCategoriesEvent.DeleteCategory -> {
+
             }
         }
     }

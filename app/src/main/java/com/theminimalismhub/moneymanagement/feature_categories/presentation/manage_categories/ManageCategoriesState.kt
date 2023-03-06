@@ -9,6 +9,7 @@ data class ManageCategoriesState(
     val outcomeCategories: List<Category> = emptyList(),
     val incomeCategories: List<Category> = emptyList(),
     val isAddEditOpen: Boolean = false,
+    val currentCategory: Category? = null,
     val currentId: Int? = null,
     val currentType: FinanceType = FinanceType.OUTCOME,
     val currentName: String = "",
