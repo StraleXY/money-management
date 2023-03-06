@@ -84,7 +84,10 @@ class ManageCategoriesViewModel @Inject constructor(
                 onEvent(ManageCategoriesEvent.ToggleAddEditCard(null))
             }
             is ManageCategoriesEvent.DeleteCategory -> {
-
+                viewModelScope.launch {
+                    useCases.delete(_state.value.currentId!!)
+                    onEvent(ManageCategoriesEvent.ToggleAddEditCard(null))
+                }
             }
         }
     }

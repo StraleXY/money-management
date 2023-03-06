@@ -10,4 +10,7 @@ class DeleteCategory(
     suspend operator fun invoke(category: Category) {
         return repo.delete(category)
     }
+    suspend operator fun invoke(id: Int) {
+        return repo.delete(id)
+    }
 }

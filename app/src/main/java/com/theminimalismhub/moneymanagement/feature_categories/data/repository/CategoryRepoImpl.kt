@@ -21,6 +21,10 @@ class CategoryRepoImpl(
         return dao.insertCategory(item)
     }
 
+    override suspend fun delete(id: Int) {
+        dao.getCategoryById(id)?.let { dao.insertCategory(it.copy(isDeleted = true)) }
+    }
+
     override suspend fun delete(item: Category) {
         dao.insertCategory(item.copy(isDeleted = true))
     }

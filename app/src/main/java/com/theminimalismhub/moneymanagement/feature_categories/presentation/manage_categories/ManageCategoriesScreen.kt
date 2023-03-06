@@ -54,12 +54,10 @@ fun ManageCategoriesScreen(
 
     val chipsHeight = remember { mutableStateOf(0f) }
     val headerHeight = remember { mutableStateOf(0f) }
-    val animate = remember { mutableStateOf(false) }
 
     BackHandler(enabled = state.isAddEditOpen) {
         vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null))
     }
-
 
     Scaffold(
         floatingActionButton = {
@@ -123,11 +121,13 @@ fun ManageCategoriesScreen(
                 CategoryContainer(
                     chipsHeight = chipsHeight,
                     categories = state.outcomeCategories,
+                    label = "OUTCOME",
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
                 CategoryContainer(
                     chipsHeight = chipsHeight,
                     categories = state.incomeCategories,
+                    label = "INCOME",
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
             }
@@ -183,7 +183,8 @@ fun ManageCategoriesScreen(
                         circleColor = Color.Transparent,
                         alternatedColor = MaterialTheme.colors.error,
                         iconColor = MaterialTheme.colors.onBackground,
-                        onHold = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) }
+                        onHold = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) },
+                        enabled = state.currentId != null
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     ActionChip(
@@ -206,6 +207,7 @@ fun ManageCategoriesScreen(
 private fun CategoryContainer(
     chipsHeight: MutableState<Float>,
     categories: List<Category>,
+    label: String,
     onClick: (Category) -> Unit
 ) {
     val containerHeight = remember { mutableStateOf(0f) }
@@ -214,13 +216,23 @@ private fun CategoryContainer(
             .padding(horizontal = 16.dp)
             .onSizeChanged {
                 if (it.height == 0) return@onSizeChanged
-                chipsHeight.value += (containerHeight.value - it.height.toFloat())
+                chipsHeight.value += (it.height.toFloat() - containerHeight.value)
                 containerHeight.value = it.height.toFloat()
             }
             .fillMaxWidth(),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Center,
     ) {
+        ActionChip(
+            text = label,
+            accentColor = MaterialTheme.colors.secondary,
+            borderColor = MaterialTheme.colors.secondary,
+            backgroundStrength = 0f,
+            borderThickness = 1.5.dp,
+            borderStrength = 1f,
+            enabled = false,
+            onClick = { }
+        )
         categories.forEach { category ->
             ActionChip(
                 text = category.name,
@@ -230,6 +242,7 @@ private fun CategoryContainer(
                 onClick = { onClick(category) }
             )
         }
+
     }
 }
 

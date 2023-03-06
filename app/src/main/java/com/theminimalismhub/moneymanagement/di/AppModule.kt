@@ -4,6 +4,7 @@ import android.app.Application
 import com.theminimalismhub.moneymanagement.feature_categories.data.repository.CategoryRepoImpl
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.AddCategory
+import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.DeleteCategory
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.GetCategories
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.ManageCategoriesUseCases
 import dagger.Module
@@ -32,7 +33,8 @@ object AppModule {
     fun providesManageCategoriesUseCases(repo: CategoryRepo): ManageCategoriesUseCases {
         return ManageCategoriesUseCases(
             get = GetCategories(repo),
-            add = AddCategory(repo)
+            add = AddCategory(repo),
+            delete = DeleteCategory(repo)
         )
     }
 

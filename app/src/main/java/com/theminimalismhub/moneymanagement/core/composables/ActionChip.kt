@@ -2,7 +2,9 @@ package com.theminimalismhub.moneymanagement.core.composables
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,6 +39,7 @@ fun ActionChip(
     borderColor: Color = accentColor,
     borderThickness: Dp = 1.dp,
     backgroundStrength: Float = 0.15f,
+    borderStrength: Float = 0.8f,
     icon: ImageVector? = null,
     enabled: Boolean = true,
     onClick: () -> Unit
@@ -49,7 +52,7 @@ fun ActionChip(
             .alpha(animatedAlpha.value),
         elevation = Dp(if(backgroundStrength == 0f) 0f else 8f),
         shape = RoundedCornerShape(30.dp),
-        border = if(borderThickness == 0.dp) null else BorderStroke(borderThickness, Color(ColorUtils.blendARGB(Color.Black.toArgb(), borderColor.toArgb(), 0.8f))),
+        border = if(borderThickness == 0.dp) null else BorderStroke(borderThickness, Color(ColorUtils.blendARGB(Color.Black.toArgb(), borderColor.toArgb(), borderStrength))),
         backgroundColor = if(backgroundStrength == 0f) Color.Transparent else Color(ColorUtils.setAlphaComponent(backgroundColor.toArgb(),
             (backgroundStrength * 255L).roundToInt()
         ))
@@ -58,7 +61,10 @@ fun ActionChip(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .clickable {
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = if(enabled) LocalIndication.current else null
+                ) {
                     if(enabled) onClick()
                 }
         ) {
