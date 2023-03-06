@@ -1,8 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -29,6 +27,8 @@ class ManageCategoriesViewModel @Inject constructor(
 
     private val _state = mutableStateOf(ManageCategoriesState())
     val state: State<ManageCategoriesState> = _state
+    private var typeLabelJob: Job? = null
+    private var nameStore by mutableStateOf("")
 
     init {
         getCategories()
@@ -49,16 +49,21 @@ class ManageCategoriesViewModel @Inject constructor(
                         currentColor = HSVColor.from(if(event.category == null) Color.White else Color(event.category.color))
                     )
                 }
+                nameStore = if(event.category == null) "" else event.category.name
             }
             is ManageCategoriesEvent.ToggleType -> {
-                viewModelScope.launch {
-                    val name = _state.value.currentName
+                typeLabelJob?.let {
+                    _state.value = _state.value.copy(currentName = nameStore)
+                    it.cancel()
+                }
+                typeLabelJob = viewModelScope.launch {
+                    nameStore = _state.value.currentName
                     _state.value = _state.value.copy(
                         currentType = FinanceType[(_state.value.currentType.value + 1) % 2]!!,
                         currentName = FinanceType[(_state.value.currentType.value + 1) % 2].toString()
                     )
                     delay(500)
-                    _state.value = _state.value.copy(currentName = name)
+                    _state.value = _state.value.copy(currentName = nameStore)
                 }
             }
             is ManageCategoriesEvent.EnteredName -> {
