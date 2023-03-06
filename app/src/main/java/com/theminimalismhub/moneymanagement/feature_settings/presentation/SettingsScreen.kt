@@ -22,6 +22,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
+import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.di.MoneyDatabase
 import com.theminimalismhub.moneymanagement.di.path
 import com.theminimalismhub.moneymanagement.di.query
@@ -34,7 +35,7 @@ import java.util.*
 import kotlin.system.exitProcess
 
 @Composable
-@Destination
+@Destination(style = BaseTransition::class)
 fun SettingsScreen(
     navigator: DestinationsNavigator,
     vm: SettingsViewModel = hiltViewModel()
@@ -75,7 +76,7 @@ fun SettingsScreen(
         }
 
     LazyColumn(
-        contentPadding = PaddingValues(vertical = 20.dp)
+        contentPadding = PaddingValues(bottom = 20.dp)
     ) {
         item {
             ScreenHeader(

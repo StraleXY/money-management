@@ -18,12 +18,13 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
+import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
-@Destination
+@Destination(style = BaseTransition::class)
 @Composable
 fun HomeScreen(
     navigator: DestinationsNavigator
@@ -41,7 +42,7 @@ fun HomeScreen(
         scaffoldState = scaffoldState,
     ) {
         LazyColumn(
-            contentPadding = PaddingValues(vertical = 20.dp),
+            contentPadding = PaddingValues(bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
