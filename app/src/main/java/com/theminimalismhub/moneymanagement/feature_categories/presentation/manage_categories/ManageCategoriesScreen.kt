@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +27,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -123,14 +125,16 @@ fun ManageCategoriesScreen(
                 CategoryContainer(
                     chipsHeight = chipsHeight,
                     categories = state.incomeCategories,
-                    label = stringResource(id = R.string.common_type_income),
+                    icon = Icons.Default.ArrowDownward,
+//                    label = stringResource(id = R.string.common_type_income),
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
-                Spacer(modifier = Modifier.height(if(state.incomeCategories.size >= 3 || state.outcomeCategories.size >= 3) 16.dp else 0.dp))
+                Spacer(modifier = Modifier.height(if(state.incomeCategories.isNotEmpty()) 16.dp else 0.dp))
                 CategoryContainer(
                     chipsHeight = chipsHeight,
                     categories = state.outcomeCategories,
-                    label = stringResource(id = R.string.common_type_outcome),
+                    icon = Icons.Default.ArrowUpward,
+//                    label = stringResource(id = R.string.common_type_outcome),
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
             }
@@ -219,7 +223,7 @@ fun ManageCategoriesScreen(
 private fun CategoryContainer(
     chipsHeight: MutableState<Float>,
     categories: List<Category>,
-    label: String,
+    icon: ImageVector,
     onClick: (Category) -> Unit
 ) {
     val containerHeight = remember { mutableStateOf(0f) }
@@ -235,17 +239,24 @@ private fun CategoryContainer(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Center,
     ) {
-        ActionChip(
-            modifier = Modifier.padding(3.dp),
-            text = label,
-            accentColor = MaterialTheme.colors.secondary,
-            borderColor = MaterialTheme.colors.secondary,
-            backgroundStrength = 0f,
-            borderThickness = 1.5.dp,
-            borderStrength = 1f,
-            enabled = false,
-            onClick = { }
-        )
+        if(categories.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 4.dp, horizontal = 3.dp)
+                    .size(38.dp)
+                    .alpha(0.6f)
+                    .background(MaterialTheme.colors.secondaryVariant, RoundedCornerShape(19.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = icon.name,
+                    tint = MaterialTheme.colors.primary,
+                    modifier = Modifier
+                        .size(20.dp)
+                )
+            }
+        }
         categories.forEach { category ->
             ActionChip(
                 modifier = Modifier.padding(3.dp),
