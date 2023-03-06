@@ -45,7 +45,6 @@ import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloati
 
 @OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@RootNavGraph(start = true)
 @Destination
 @Composable
 fun ManageCategoriesScreen(

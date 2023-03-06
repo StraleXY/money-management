@@ -40,3 +40,8 @@ abstract class MoneyDatabase protected constructor() : RoomDatabase() {
         }
     }
 }
+
+fun query(block: () -> Unit) = MoneyDatabase.Instance?.queryExecutor?.execute(block)
+
+val RoomDatabase.path: String?
+    get() = openHelper.writableDatabase.path
