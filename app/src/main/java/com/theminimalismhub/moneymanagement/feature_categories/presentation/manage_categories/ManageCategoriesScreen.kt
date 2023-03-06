@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -114,20 +116,21 @@ fun ManageCategoriesScreen(
                 Spacer(modifier = Modifier.height(
                     animateDpAsState(
                         targetValue = if (state.isAddEditOpen) 24.dp else
-                            Dp(((LocalView.current.height - chipsHeight.value - headerHeight.value) / LocalDensity.current.density) / 2) - 32.dp,
+                            Dp(((LocalView.current.height - chipsHeight.value - headerHeight.value) / LocalDensity.current.density) / 2) - 32.dp - 6.dp,
                         tween(if (state.isAddEditOpen) 250 else 350)
                     ).value)
                 )
                 CategoryContainer(
                     chipsHeight = chipsHeight,
-                    categories = state.outcomeCategories,
-                    label = "OUTCOME",
+                    categories = state.incomeCategories,
+                    label = stringResource(id = R.string.common_type_income),
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
+                Spacer(modifier = Modifier.height(if(state.incomeCategories.size >= 3 || state.outcomeCategories.size >= 3) 16.dp else 0.dp))
                 CategoryContainer(
                     chipsHeight = chipsHeight,
-                    categories = state.incomeCategories,
-                    label = "INCOME",
+                    categories = state.outcomeCategories,
+                    label = stringResource(id = R.string.common_type_outcome),
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
             }
@@ -136,32 +139,41 @@ fun ManageCategoriesScreen(
                 visible = state.isAddEditOpen
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = { vm.onEvent(ManageCategoriesEvent.ToggleType) }
+                    Card(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(30.dp))
+                            .clickable { vm.onEvent(ManageCategoriesEvent.ToggleType) },
+                        elevation = Dp(8f),
+                        shape = RoundedCornerShape(30.dp),
+                        backgroundColor = Color(ColorUtils.setAlphaComponent(state.currentColor.toColor().toArgb(), (0.1f * 255L).roundToInt()))
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowCircleUp,
-                            contentDescription = "Category Type Toggle",
-                            modifier = Modifier
-                                .size(28.dp)
-                                .rotate(
-                                    animateFloatAsState(
-                                        targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
-                                        animationSpec = spring(
-                                            dampingRatio = 0.4f,
-                                            stiffness = Spring.StiffnessLow
-                                        )
-                                    ).value
-                                )
-                        )
+                        Box(modifier = Modifier.padding(7.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowUpward,
+                                contentDescription = "Category Type Toggle",
+                                tint = state.currentColor.toColor(),
+                                modifier = Modifier
+                                    .rotate(
+                                        animateFloatAsState(
+                                            targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
+                                            animationSpec = spring(
+                                                dampingRatio = 0.4f,
+                                                stiffness = Spring.StiffnessLow
+                                            )
+                                        ).value
+                                    )
+                            )
+                        }
                     }
                     InputCategoryChip(
                         color = state.currentColor,
                         name = state.currentName,
                         onChanged = { vm.onEvent(ManageCategoriesEvent.EnteredName(it)) },
-                        exclusions = listOf("INCOME", "OUTCOME")
+                        exclusions = listOf(stringResource(id = R.string.common_type_income), stringResource(id = R.string.common_type_outcome))
                     )
-                    Spacer(modifier = Modifier.width(40.dp))
+                    Spacer(modifier = Modifier.width(36.dp))
                 }
                 Spacer(modifier = Modifier.height(28.dp))
                 HarmonyColorPicker(
@@ -176,7 +188,7 @@ fun ManageCategoriesScreen(
                 ) {
                     HoldableActionButton(
                         modifier = Modifier,
-                        text = "DELETE",
+                        text = stringResource(id = R.string.action_delete),
                         icon = Icons.Default.Delete,
                         textStyle = MaterialTheme.typography.button,
                         duration = 2500,
@@ -188,7 +200,7 @@ fun ManageCategoriesScreen(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     ActionChip(
-                        text = "SAVE",
+                        text = stringResource(id = R.string.action_save),
                         icon = Icons.Default.Save,
                         textStyle = MaterialTheme.typography.button,
                         borderThickness = 0.dp,
@@ -224,6 +236,7 @@ private fun CategoryContainer(
         horizontalArrangement = Arrangement.Center,
     ) {
         ActionChip(
+            modifier = Modifier.padding(3.dp),
             text = label,
             accentColor = MaterialTheme.colors.secondary,
             borderColor = MaterialTheme.colors.secondary,
@@ -235,6 +248,7 @@ private fun CategoryContainer(
         )
         categories.forEach { category ->
             ActionChip(
+                modifier = Modifier.padding(3.dp),
                 text = category.name,
                 textColor = Color(category.color),
                 backgroundStrength = 0.15f,
@@ -334,7 +348,7 @@ private fun InputCategoryChip(
             modifier = Modifier
                 .padding(horizontal = 32.dp)
         ) {
-            Box() {
+            Box {
                 Row (horizontalArrangement = Arrangement.Center) {
                     AnimatedVisibility(
                         visible = exclusions.contains(name),

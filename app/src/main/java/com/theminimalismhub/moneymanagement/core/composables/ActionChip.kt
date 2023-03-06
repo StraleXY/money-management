@@ -30,7 +30,8 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ActionChip(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
+        .padding(5.dp),
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.body1,
     textColor: Color = Color.White,
@@ -47,7 +48,6 @@ fun ActionChip(
     val animatedAlpha = animateFloatAsState(targetValue = if(enabled) 1f else 0.5f)
     Card(
         modifier = modifier
-            .padding(5.dp)
             .height(38.dp)
             .alpha(animatedAlpha.value),
         elevation = Dp(if(backgroundStrength == 0f) 0f else 8f),

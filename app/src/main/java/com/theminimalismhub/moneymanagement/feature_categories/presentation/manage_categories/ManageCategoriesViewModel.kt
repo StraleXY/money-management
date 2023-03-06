@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.toColor
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
@@ -53,7 +55,7 @@ class ManageCategoriesViewModel @Inject constructor(
                     val name = _state.value.currentName
                     _state.value = _state.value.copy(
                         currentType = FinanceType[(_state.value.currentType.value + 1) % 2]!!,
-                        currentName = if(_state.value.currentType == FinanceType.OUTCOME) "INCOME" else "OUTCOME"
+                        currentName = FinanceType[(_state.value.currentType.value + 1) % 2].toString()
                     )
                     delay(500)
                     _state.value = _state.value.copy(currentName = name)

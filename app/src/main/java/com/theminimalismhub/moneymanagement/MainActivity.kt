@@ -1,6 +1,10 @@
 package com.theminimalismhub.moneymanagement
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -41,6 +45,7 @@ class MainActivity : ComponentActivity() {
         }
 
         super.onCreate(savedInstanceState)
+        adjustFontScale(resources.configuration);
 
         setContent {
             MoneyManagementTheme {
@@ -53,5 +58,28 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    private fun adjustFontScale(configuration: Configuration) {
+        if (configuration.fontScale > 0.875f) {
+            configuration.fontScale = 0.875f
+            val metrics = resources.displayMetrics
+            val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+            wm.defaultDisplay.getMetrics(metrics)
+            metrics.scaledDensity = configuration.fontScale * metrics.density
+            baseContext.resources.updateConfiguration(configuration, metrics)
+        }
+    }
+
+    override fun attachBaseContext(baseContext: Context) {
+        val newContext: Context
+        val displayMetrics: DisplayMetrics = baseContext.getResources().getDisplayMetrics()
+        val configuration: Configuration = baseContext.getResources().getConfiguration()
+        if (displayMetrics.widthPixels / displayMetrics.densityDpi < 2.65f) {
+            configuration.densityDpi = (displayMetrics.widthPixels / 2.65f).toInt()
+            newContext = baseContext.createConfigurationContext(configuration)
+        } else {
+            newContext = baseContext
+        }
+        super.attachBaseContext(newContext)
     }
 }
