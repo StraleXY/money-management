@@ -1,3 +1,21 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ButtonCase">
     <string name="app_name">Money Management</string>
+
+    <!-- Common -->
+    <string name="common_type_income">INCOME</string>
+    <string name="common_type_outcome">OUTCOME</string>
+
+    <!-- Actions -->
+    <string name="action_cancel">CANCEL</string>
+    <string name="action_save">SAVE</string>
+    <string name="action_delete">DELETE</string>
+
+    <!-- Labels -->
+    <string name="label_name">Name</string>
+
+    <!--Manage Categories Screen-->
+    <string name="cs_title">Manage Categories</string>
+    <string name="cs_hint">You have two available category types - INCOME and OUTCOME, which determine how will finance item amounts affect your balance.</string>
+    <string name="cs_new_category">Add new category</string>
+
 </resources>
