@@ -7,6 +7,7 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.DeleteCategory
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.GetCategories
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.ManageCategoriesUseCases
+import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,19 +23,24 @@ object AppModule {
         return MoneyDatabase.getDatabase(app)
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     fun provideCategoryRepo(db: MoneyDatabase): CategoryRepo {
         return CategoryRepoImpl(db.categoryDao)
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     fun providesManageCategoriesUseCases(repo: CategoryRepo): ManageCategoriesUseCases {
         return ManageCategoriesUseCases(
             get = GetCategories(repo),
             add = AddCategory(repo),
             delete = DeleteCategory(repo)
+        )
+    }
+
+    @Provides @Singleton
+    fun providesHomeUseCases(repo: CategoryRepo): HomeUseCases {
+        return HomeUseCases(
+            getCategories = GetCategories(repo)
         )
     }
 
