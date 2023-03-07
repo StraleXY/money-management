@@ -40,6 +40,7 @@ import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyC
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloatingActionButton3
@@ -143,34 +144,12 @@ fun ManageCategoriesScreen(
                 visible = state.isAddEditOpen
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Card(
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(30.dp))
-                            .clickable { vm.onEvent(ManageCategoriesEvent.ToggleType) },
-                        elevation = Dp(8f),
-                        shape = RoundedCornerShape(30.dp),
-                        backgroundColor = Color(ColorUtils.setAlphaComponent(state.currentColor.toColor().toArgb(), (0.1f * 255L).roundToInt()))
-                    ) {
-                        Box(modifier = Modifier.padding(7.dp)) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowUpward,
-                                contentDescription = "Category Type Toggle",
-                                tint = state.currentColor.toColor(),
-                                modifier = Modifier
-                                    .rotate(
-                                        animateFloatAsState(
-                                            targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
-                                            animationSpec = spring(
-                                                dampingRatio = 0.4f,
-                                                stiffness = Spring.StiffnessLow
-                                            )
-                                        ).value
-                                    )
-                            )
-                        }
-                    }
+                    CircularTypeSelector(
+                        selectedType = state.currentType,
+                        backgroundColor = Color(ColorUtils.setAlphaComponent(state.currentColor.toColor().toArgb(), (0.1f * 255L).roundToInt())),
+                        iconColor = state.currentColor.toColor()
+                    ) { vm.onEvent(ManageCategoriesEvent.ToggleType) }
+                    Spacer(modifier = Modifier.width(4.dp))
                     InputCategoryChip(
                         color = state.currentColor,
                         name = state.currentName,
@@ -364,6 +343,43 @@ private fun InputCategoryChip(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun CircularTypeSelector(
+    backgroundColor: Color = MaterialTheme.colors.secondary,
+    iconColor: Color = MaterialTheme.colors.primary,
+    selectedType: FinanceType,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .padding(1.dp)
+            .size(36.dp)
+            .clip(RoundedCornerShape(30.dp))
+            .clickable { onClick() },
+        shape = RoundedCornerShape(30.dp),
+        backgroundColor = backgroundColor,
+        elevation = Dp(8f),
+    ) {
+        Box(modifier = Modifier.padding(7.dp)) {
+            Icon(
+                imageVector = Icons.Default.ArrowUpward,
+                contentDescription = "Category Type Toggle",
+                tint = iconColor,
+                modifier = Modifier
+                    .rotate(
+                        animateFloatAsState(
+                            targetValue = if (selectedType == FinanceType.OUTCOME) 0f else 180f,
+                            animationSpec = spring(
+                                dampingRatio = 0.4f,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        ).value
+                    )
+            )
         }
     }
 }

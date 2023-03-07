@@ -4,6 +4,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dsc.form_builder.FormState
+import com.dsc.form_builder.TextFieldState
+import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
@@ -21,8 +24,21 @@ class HomeViewModel @Inject constructor(
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
-    var incomeCategories: List<Category> = emptyList()
-    var outcomeCategories: List<Category> = emptyList()
+    private var incomeCategories: List<Category> = emptyList()
+    private var outcomeCategories: List<Category> = emptyList()
+
+    val formState = FormState(
+        fields = listOf(
+            TextFieldState(
+                name = "name",
+                validators = listOf(Validators.Required()),
+            ),
+            TextFieldState(
+                name = "amount",
+                validators = listOf(Validators.MinValue(0, "Amount must be higher than 0"), Validators.Required()),
+            )
+        )
+    )
 
     init {
         getCategories()

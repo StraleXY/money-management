@@ -38,6 +38,7 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
+import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -109,34 +110,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.Start
                 ) {
                     item {
-                        Card(
-                            modifier = Modifier
-                                .padding(1.dp)
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(30.dp))
-                                .clickable { vm.onEvent(HomeEvent.ToggleType) },
-                            shape = RoundedCornerShape(30.dp),
-                            backgroundColor = MaterialTheme.colors.secondary,
-                            elevation = Dp(8f),
-                        ) {
-                            Box(modifier = Modifier.padding(7.dp)) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowUpward,
-                                    contentDescription = "Category Type Toggle",
-                                    tint = MaterialTheme.colors.primary,
-                                    modifier = Modifier
-                                        .rotate(
-                                            animateFloatAsState(
-                                                targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
-                                                animationSpec = spring(
-                                                    dampingRatio = 0.4f,
-                                                    stiffness = Spring.StiffnessLow
-                                                )
-                                            ).value
-                                        )
-                                )
-                            }
-                        }
+                        CircularTypeSelector(selectedType = state.currentType) { vm.onEvent(HomeEvent.ToggleType) }
                         Spacer(modifier = Modifier.width(7.dp))
                     }
                     items(state.categories) { category ->
