@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun FloatingCard(
     visible: Boolean,
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     AnimatedVisibility(
@@ -25,7 +26,7 @@ fun FloatingCard(
         )
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize(),
         ) {
             Card(

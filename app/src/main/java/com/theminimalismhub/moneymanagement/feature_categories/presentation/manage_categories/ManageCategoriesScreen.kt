@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,9 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -351,35 +350,36 @@ private fun InputCategoryChip(
 fun CircularTypeSelector(
     backgroundColor: Color = MaterialTheme.colors.secondary,
     iconColor: Color = MaterialTheme.colors.primary,
+    borderStroke: BorderStroke? = null,
     selectedType: FinanceType,
     onClick: () -> Unit
 ) {
-    Card(
+    Box(
         modifier = Modifier
             .padding(1.dp)
             .size(36.dp)
             .clip(RoundedCornerShape(30.dp))
+            .background(backgroundColor)
+            .border(borderStroke?.width ?: 0.dp, borderStroke?.brush ?: SolidColor(Color.Transparent), RoundedCornerShape(30.dp))
             .clickable { onClick() },
-        shape = RoundedCornerShape(30.dp),
-        backgroundColor = backgroundColor,
-        elevation = Dp(8f),
+        contentAlignment = Alignment.Center
     ) {
-        Box(modifier = Modifier.padding(7.dp)) {
-            Icon(
-                imageVector = Icons.Default.ArrowUpward,
-                contentDescription = "Category Type Toggle",
-                tint = iconColor,
-                modifier = Modifier
-                    .rotate(
-                        animateFloatAsState(
-                            targetValue = if (selectedType == FinanceType.OUTCOME) 0f else 180f,
-                            animationSpec = spring(
-                                dampingRatio = 0.4f,
-                                stiffness = Spring.StiffnessLow
-                            )
-                        ).value
-                    )
-            )
-        }
+        Icon(
+            imageVector = Icons.Default.ArrowUpward,
+            contentDescription = "Category Type Toggle",
+            tint = iconColor,
+            modifier = Modifier
+                .rotate(
+                    animateFloatAsState(
+                        targetValue = if (selectedType == FinanceType.OUTCOME) 0f else 180f,
+                        animationSpec = spring(
+                            dampingRatio = 0.4f,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    ).value
+                )
+                .size(21.dp)
+                .background(Color.Transparent)
+        )
     }
 }
