@@ -2,24 +2,28 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -30,10 +34,11 @@ import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
-import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ManageCategoriesEvent
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
@@ -48,13 +53,13 @@ fun HomeScreen(
     val scaffoldState = rememberScaffoldState()
 
     BackHandler(enabled = state.isAddEditOpen) {
-        vm.onEvent(HomeEvents.ToggleAddEditCard(null))
+        vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
 
     Scaffold(
         floatingActionButton = {
             androidx.compose.material3.ExtendedFloatingActionButton(
-                onClick = { vm.onEvent(HomeEvents.ToggleAddEditCard(null)) },
+                onClick = { vm.onEvent(HomeEvent.ToggleAddEditCard(null)) },
                 text = {
                     Text(
                         text = stringResource(id = R.string.action_cancel),
@@ -97,7 +102,55 @@ fun HomeScreen(
             }
             TranslucentOverlay(visible = state.isAddEditOpen)
             FloatingCard(visible = state.isAddEditOpen) {
-                
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .padding(1.dp)
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(30.dp))
+                                .clickable { vm.onEvent(HomeEvent.ToggleType) },
+                            shape = RoundedCornerShape(30.dp),
+                            backgroundColor = MaterialTheme.colors.secondary,
+                            elevation = Dp(8f),
+                        ) {
+                            Box(modifier = Modifier.padding(7.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowUpward,
+                                    contentDescription = "Category Type Toggle",
+                                    tint = MaterialTheme.colors.primary,
+                                    modifier = Modifier
+                                        .rotate(
+                                            animateFloatAsState(
+                                                targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
+                                                animationSpec = spring(
+                                                    dampingRatio = 0.4f,
+                                                    stiffness = Spring.StiffnessLow
+                                                )
+                                            ).value
+                                        )
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(7.dp))
+                    }
+                    items(state.categories) { category ->
+                        state.categoryStates[category.categoryId!!]?.let {
+                            CategoryChip(
+                                text = category.name,
+                                color = Color(category.color),
+                                isToggled = it.value,
+                                onToggled = { vm.onEvent(HomeEvent.CategorySelected(category.categoryId)) }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                    }
+                }
             }
         }
     }
