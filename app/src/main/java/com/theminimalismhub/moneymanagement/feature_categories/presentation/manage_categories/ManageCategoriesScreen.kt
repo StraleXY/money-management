@@ -271,44 +271,6 @@ private fun CategoryContainer(
     }
 }
 
-@Composable
-private fun FloatingCard(
-    visible: Boolean,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { fullHeight -> fullHeight / 2 }),
-        exit = fadeOut(tween(450))
-                + slideOutVertically(
-            targetOffsetY = { fullHeight -> fullHeight / 2 }, animationSpec = tween(450)
-        )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .padding(bottom = 58.dp)
-                    .align(Alignment.BottomCenter),
-                elevation = Dp(8f),
-                shape = RoundedCornerShape(15.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(vertical = 20.dp)
-                        .padding(top = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    content = content
-                )
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun InputCategoryChip(
