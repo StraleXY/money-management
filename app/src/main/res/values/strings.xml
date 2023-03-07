@@ -18,4 +18,7 @@
     <string name="cs_hint">You have two available category types - INCOME and OUTCOME, which determine how will finance item amounts affect your balance.</string>
     <string name="cs_new_category">Add new category</string>
 
+    <!-- Home Screen -->
+    <string name="hs_new_finance">Add new finance</string>
+
 </resources>
