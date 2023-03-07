@@ -1,10 +1,13 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -16,19 +19,23 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dsc.form_builder.TextFieldState
@@ -44,6 +51,7 @@ import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestinati
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ManageCategoriesEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
@@ -147,17 +155,7 @@ fun HomeScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = "07/03/2023",
-                    onValueChange = { },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 36.dp),
-                    textStyle = MaterialTheme.typography.body2,
-                    label = { Text(text = "Date") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
-                )
+                MDatePicker(datePicked = {})
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = name.value,
@@ -165,7 +163,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 36.dp),
-                    textStyle = MaterialTheme.typography.body2,
+                    textStyle = MaterialTheme.typography.body1,
                     label = { Text(text = "Name") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
@@ -177,7 +175,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 36.dp),
-                    textStyle = MaterialTheme.typography.body2,
+                    textStyle = MaterialTheme.typography.body1,
                     label = { Text(text = "Amount") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
@@ -209,17 +207,6 @@ fun HomeScreen(
                         onClick = {  }
                     )
                 }
-//                TextButton(
-//                    onClick = { /*TODO*/ },
-//                    modifier = Modifier
-//                        .align(Alignment.End)
-//                        .padding(end = 36.dp)
-//                ) {
-//                    Text(
-//                        text = "SAVE FINANCE ENTRY",
-//                        style = MaterialTheme.typography.button
-//                    )
-//                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -284,4 +271,62 @@ private fun HomeScreenContent(
             )
         }
     }
+}
+
+@Composable
+fun MDatePicker(
+    modifier: Modifier = Modifier,
+    initialTime: Long = System.currentTimeMillis(),
+    datePicked: (Long) -> Unit
+) {
+
+    var timestamp by remember { mutableStateOf(initialTime) }
+    val mContext = LocalContext.current
+    val mCalendar = Calendar.getInstance()
+    mCalendar.time = Date(timestamp)
+
+    val mDate = remember {
+        mutableStateOf(
+            "${mCalendar.get(Calendar.DAY_OF_MONTH)}/${mCalendar.get(Calendar.MONTH) + 1}/${mCalendar.get(Calendar.YEAR)}"
+        )
+    }
+
+    val mDatePickerDialog = DatePickerDialog(
+        mContext,
+        R.style.my_dialog_theme,
+        { _, mYear, mMonth, mDayOfMonth ->
+            mDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+            mCalendar.clear()
+            mCalendar.set(mYear, mMonth, mDayOfMonth)
+            timestamp = mCalendar.timeInMillis
+            datePicked(timestamp)
+        },
+        mCalendar.get(Calendar.YEAR),
+        mCalendar.get(Calendar.MONTH),
+        mCalendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    OutlinedTextField(
+        value = mDate.value,
+        onValueChange = { },
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { mDatePickerDialog.show() }
+            .padding(horizontal = 36.dp),
+        textStyle = MaterialTheme.typography.body1,
+        label = { Text(text = "Date") },
+        trailingIcon = {
+            IconButton(onClick = { mDatePickerDialog.show() }) {
+                Icon(
+                    imageVector = Icons.Default.CalendarMonth,
+                    contentDescription = Icons.Default.CalendarMonth.name
+                )
+            }
+        },
+        enabled = false,
+        colors = TextFieldDefaults.outlinedTextFieldColors(disabledTextColor = MaterialTheme.colors.onBackground)
+    )
 }
