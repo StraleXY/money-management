@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -26,8 +27,18 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Financ
 fun FinanceCard(
     modifier: Modifier = Modifier,
     finance: Finance,
+    previousSegmentDate: Int?,
     onEdit: (Finance) -> Unit
 ) {
+    previousSegmentDate?.let {
+        if(previousSegmentDate != finance.getDay())
+            Divider(
+                modifier = Modifier
+                    .padding(horizontal = 34.dp)
+                    .padding(top = 8.dp, bottom = 16.dp),
+                color = MaterialTheme.colors.secondaryVariant
+            )
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -35,7 +46,7 @@ fun FinanceCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onEdit(finance) }
-            .padding(horizontal = 28.dp),
+            .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
