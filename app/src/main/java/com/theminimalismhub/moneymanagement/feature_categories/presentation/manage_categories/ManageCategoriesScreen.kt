@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import androidx.compose.runtime.*
@@ -39,7 +38,6 @@ import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyC
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloatingActionButton3

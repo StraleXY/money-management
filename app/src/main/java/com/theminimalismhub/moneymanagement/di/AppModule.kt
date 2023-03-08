@@ -54,9 +54,10 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesAddEditFinanceUseCases(repo: FinanceRepo): AddEditFinanceUseCases {
+    fun providesAddEditFinanceUseCases(financeRepo: FinanceRepo, categoryRepo: CategoryRepo): AddEditFinanceUseCases {
         return AddEditFinanceUseCases(
-            add = AddFinance(repo)
+            getCategories = GetCategories(categoryRepo),
+            add = AddFinance(financeRepo)
         )
     }
 

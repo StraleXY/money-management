@@ -5,7 +5,6 @@ import android.app.DatePickerDialog
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -22,21 +21,15 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dsc.form_builder.TextFieldState
 import com.ramcosta.composedestinations.annotation.Destination
@@ -44,12 +37,11 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
-import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
-import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ManageCategoriesEvent
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import java.util.*
 
@@ -62,14 +54,15 @@ fun HomeScreen(
     vm: HomeViewModel = hiltViewModel()
 ) {
 
-    val state = vm.state.value
+    val homeState = vm.homeState.value
+    val addEditState = vm.addEditFinanceState.value
     val scaffoldState = rememberScaffoldState()
     val focusManager = LocalFocusManager.current
 
-    val name: TextFieldState = vm.formState.getState("name")
-    val amount: TextFieldState = vm.formState.getState("amount")
+    val name: TextFieldState = vm.addEditService.formState.getState("name")
+    val amount: TextFieldState = vm.addEditService.formState.getState("amount")
 
-    BackHandler(enabled = state.isAddEditOpen) {
+    BackHandler(enabled = homeState.isAddEditOpen) {
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
 
@@ -93,7 +86,7 @@ fun HomeScreen(
                             .size(26.dp)
                             .rotate(
                                 animateFloatAsState(
-                                    targetValue = if (state.isAddEditOpen) -45f else 0f,
+                                    targetValue = if (homeState.isAddEditOpen) -45f else 0f,
                                     tween(400)
                                 ).value
                             )
@@ -102,19 +95,19 @@ fun HomeScreen(
                 modifier = Modifier
                     .height(
                         animateDpAsState(
-                            targetValue = if (state.isAddEditOpen) 45.dp else 56.dp,
+                            targetValue = if (homeState.isAddEditOpen) 45.dp else 56.dp,
                             tween(350)
                         ).value
                     )
                     .padding(
                         end = animateDpAsState(
-                            targetValue = if (state.isAddEditOpen) 17.dp else 0.dp,
+                            targetValue = if (homeState.isAddEditOpen) 17.dp else 0.dp,
                             tween(350)
                         ).value
                     ),
                 containerColor = MaterialTheme.colors.primary,
                 shape = RoundedCornerShape(64.dp),
-                expanded = state.isAddEditOpen
+                expanded = homeState.isAddEditOpen
             )
         },
         scaffoldState = scaffoldState,
@@ -123,10 +116,10 @@ fun HomeScreen(
             HomeScreenContainer {
                 HomeScreenContent(navigator = navigator)
             }
-            TranslucentOverlay(visible = state.isAddEditOpen)
+            TranslucentOverlay(visible = homeState.isAddEditOpen)
             FloatingCard(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                visible = state.isAddEditOpen
+                visible = homeState.isAddEditOpen
             ) {
                 LazyRow(
                     modifier = Modifier
@@ -136,26 +129,26 @@ fun HomeScreen(
                 ) {
                     item {
                         CircularTypeSelector(
-                            selectedType = state.currentType,
+                            selectedType = addEditState.currentType,
                             backgroundColor = Color.Transparent,
                             borderStroke = BorderStroke(1.5.dp, MaterialTheme.run { colors.onSurface.copy(alpha = ContentAlpha.disabled) })
-                        ) { vm.onEvent(HomeEvent.ToggleType) }
+                        ) { vm.onEvent(AddEditFinanceEvent.ToggleType) }
                         Spacer(modifier = Modifier.width(7.dp))
                     }
-                    items(state.categories) { category ->
-                        state.categoryStates[category.categoryId!!]?.let {
+                    items(addEditState.categories) { category ->
+                        addEditState.categoryStates[category.categoryId!!]?.let {
                             CategoryChip(
                                 text = category.name,
                                 color = Color(category.color),
                                 isToggled = it.value,
-                                onToggled = { vm.onEvent(HomeEvent.CategorySelected(category.categoryId)) }
+                                onToggled = { vm.onEvent(AddEditFinanceEvent.CategorySelected(category.categoryId)) }
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                MDatePicker(datePicked = { vm.onEvent(HomeEvent.DateChanged(it)) })
+                MDatePicker(datePicked = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) })
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = name.value,
@@ -194,7 +187,9 @@ fun HomeScreen(
                         circleColor = Color.Transparent,
                         alternatedColor = MaterialTheme.colors.error,
                         iconColor = MaterialTheme.colors.onBackground,
-                        onHold = {  }
+                        onHold = {
+                            vm.onEvent(HomeEvent.ToggleAddEditCard(null))
+                        }
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     ActionChip(
@@ -204,7 +199,10 @@ fun HomeScreen(
                         borderThickness = 0.dp,
                         backgroundStrength = 0f,
                         modifier = Modifier,
-                        onClick = { vm.onEvent(HomeEvent.AddFinance) }
+                        onClick = {
+                            vm.onEvent(AddEditFinanceEvent.AddFinance)
+                            vm.onEvent(HomeEvent.ToggleAddEditCard(null))
+                        }
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
