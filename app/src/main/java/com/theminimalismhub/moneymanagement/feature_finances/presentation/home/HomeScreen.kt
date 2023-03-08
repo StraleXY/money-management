@@ -39,7 +39,7 @@ fun HomeScreen(
     vm: HomeViewModel = hiltViewModel()
 ) {
 
-    val state = vm.homeState.value
+    val state = vm.state.value
     val scaffoldState = rememberScaffoldState()
 
     BackHandler(enabled = state.isAddEditOpen) {
@@ -98,7 +98,7 @@ fun HomeScreen(
             }
             TranslucentOverlay(visible = state.isAddEditOpen)
             AddEditFinanceCard(
-                state = vm.addEditFinanceState.value,
+                state = vm.addEditService.state.value,
                 isOpen = state.isAddEditOpen,
                 form = vm.addEditService.formState,
                 cardToggled = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) },

@@ -1,6 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
@@ -17,13 +17,19 @@ import kotlinx.coroutines.launch
 import java.util.HashMap
 
 class AddEditFinanceService(
-    private val state: MutableState<AddEditFinanceState>,
     private val scope: CoroutineScope,
     private val useCases: AddEditFinanceUseCases
 ) {
 
+    private val _state = mutableStateOf(AddEditFinanceState())
+    val state: State<AddEditFinanceState> = _state
+
     private var incomeCategories: List<Category> = emptyList()
     private var outcomeCategories: List<Category> = emptyList()
+
+    init {
+        getCategories()
+    }
 
     val formState = FormState(
         fields = listOf(
@@ -42,15 +48,15 @@ class AddEditFinanceService(
         when(event) {
             is AddEditFinanceEvent.ToggleAddEditCard -> {
                 if(event.finance == null) {
-                    state.value = state.value.copy(
+                    _state.value = _state.value.copy(
                         currentType = FinanceType.OUTCOME,
                         timestamp = System.currentTimeMillis()
                     )
-                    selectCategoryType(state.value.currentType)
+                    selectCategoryType(_state.value.currentType)
                     formState.fields[0].change("")
                     formState.fields[1].change("")
                 } else {
-                    state.value = state.value.copy(
+                    _state.value = _state.value.copy(
                         currentFinanceId = event.finance.finance.id,
                         selectedCategoryId = event.finance.finance.financeCategoryId,
                         currentType = event.finance.finance.type,
@@ -61,18 +67,18 @@ class AddEditFinanceService(
                 }
             }
             AddEditFinanceEvent.ToggleType -> {
-                state.value = state.value.copy(
-                    currentType = FinanceType[(state.value.currentType.value + 1) % 2]!!,
+                _state.value = _state.value.copy(
+                    currentType = FinanceType[(_state.value.currentType.value + 1) % 2]!!,
                 )
-                selectCategoryType(state.value.currentType)
+                selectCategoryType(_state.value.currentType)
             }
             is AddEditFinanceEvent.CategorySelected -> {
-                state.value.categoryStates.forEach { (id, _) ->
-                    state.value.categoryStates[id]?.value = id == event.id
+                _state.value.categoryStates.forEach { (id, _) ->
+                    _state.value.categoryStates[id]?.value = id == event.id
                 }
             }
             is AddEditFinanceEvent.DateChanged -> {
-                state.value = state.value.copy(timestamp = event.timestamp)
+                _state.value = _state.value.copy(timestamp = event.timestamp)
             }
             AddEditFinanceEvent.AddFinance -> {
                 scope.launch {
@@ -80,10 +86,10 @@ class AddEditFinanceService(
                         FinanceItem(
                             name = formState.fields[0].value,
                             amount = (formState.fields[1].value).toDouble(),
-                            timestamp = state.value.timestamp,
-                            type = state.value.currentType,
-                            id = state.value.currentFinanceId,
-                            financeCategoryId = state.value.selectedCategoryId!!,
+                            timestamp = _state.value.timestamp,
+                            type = _state.value.currentType,
+                            id = _state.value.currentFinanceId,
+                            financeCategoryId = _state.value.selectedCategoryId!!,
                             financeAccountId = 1
                         )
                     )
@@ -98,13 +104,13 @@ class AddEditFinanceService(
         }
     }
     private fun populateCategoryList(list: List<Category>) {
-        state.value = state.value.copy(
+        _state.value = _state.value.copy(
             categories = list,
             selectedCategoryId = list[0].categoryId,
             categoryStates = HashMap()
         )
         list.forEach { category ->
-            category.categoryId?.let { id -> state.value.categoryStates[id] = mutableStateOf(category.categoryId == state.value.selectedCategoryId) }
+            category.categoryId?.let { id -> _state.value.categoryStates[id] = mutableStateOf(category.categoryId == _state.value.selectedCategoryId) }
         }
     }
     private var getCategoriesJob: Job? = null
