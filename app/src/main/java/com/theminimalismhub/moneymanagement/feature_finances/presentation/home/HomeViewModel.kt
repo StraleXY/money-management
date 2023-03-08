@@ -9,6 +9,9 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.Ho
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,6 +26,10 @@ class HomeViewModel @Inject constructor(
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
+
+    init {
+        getFinances()
+    }
     fun onEvent(event: HomeEvent) {
         when(event) {
             is HomeEvent.ToggleAddEditCard -> {
@@ -33,7 +40,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
-
+    private var getFinances: Job? = null
+    private fun getFinances() {
+        getFinances?.cancel()
+        getFinances = useCases.getFinances()
+            .onEach { finance ->
+                _state.value = _state.value.copy(
+                    results = finance
+                )
+            }
+            .launchIn(viewModelScope)
+    }
 }
 

@@ -1,12 +1,13 @@
 package com.theminimalismhub.moneymanagement.feature_finances.domain.model
 
+import android.annotation.SuppressLint
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
-import kotlinx.coroutines.Job
 import java.io.Serializable
+import java.text.SimpleDateFormat
+import java.util.*
 
 data class Finance(
     @Embedded val finance: FinanceItem,
@@ -14,10 +15,23 @@ data class Finance(
         parentColumn = "financeCategoryId",
         entityColumn = "categoryId"
     )
-    val category: Category,
-    @Relation(
-        parentColumn = "financeAccountId",
-        entityColumn = "accountId"
-    )
-    val account: Account,
-) : Serializable
+    val category: Category
+//    ,
+//    @Relation(
+//        parentColumn = "financeAccountId",
+//        entityColumn = "accountId"
+//    )
+//    val account: Account,
+) : Serializable {
+    fun getDay() : Int {
+        val time = Calendar.getInstance()
+        time.time = Date(finance.timestamp)
+        return time.get(Calendar.DAY_OF_MONTH)
+    }
+    @SuppressLint("SimpleDateFormat")
+    fun getMonth() : String {
+        val time = Calendar.getInstance()
+        time.time = Date(finance.timestamp)
+        return SimpleDateFormat("MMM").format(time.getTime())
+    }
+}

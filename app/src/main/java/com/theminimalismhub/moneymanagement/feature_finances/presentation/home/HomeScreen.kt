@@ -3,10 +3,9 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -14,9 +13,13 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -26,6 +29,7 @@ import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import java.util.*
@@ -93,8 +97,19 @@ fun HomeScreen(
         scaffoldState = scaffoldState,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            HomeScreenContainer {
-                HomeScreenContent(navigator = navigator)
+            LazyColumn(
+                contentPadding = PaddingValues(bottom = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                item {
+                    HomeScreenContent(navigator = navigator)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                items(state.results) {
+                    FinanceCard(finance = it)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
             TranslucentOverlay(visible = state.isAddEditOpen)
             AddEditFinanceCard(
@@ -112,28 +127,13 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HomeScreenContainer(
-    content: @Composable LazyItemScope.() -> Unit
-) {
-    LazyColumn(
-        contentPadding = PaddingValues(bottom = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        item {
-            ScreenHeader(
-                title = "Money Manager",
-                hint = ""
-            )
-            content()
-        }
-    }
-}
-
-@Composable
 private fun HomeScreenContent(
     navigator: DestinationsNavigator
 ) {
+    ScreenHeader(
+        title = "Money Manager",
+        hint = ""
+    )
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 24.dp),
@@ -166,6 +166,65 @@ private fun HomeScreenContent(
                 onClick = {
                     navigator.navigate(SettingsScreenDestination())
                 }
+            )
+        }
+    }
+}
+
+@Composable
+private fun FinanceCard(
+    modifier: Modifier = Modifier,
+    finance: Finance
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 28.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(5.dp)
+                    .height(52.dp)
+                    .background(Color(finance.category.color), RoundedCornerShape(100))
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    modifier = Modifier.alpha(0.75f),
+                    text = finance.finance.name,
+                    style = MaterialTheme.typography.body2
+                )
+                Text(
+                    text = "${finance.finance.amount.toInt()} RSD",
+                    style = MaterialTheme.typography.h3
+                )
+            }
+        }
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = finance.getDay().toString(),
+                style = MaterialTheme.typography.body1.copy(
+                    fontSize = 20.sp
+                )
+            )
+            Text(
+                modifier = Modifier.alpha(0.65f),
+                text = finance.getMonth().uppercase(),
+                style = MaterialTheme.typography.body2.copy(
+                    fontSize = 15.sp,
+                    lineHeight = 16.sp
+                )
             )
         }
     }

@@ -11,6 +11,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.repository.Fin
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddFinance
+import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.GetFinances
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import dagger.Module
 import dagger.Provides
@@ -47,9 +48,9 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesHomeUseCases(repo: CategoryRepo): HomeUseCases {
+    fun providesHomeUseCases(repo: FinanceRepo): HomeUseCases {
         return HomeUseCases(
-            getCategories = GetCategories(repo)
+            getFinances = GetFinances(repo)
         )
     }
 
