@@ -3,7 +3,10 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -107,7 +110,10 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 items(state.results) {
-                    FinanceCard(finance = it)
+                    FinanceCard(
+                        finance = it,
+                        onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -174,11 +180,16 @@ private fun HomeScreenContent(
 @Composable
 private fun FinanceCard(
     modifier: Modifier = Modifier,
-    finance: Finance
+    finance: Finance,
+    onEdit: (Finance) -> Unit
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onEdit(finance) }
             .padding(horizontal = 28.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface FinanceDao {
 
     @Transaction
-    @Query("SELECT * FROM finance")
+    @Query("SELECT * FROM finance ORDER BY timestamp ASC")
     fun getAll(): Flow<List<Finance>>
 
     @Transaction

@@ -50,6 +50,7 @@ class AddEditFinanceService(
                 if(event.finance == null) {
                     _state.value = _state.value.copy(
                         currentType = FinanceType.OUTCOME,
+                        currentFinanceId = null,
                         timestamp = System.currentTimeMillis()
                     )
                     selectCategoryType(_state.value.currentType)
@@ -58,10 +59,11 @@ class AddEditFinanceService(
                 } else {
                     _state.value = _state.value.copy(
                         currentFinanceId = event.finance.finance.id,
-                        selectedCategoryId = event.finance.finance.financeCategoryId,
                         currentType = event.finance.finance.type,
                         timestamp = event.finance.finance.timestamp
                     )
+                    selectCategoryType(_state.value.currentType)
+                    onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId))
                     formState.fields[0].change(event.finance.finance.name)
                     formState.fields[1].change(event.finance.finance.amount.toInt().toString())
                 }
@@ -76,6 +78,9 @@ class AddEditFinanceService(
                 _state.value.categoryStates.forEach { (id, _) ->
                     _state.value.categoryStates[id]?.value = id == event.id
                 }
+                _state.value = _state.value.copy(
+                    selectedCategoryId = event.id
+                )
             }
             is AddEditFinanceEvent.DateChanged -> {
                 _state.value = _state.value.copy(timestamp = event.timestamp)
