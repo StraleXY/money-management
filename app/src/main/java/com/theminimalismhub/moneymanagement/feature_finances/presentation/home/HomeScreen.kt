@@ -99,7 +99,8 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 item {
-                    HomeScreenContent(navigator = navigator)
+                    //HomeScreenContent(navigator = navigator)
+                    Spacer(modifier = Modifier.height(64.dp))
                     RangePicker(
                         rangeService = vm.rangeService
                     )

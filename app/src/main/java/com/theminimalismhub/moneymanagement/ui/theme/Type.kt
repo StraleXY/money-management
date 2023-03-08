@@ -76,7 +76,7 @@ val Typography = Typography(
     ),
     button = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp,
         letterSpacing = 3.sp
     )

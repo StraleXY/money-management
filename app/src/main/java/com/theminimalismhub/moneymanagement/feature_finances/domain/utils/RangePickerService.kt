@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -15,6 +17,7 @@ class RangePickerService {
     private var start: Calendar = Calendar.getInstance()
     private var end: Calendar = Calendar.getInstance()
     private var distance = 1
+    var type: RangeType = RangeType.DAILY
 
     init {
         setModeDay()
@@ -28,6 +31,7 @@ class RangePickerService {
         end.set(Calendar.HOUR, 23)
         end.set(Calendar.MINUTE, 59)
         distance = 1
+        type = RangeType.DAILY
     }
 
     fun setModeWeek() {
@@ -35,6 +39,7 @@ class RangePickerService {
         while (start[Calendar.DAY_OF_WEEK] != Calendar.MONDAY) start.add(Calendar.DAY_OF_MONTH, -1)
         while (end[Calendar.DAY_OF_WEEK] != Calendar.SUNDAY) end.add(Calendar.DAY_OF_MONTH, 1)
         distance = 7
+        type = RangeType.WEEKLY
     }
 
     fun setModeMonth() {
@@ -43,6 +48,7 @@ class RangePickerService {
         end[LocalDateTime.now().year, LocalDateTime.now().monthValue - 1] =
             LocalDateTime.now().month.maxLength()
         distance = -1
+        type = RangeType.MONTHLY
     }
 
     operator fun next() {
