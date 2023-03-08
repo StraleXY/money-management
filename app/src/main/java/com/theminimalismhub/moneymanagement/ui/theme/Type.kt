@@ -37,9 +37,9 @@ val Typography = Typography(
         fontSize = 50.sp
     ),
     h3 = TextStyle(
-        fontFamily = titilium,
+        fontFamily = economica,
         fontWeight = FontWeight.Normal,
-        fontSize = 19.sp
+        fontSize = 26.sp
     ),
     h4 = TextStyle(
         fontFamily = titilium,

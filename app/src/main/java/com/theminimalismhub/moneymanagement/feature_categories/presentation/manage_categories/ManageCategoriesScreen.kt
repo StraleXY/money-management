@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,16 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -143,34 +141,12 @@ fun ManageCategoriesScreen(
                 visible = state.isAddEditOpen
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Card(
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(30.dp))
-                            .clickable { vm.onEvent(ManageCategoriesEvent.ToggleType) },
-                        elevation = Dp(8f),
-                        shape = RoundedCornerShape(30.dp),
-                        backgroundColor = Color(ColorUtils.setAlphaComponent(state.currentColor.toColor().toArgb(), (0.1f * 255L).roundToInt()))
-                    ) {
-                        Box(modifier = Modifier.padding(7.dp)) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowUpward,
-                                contentDescription = "Category Type Toggle",
-                                tint = state.currentColor.toColor(),
-                                modifier = Modifier
-                                    .rotate(
-                                        animateFloatAsState(
-                                            targetValue = if (state.currentType == FinanceType.OUTCOME) 0f else 180f,
-                                            animationSpec = spring(
-                                                dampingRatio = 0.4f,
-                                                stiffness = Spring.StiffnessLow
-                                            )
-                                        ).value
-                                    )
-                            )
-                        }
-                    }
+                    CircularTypeSelector(
+                        selectedType = state.currentType,
+                        backgroundColor = Color(ColorUtils.setAlphaComponent(state.currentColor.toColor().toArgb(), (0.1f * 255L).roundToInt())),
+                        iconColor = state.currentColor.toColor()
+                    ) { vm.onEvent(ManageCategoriesEvent.ToggleType) }
+                    Spacer(modifier = Modifier.width(4.dp))
                     InputCategoryChip(
                         color = state.currentColor,
                         name = state.currentName,
@@ -271,44 +247,6 @@ private fun CategoryContainer(
     }
 }
 
-@Composable
-private fun FloatingCard(
-    visible: Boolean,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { fullHeight -> fullHeight / 2 }),
-        exit = fadeOut(tween(450))
-                + slideOutVertically(
-            targetOffsetY = { fullHeight -> fullHeight / 2 }, animationSpec = tween(450)
-        )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .padding(bottom = 58.dp)
-                    .align(Alignment.BottomCenter),
-                elevation = Dp(8f),
-                shape = RoundedCornerShape(15.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(vertical = 20.dp)
-                        .padding(top = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    content = content
-                )
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun InputCategoryChip(
@@ -403,5 +341,43 @@ private fun InputCategoryChip(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CircularTypeSelector(
+    backgroundColor: Color = MaterialTheme.colors.secondary,
+    iconColor: Color = MaterialTheme.colors.primary,
+    borderStroke: BorderStroke? = null,
+    selectedType: FinanceType,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(1.dp)
+            .size(36.dp)
+            .clip(RoundedCornerShape(30.dp))
+            .background(backgroundColor)
+            .border(borderStroke?.width ?: 0.dp, borderStroke?.brush ?: SolidColor(Color.Transparent), RoundedCornerShape(30.dp))
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.ArrowUpward,
+            contentDescription = "Category Type Toggle",
+            tint = iconColor,
+            modifier = Modifier
+                .rotate(
+                    animateFloatAsState(
+                        targetValue = if (selectedType == FinanceType.OUTCOME) 0f else 180f,
+                        animationSpec = spring(
+                            dampingRatio = 0.4f,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    ).value
+                )
+                .size(21.dp)
+                .background(Color.Transparent)
+        )
     }
 }

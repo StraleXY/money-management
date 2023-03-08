@@ -16,12 +16,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.core.graphics.ColorUtils
 
 @Composable
 fun TranslucentOverlay(
     visible: Boolean
 ) {
+    val focusManager = LocalFocusManager.current
+
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -41,7 +44,7 @@ fun TranslucentOverlay(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
-                ) { }
+                ) { focusManager.clearFocus(true) }
         ) { }
     }
 }

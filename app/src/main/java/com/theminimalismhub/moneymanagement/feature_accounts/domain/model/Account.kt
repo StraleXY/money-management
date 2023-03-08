@@ -9,5 +9,5 @@ data class Account(
     val name: String,
     val balance: Double,
     val active: Boolean,
-    @PrimaryKey val categoryId: Int? = null
+    @PrimaryKey val accountId: Int? = null
 ) : Serializable
