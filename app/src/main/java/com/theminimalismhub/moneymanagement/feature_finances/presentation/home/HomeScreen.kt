@@ -155,7 +155,7 @@ fun HomeScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                MDatePicker(datePicked = {})
+                MDatePicker(datePicked = { vm.onEvent(HomeEvent.DateChanged(it)) })
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = name.value,
@@ -204,7 +204,7 @@ fun HomeScreen(
                         borderThickness = 0.dp,
                         backgroundStrength = 0f,
                         modifier = Modifier,
-                        onClick = {  }
+                        onClick = { vm.onEvent(HomeEvent.AddFinance) }
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))

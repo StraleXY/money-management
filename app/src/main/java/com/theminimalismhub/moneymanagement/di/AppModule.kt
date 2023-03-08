@@ -7,6 +7,10 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.DeleteCategory
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.GetCategories
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.ManageCategoriesUseCases
+import com.theminimalismhub.moneymanagement.feature_finances.data.repository.FinanceRepoImpl
+import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
+import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import dagger.Module
 import dagger.Provides
@@ -29,6 +33,11 @@ object AppModule {
     }
 
     @Provides @Singleton
+    fun provideFinanceRepo(db: MoneyDatabase): FinanceRepo {
+        return FinanceRepoImpl(db.financeDao)
+    }
+
+    @Provides @Singleton
     fun providesManageCategoriesUseCases(repo: CategoryRepo): ManageCategoriesUseCases {
         return ManageCategoriesUseCases(
             get = GetCategories(repo),
@@ -41,6 +50,13 @@ object AppModule {
     fun providesHomeUseCases(repo: CategoryRepo): HomeUseCases {
         return HomeUseCases(
             getCategories = GetCategories(repo)
+        )
+    }
+
+    @Provides @Singleton
+    fun providesAddEditFinanceUseCases(repo: FinanceRepo): AddEditFinanceUseCases {
+        return AddEditFinanceUseCases(
+            add = AddFinance(repo)
         )
     }
 

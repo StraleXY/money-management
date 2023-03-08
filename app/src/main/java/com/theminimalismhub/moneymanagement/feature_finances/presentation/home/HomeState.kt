@@ -7,7 +7,9 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 data class HomeState(
     val isAddEditOpen: Boolean = false,
     val categories: List<Category> = emptyList(),
+    val currentFinanceId: Int? = null,
     val selectedCategoryId: Int? = null,
     val currentType: FinanceType = FinanceType.OUTCOME,
-    val categoryStates: HashMap<Int, MutableState<Boolean>> = HashMap()
+    val categoryStates: HashMap<Int, MutableState<Boolean>> = HashMap(),
+    val timestamp: Long = System.currentTimeMillis()
 )
