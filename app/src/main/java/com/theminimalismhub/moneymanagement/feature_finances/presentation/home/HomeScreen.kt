@@ -35,6 +35,7 @@ import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestinati
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
 import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -176,68 +177,3 @@ private fun HomeScreenContent(
         }
     }
 }
-
-@Composable
-private fun FinanceCard(
-    modifier: Modifier = Modifier,
-    finance: Finance,
-    onEdit: (Finance) -> Unit
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { onEdit(finance) }
-            .padding(horizontal = 28.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(5.dp)
-                    .height(52.dp)
-                    .background(Color(finance.category.color), RoundedCornerShape(100))
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    modifier = Modifier.alpha(0.75f),
-                    text = finance.finance.name,
-                    style = MaterialTheme.typography.body2
-                )
-                Text(
-                    text = "${finance.finance.amount.toInt()} RSD",
-                    style = MaterialTheme.typography.h3
-                )
-            }
-        }
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = finance.getDay().toString(),
-                style = MaterialTheme.typography.body1.copy(
-                    fontSize = 20.sp
-                )
-            )
-            Text(
-                modifier = Modifier.alpha(0.65f),
-                text = finance.getMonth().uppercase(),
-                style = MaterialTheme.typography.body2.copy(
-                    fontSize = 15.sp,
-                    lineHeight = 16.sp
-                )
-            )
-        }
-    }
-}
-
