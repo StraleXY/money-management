@@ -13,6 +13,10 @@ interface FinanceDao {
     fun getAll(): Flow<List<Finance>>
 
     @Transaction
+    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC")
+    fun getAll(from: Long, to: Long): Flow<List<Finance>>
+
+    @Transaction
     @Query("SELECT * FROM finance WHERE id = :id")
     suspend fun getFinanceById(id: Int): Finance?
 

@@ -26,7 +26,8 @@ import java.util.*
 @Composable
 fun RangePicker(
     modifier: Modifier = Modifier,
-    rangeService: RangePickerService
+    rangeService: RangePickerService,
+    rangePicked: (Pair<Long, Long>) -> Unit
 ) {
 
     var rangePreview by remember { mutableStateOf(rangeService.formattedDate()) }
@@ -35,6 +36,7 @@ fun RangePicker(
     fun update() {
         rangePreview = rangeService.formattedDate()
         isToday = rangeService.isToday()
+        rangePicked(Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp()))
     }
 
     val picker = datePickerDialog(
@@ -147,8 +149,8 @@ private fun RangeNext(
     ) {
         AnimatedVisibility(
             visible = !isToday,
-            enter = fadeIn() + slideInVertically(),
-            exit = fadeOut() + slideOutVertically()
+            enter = fadeIn() + slideInVertically(initialOffsetY = { h -> -h/4 }),
+            exit = fadeOut() + slideOutVertically(targetOffsetY = { h -> -h/4 })
         ) {
             IconButton(onClick = onTodayClick) {
                 Icon(

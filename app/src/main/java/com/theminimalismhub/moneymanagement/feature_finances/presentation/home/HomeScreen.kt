@@ -102,8 +102,11 @@ fun HomeScreen(
                     //HomeScreenContent(navigator = navigator)
                     Spacer(modifier = Modifier.height(64.dp))
                     RangePicker(
-                        rangeService = vm.rangeService
+                        rangeService = vm.rangeService,
+                        rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HomeScreenContent(navigator)
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 items(state.results) {
@@ -134,10 +137,10 @@ fun HomeScreen(
 private fun HomeScreenContent(
     navigator: DestinationsNavigator
 ) {
-    ScreenHeader(
-        title = "Money Manager",
-        hint = ""
-    )
+//    ScreenHeader(
+//        title = "Money Manager",
+//        hint = ""
+//    )
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 24.dp),

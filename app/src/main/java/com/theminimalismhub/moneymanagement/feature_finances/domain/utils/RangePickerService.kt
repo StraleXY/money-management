@@ -25,11 +25,15 @@ class RangePickerService {
 
     fun setModeDay() {
         start.time = Date()
-        start.set(Calendar.HOUR, 0)
+        start.set(Calendar.HOUR_OF_DAY, 0)
         start.set(Calendar.MINUTE, 0)
+        start.set(Calendar.SECOND, 0)
+        start.set(Calendar.MILLISECOND, 0)
         end.time = Date()
-        end.set(Calendar.HOUR, 23)
+        end.set(Calendar.HOUR_OF_DAY, 23)
         end.set(Calendar.MINUTE, 59)
+        end.set(Calendar.SECOND, 59)
+        end.set(Calendar.MILLISECOND, 999)
         distance = 1
         type = RangeType.DAILY
     }
@@ -44,9 +48,8 @@ class RangePickerService {
 
     fun setModeMonth() {
         setModeDay()
-        start[LocalDateTime.now().year, LocalDateTime.now().monthValue - 1] = 1
-        end[LocalDateTime.now().year, LocalDateTime.now().monthValue - 1] =
-            LocalDateTime.now().month.maxLength()
+        start.set(LocalDateTime.now().year, LocalDateTime.now().monthValue - 1, 1)
+        end.set(LocalDateTime.now().year, LocalDateTime.now().monthValue - 1, YearMonth.of(start.get(Calendar.YEAR), start.get(Calendar.MONTH)).lengthOfMonth())
         distance = -1
         type = RangeType.MONTHLY
     }
@@ -54,8 +57,7 @@ class RangePickerService {
     operator fun next() {
         if (distance == -1) {
             start.add(Calendar.MONTH, 1)
-            end[start[Calendar.YEAR], start[Calendar.MONTH]] =
-                YearMonth.of(start[Calendar.YEAR], start[Calendar.MONTH] + 1).month.maxLength()
+            end[start[Calendar.YEAR], start[Calendar.MONTH]] = YearMonth.of(start[Calendar.YEAR], start[Calendar.MONTH] + 1).lengthOfMonth()
         } else {
             start.add(Calendar.DAY_OF_MONTH, distance)
             end.add(Calendar.DAY_OF_MONTH, distance)
@@ -80,7 +82,7 @@ class RangePickerService {
         if (distance == -1) {
             start.add(Calendar.MONTH, -1)
             end[start[Calendar.YEAR], start[Calendar.MONTH]] =
-                YearMonth.of(start[Calendar.YEAR], start[Calendar.MONTH] + 1).month.maxLength()
+                YearMonth.of(start[Calendar.YEAR], start[Calendar.MONTH] + 1).lengthOfMonth()
         } else {
             start.add(Calendar.DAY_OF_MONTH, -distance)
             end.add(Calendar.DAY_OF_MONTH, -distance)
@@ -97,9 +99,7 @@ class RangePickerService {
     }
 
     fun getStartTimestamp(): Long {
-        val startMilis = Calendar.getInstance()
-        startMilis[start[Calendar.YEAR], start[Calendar.MONTH], start[Calendar.DAY_OF_MONTH], 0] = 0
-        return startMilis.timeInMillis
+        return start.timeInMillis
     }
 
     fun getCurrentTimestamp(): Long {
@@ -109,9 +109,7 @@ class RangePickerService {
     }
 
     fun getEndTimestamp(): Long {
-        val endMilis = Calendar.getInstance()
-        endMilis[end[Calendar.YEAR], end[Calendar.MONTH], end[Calendar.DAY_OF_MONTH], 24] = 0
-        return endMilis.timeInMillis
+        return end.timeInMillis
     }
 
     fun getLength(): Int {

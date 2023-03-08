@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -30,8 +31,8 @@ class HomeViewModel @Inject constructor(
     val rangeService = RangePickerService()
 
     init {
-        getFinances()
         initDateRange()
+        getFinances(_state.value.dateRange)
     }
     fun onEvent(event: HomeEvent) {
         when(event) {
@@ -40,30 +41,29 @@ class HomeViewModel @Inject constructor(
                 if(!_state.value.isAddEditOpen) return
                 addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance))
             }
+            is HomeEvent.RangeChanged -> {
+                getFinances(event.range)
+            }
         }
     }
 
     private var getFinances: Job? = null
-    private fun getFinances() {
+    private fun getFinances(range: Pair<Long, Long>?) {
         getFinances?.cancel()
-        getFinances = useCases.getFinances()
+        getFinances = useCases.getFinances(range)
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
                 )
+                finance.forEach {
+                    Log.d("FINANCE", "${it.finance.name} - ${it.finance.timestamp}")
+                }
             }
             .launchIn(viewModelScope)
     }
     private fun initDateRange() {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.HOUR, 0)
-        val start = calendar.timeInMillis
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.HOUR, 23)
-        val end = calendar.timeInMillis
         _state.value = _state.value.copy(
-            dateRange = Pair(start, end)
+            dateRange = Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp())
         )
     }
 }
