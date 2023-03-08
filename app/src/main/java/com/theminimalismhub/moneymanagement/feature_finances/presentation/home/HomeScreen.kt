@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dsc.form_builder.TextFieldState
 import com.ramcosta.composedestinations.annotation.Destination
@@ -158,10 +159,18 @@ fun HomeScreen(
                         .padding(horizontal = 36.dp),
                     textStyle = MaterialTheme.typography.body1,
                     label = { Text(text = "Name") },
+                    isError = name.hasError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                ErrorText(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 36.dp),
+                    message = name.errorMessage,
+                    hasError = name.hasError
+                )
+                if(!name.hasError) Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = amount.value,
                     onValueChange = { amount.change(it) },
@@ -170,8 +179,16 @@ fun HomeScreen(
                         .padding(horizontal = 36.dp),
                     textStyle = MaterialTheme.typography.body1,
                     label = { Text(text = "Amount") },
+                    isError = amount.hasError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+                )
+                ErrorText(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 36.dp),
+                    message = amount.errorMessage,
+                    hasError = amount.hasError
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
@@ -189,7 +206,8 @@ fun HomeScreen(
                         iconColor = MaterialTheme.colors.onBackground,
                         onHold = {
                             vm.onEvent(HomeEvent.ToggleAddEditCard(null))
-                        }
+                        },
+                        enabled = addEditState.currentFinanceId != null
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     ActionChip(
@@ -200,6 +218,7 @@ fun HomeScreen(
                         backgroundStrength = 0f,
                         modifier = Modifier,
                         onClick = {
+                            if(!vm.addEditService.formState.validate()) return@ActionChip
                             vm.onEvent(AddEditFinanceEvent.AddFinance)
                             vm.onEvent(HomeEvent.ToggleAddEditCard(null))
                         }
@@ -320,11 +339,32 @@ fun MDatePicker(
             IconButton(onClick = { mDatePickerDialog.show() }) {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = Icons.Default.CalendarMonth.name
+                    contentDescription = Icons.Default.CalendarMonth.name,
+                    tint = MaterialTheme.colors.primary
                 )
             }
         },
         enabled = false,
         colors = TextFieldDefaults.outlinedTextFieldColors(disabledTextColor = MaterialTheme.colors.onBackground)
     )
+}
+
+@Composable
+fun ErrorText(
+    modifier: Modifier = Modifier,
+    message: String,
+    hasError: Boolean
+) {
+    if(hasError) {
+        Text(
+            modifier = modifier
+                .padding(start = 4.dp),
+            text = message,
+            style = MaterialTheme.typography.subtitle1.copy(
+                fontSize = 13.sp,
+                lineHeight = 15.sp
+            ),
+            color = MaterialTheme.colors.error,
+        )
+    }
 }

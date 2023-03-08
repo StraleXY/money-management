@@ -42,8 +42,13 @@ class AddEditFinanceService(
         when(event) {
             is AddEditFinanceEvent.ToggleAddEditCard -> {
                 if(event.finance == null) {
-                    state.value = state.value.copy(currentType = FinanceType.OUTCOME)
+                    state.value = state.value.copy(
+                        currentType = FinanceType.OUTCOME,
+                        timestamp = System.currentTimeMillis()
+                    )
                     selectCategoryType(state.value.currentType)
+                    formState.fields[0].change("")
+                    formState.fields[1].change("")
                 } else {
                     state.value = state.value.copy(
                         currentFinanceId = event.finance.finance.id,
