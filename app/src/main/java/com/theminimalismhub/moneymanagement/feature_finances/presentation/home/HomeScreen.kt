@@ -27,6 +27,7 @@ import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestinati
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.RangePicker
 import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -99,6 +100,9 @@ fun HomeScreen(
             ) {
                 item {
                     HomeScreenContent(navigator = navigator)
+                    RangePicker(
+                        rangeService = vm.rangeService
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 items(state.results) {

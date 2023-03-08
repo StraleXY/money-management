@@ -4,5 +4,6 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Financ
 
 data class HomeState(
     val isAddEditOpen: Boolean = false,
-    val results: List<Finance> = emptyList()
+    val results: List<Finance> = emptyList(),
+    val dateRange: Pair<Long, Long> = Pair(System.currentTimeMillis(), System.currentTimeMillis())
 )

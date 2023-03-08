@@ -6,12 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
+import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,12 +25,13 @@ class HomeViewModel @Inject constructor(
     val addEditService = AddEditFinanceService(viewModelScope, addEditFinanceUseCases)
     fun onEvent(event: AddEditFinanceEvent) { addEditService.onEvent(event) }
 
-
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
+    val rangeService = RangePickerService()
 
     init {
         getFinances()
+        initDateRange()
     }
     fun onEvent(event: HomeEvent) {
         when(event) {
@@ -50,6 +53,18 @@ class HomeViewModel @Inject constructor(
                 )
             }
             .launchIn(viewModelScope)
+    }
+    private fun initDateRange() {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.HOUR, 0)
+        val start = calendar.timeInMillis
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.HOUR, 23)
+        val end = calendar.timeInMillis
+        _state.value = _state.value.copy(
+            dateRange = Pair(start, end)
+        )
     }
 }
 
