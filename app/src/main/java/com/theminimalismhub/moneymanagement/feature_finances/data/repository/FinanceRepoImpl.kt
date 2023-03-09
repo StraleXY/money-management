@@ -4,6 +4,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.data_source.Fi
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
 import kotlinx.coroutines.flow.Flow
 
 class FinanceRepoImpl constructor(
@@ -13,6 +14,10 @@ class FinanceRepoImpl constructor(
     override fun getAll(range: Pair<Long, Long>?): Flow<List<Finance>> {
         if (range == null) return dao.getAll()
         return dao.getAll(range.first, range.second)
+    }
+
+    override fun getPerCategory(range: Pair<Long, Long>): Flow<List<CategoryEarnings>> {
+        return dao.getPerCategory(range.first, range.second)
     }
 
     override suspend fun getById(id: Int): Finance? {

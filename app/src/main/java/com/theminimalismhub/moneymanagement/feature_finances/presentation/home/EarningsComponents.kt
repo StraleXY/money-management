@@ -48,7 +48,7 @@ fun CategoryBar(
     }
     fun calc(x: Double) : Float {
         val fraction = normalize((x / maxAmount.coerceAtLeast(1.0)))
-        return (fraction * 0.65f).toFloat().coerceAtLeast(0.05f)
+        return (fraction * 0.7f).toFloat().coerceAtLeast(0.05f)
     }
     val animatedScale = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.95f else 1f)
     val animatedAlpha = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.6f else 1f)
@@ -100,8 +100,10 @@ fun CategoryBar(
             Text(
                 text = "${categoryInfo.amount.toInt()} $currency",
                 color = Color(categoryInfo.color),
-                style = MaterialTheme.typography.body1
-                    .copy(fontFamily = economica)
+                style = MaterialTheme.typography.body1.copy(
+                    fontFamily = economica,
+                    fontSize = 20.sp
+                )
             )
         }
     }

@@ -27,6 +27,7 @@ import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenD
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryTotalsOverview
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.QuickSpendingOverview
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.RangePicker
@@ -116,6 +117,13 @@ fun HomeScreen(
                         limit = 1000.0
                     )
                     Spacer(modifier = Modifier.height(16.dp))
+                    CategoryTotalsOverview(
+                        totalPerCategory = state.totalPerCategory,
+                        categoryBarStates = state.categoryBarStates
+                    ) {
+
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                     HomeScreenContent(navigator)
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -148,10 +156,6 @@ fun HomeScreen(
 private fun HomeScreenContent(
     navigator: DestinationsNavigator
 ) {
-//    ScreenHeader(
-//        title = "Money Manager",
-//        hint = ""
-//    )
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 24.dp),

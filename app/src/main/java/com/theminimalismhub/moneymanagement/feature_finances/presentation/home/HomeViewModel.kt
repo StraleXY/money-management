@@ -14,7 +14,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,6 +32,7 @@ class HomeViewModel @Inject constructor(
     init {
         initDateRange()
         getFinances(_state.value.dateRange)
+        getCategoryTotals(_state.value.dateRange)
     }
     fun onEvent(event: HomeEvent) {
         when(event) {
@@ -43,14 +43,15 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.RangeChanged -> {
                 getFinances(event.range)
+                getCategoryTotals(event.range)
             }
         }
     }
 
-    private var getFinances: Job? = null
+    private var getFinancesJob: Job? = null
     private fun getFinances(range: Pair<Long, Long>?) {
-        getFinances?.cancel()
-        getFinances = useCases.getFinances(range)
+        getFinancesJob?.cancel()
+        getFinancesJob = useCases.getFinances(range)
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
@@ -65,6 +66,28 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(
             dateRange = Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp())
         )
+    }
+
+    private var getPerCategoryJob: Job? = null
+    private var selectedCategoryId: Int? = null
+    private fun getCategoryTotals(range: Pair<Long, Long>) {
+        getPerCategoryJob?.cancel()
+        getPerCategoryJob = useCases.getTotalPerCategory(range)
+            .onEach { earnings ->
+                _state.value = _state.value.copy(
+                    totalPerCategory = earnings.sortedBy { it.amount }.reversed()
+                )
+                earnings.forEach {
+                    _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
+                        when (selectedCategoryId) {
+                            null -> CategoryBarState.NEUTRAL
+                            it.categoryId -> CategoryBarState.SELECTED
+                            else -> CategoryBarState.DESELECTED
+                        }
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 }
 
