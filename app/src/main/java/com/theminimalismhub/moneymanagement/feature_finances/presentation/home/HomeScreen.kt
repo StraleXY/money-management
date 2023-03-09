@@ -137,6 +137,7 @@ fun HomeScreen(
                 typeToggled = { vm.onEvent(AddEditFinanceEvent.ToggleType) },
                 categorySelected = { vm.onEvent(AddEditFinanceEvent.CategorySelected(it)) },
                 addFinance = { vm.onEvent(AddEditFinanceEvent.AddFinance) },
+                deleteFinance = { vm.onEvent(AddEditFinanceEvent.DeleteFinance)},
                 dateChanged = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) }
             )
         }

@@ -9,5 +9,5 @@ sealed class AddEditFinanceEvent {
     data class CategorySelected(val id: Int): AddEditFinanceEvent()
     data class DateChanged(val timestamp: Long): AddEditFinanceEvent()
     object AddFinance: AddEditFinanceEvent()
-
+    object DeleteFinance: AddEditFinanceEvent()
 }
