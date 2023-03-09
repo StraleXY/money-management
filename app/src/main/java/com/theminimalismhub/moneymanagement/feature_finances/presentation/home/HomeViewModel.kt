@@ -43,6 +43,7 @@ class HomeViewModel @Inject constructor(
                 addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance))
             }
             is HomeEvent.RangeChanged -> {
+                toggleCategoryBar(selectedCategoryId)
                 _state.value = _state.value.copy(dateRange = event.range)
                 getFinances(null)
                 getCategoryTotals()
@@ -94,7 +95,7 @@ class HomeViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
     }
-    private fun toggleCategoryBar(categoryId: Int) {
+    private fun toggleCategoryBar(categoryId: Int?) {
         if(selectedCategoryId == categoryId) {
             _state.value.categoryBarStates.forEach { (_, state) -> state.value = CategoryBarState.NEUTRAL }
             selectedCategoryId = null

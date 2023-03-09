@@ -28,14 +28,14 @@ fun ErrorNoData(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 64.dp)
+            .padding(vertical = 48.dp)
     ) {
         Text(
             text = text.uppercase(Locale.ROOT),
             style = MaterialTheme.typography.body2
                 .copy(
                     textAlign = TextAlign.Center,
-                    fontSize = 18.sp
+                    fontSize = 17.sp
                 ),
             modifier = Modifier
                 .fillMaxWidth(),
@@ -47,7 +47,7 @@ fun ErrorNoData(
                 style = MaterialTheme.typography.subtitle2
                     .copy(
                         textAlign = TextAlign.Center,
-                        fontSize = 18.sp
+                        fontSize = 17.sp
                     ),
                 modifier = Modifier
                     .fillMaxWidth(),

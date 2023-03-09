@@ -51,7 +51,7 @@ fun CategoryBar(
         return (fraction * 0.7f).toFloat().coerceAtLeast(0.05f)
     }
     val animatedScale = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.95f else 1f)
-    val animatedAlpha = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.6f else 1f)
+    val animatedAlpha = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.5f else 1f)
     val animatedWidth = remember { Animatable(calc(categoryInfo.amount)) }
 
     LaunchedEffect(categoryInfo) {

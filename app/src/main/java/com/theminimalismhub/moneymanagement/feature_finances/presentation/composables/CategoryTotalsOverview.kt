@@ -33,9 +33,7 @@ fun CategoryTotalsOverview(
                 .padding(20.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            if(totalPerCategory.isEmpty()) {
-                ErrorNoData(text = "No Earnings Data")
-            }
+            if(totalPerCategory.isEmpty()) ErrorNoData()
             totalPerCategory.forEach { earnings ->
                 CategoryBar(
                     modifier = Modifier.padding(vertical = 3.dp),
