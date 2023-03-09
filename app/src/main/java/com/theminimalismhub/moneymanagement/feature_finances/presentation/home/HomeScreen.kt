@@ -27,6 +27,7 @@ import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestinati
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.QuickSpendingOverview
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.RangePicker
 import java.util.*
 
@@ -104,6 +105,14 @@ fun HomeScreen(
                     RangePicker(
                         rangeService = vm.rangeService,
                         rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    QuickSpendingOverview(
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp),
+                        amount = 450.0,
+                        average = 100.0,
+                        limit = 1000.0
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     HomeScreenContent(navigator)
