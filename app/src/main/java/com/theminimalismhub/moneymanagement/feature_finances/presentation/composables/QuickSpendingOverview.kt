@@ -1,7 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -15,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.theminimalismhub.moneymanagement.core.enums.RangeType
-import com.theminimalismhub.moneymanagement.ui.theme.economica
 
 @Composable
 fun QuickSpendingOverview(
@@ -72,8 +70,8 @@ private fun SpendingSegment(
     secondaryAmount: Double,
     currency: String = "RSD"
 ) {
-    val animatedAmount by animateIntAsState(targetValue = amount.toInt())
-    val animatedSecondaryAmount by animateIntAsState(targetValue = secondaryAmount.toInt())
+    val animatedAmount by animateIntAsState(targetValue = amount.toInt(), tween(450))
+    val animatedSecondaryAmount by animateIntAsState(targetValue = secondaryAmount.toInt(), tween(450))
 
     Column(
         modifier = modifier,
