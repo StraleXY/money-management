@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,8 +32,8 @@ class HomeViewModel @Inject constructor(
 
     init {
         initDateRange()
-        getFinances(_state.value.dateRange)
-        getCategoryTotals(_state.value.dateRange)
+        getFinances(null)
+        getCategoryTotals()
     }
     fun onEvent(event: HomeEvent) {
         when(event) {
@@ -42,23 +43,27 @@ class HomeViewModel @Inject constructor(
                 addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance))
             }
             is HomeEvent.RangeChanged -> {
-                getFinances(event.range)
-                getCategoryTotals(event.range)
+                _state.value = _state.value.copy(dateRange = event.range)
+                getFinances(null)
+                getCategoryTotals()
+            }
+            is HomeEvent.CategoryClicked -> {
+                viewModelScope.launch {
+                    toggleCategoryBar(event.id)
+                    getFinances(selectedCategoryId)
+                }
             }
         }
     }
 
     private var getFinancesJob: Job? = null
-    private fun getFinances(range: Pair<Long, Long>?) {
+    private fun getFinances(categoryId: Int?) {
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(range)
+        getFinancesJob = useCases.getFinances(_state.value.dateRange, categoryId)
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
                 )
-                finance.forEach {
-                    Log.d("FINANCE", "${it.finance.name} - ${it.finance.timestamp}")
-                }
             }
             .launchIn(viewModelScope)
     }
@@ -70,9 +75,9 @@ class HomeViewModel @Inject constructor(
 
     private var getPerCategoryJob: Job? = null
     private var selectedCategoryId: Int? = null
-    private fun getCategoryTotals(range: Pair<Long, Long>) {
+    private fun getCategoryTotals() {
         getPerCategoryJob?.cancel()
-        getPerCategoryJob = useCases.getTotalPerCategory(range)
+        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange)
             .onEach { earnings ->
                 _state.value = _state.value.copy(
                     totalPerCategory = earnings.sortedBy { it.amount }.reversed()
@@ -88,6 +93,15 @@ class HomeViewModel @Inject constructor(
                 }
             }
             .launchIn(viewModelScope)
+    }
+    private fun toggleCategoryBar(categoryId: Int) {
+        if(selectedCategoryId == categoryId) {
+            _state.value.categoryBarStates.forEach { (_, state) -> state.value = CategoryBarState.NEUTRAL }
+            selectedCategoryId = null
+        } else {
+            _state.value.categoryBarStates.forEach { (id, state) -> state.value = if(id == categoryId) CategoryBarState.SELECTED else CategoryBarState.DESELECTED }
+            selectedCategoryId = categoryId
+        }
     }
 }
 

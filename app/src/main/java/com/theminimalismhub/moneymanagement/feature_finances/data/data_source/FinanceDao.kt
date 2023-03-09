@@ -17,6 +17,10 @@ interface FinanceDao {
     @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC")
     fun getAll(from: Long, to: Long): Flow<List<Finance>>
 
+    @Transaction
+    @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC")
+    fun getAll(from: Long, to: Long, categoryId: Int): Flow<List<Finance>>
+
     @Query("SELECT Finance.financeCategoryId as categoryId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
             "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
             "WHERE timestamp >= :from AND timestamp <= :to " +

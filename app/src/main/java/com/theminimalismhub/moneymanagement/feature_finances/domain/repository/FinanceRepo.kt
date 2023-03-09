@@ -6,7 +6,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.C
 import kotlinx.coroutines.flow.Flow
 
 interface FinanceRepo {
-    fun getAll(range: Pair<Long, Long>?): Flow<List<Finance>>
+    fun getAll(range: Pair<Long, Long>, categoryId: Int?): Flow<List<Finance>>
     fun getPerCategory(range: Pair<Long, Long>): Flow<List<CategoryEarnings>>
     suspend fun getById(id: Int): Finance?
     suspend fun insert(item: FinanceItem): Long

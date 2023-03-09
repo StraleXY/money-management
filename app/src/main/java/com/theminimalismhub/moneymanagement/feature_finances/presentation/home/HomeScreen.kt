@@ -120,9 +120,7 @@ fun HomeScreen(
                     CategoryTotalsOverview(
                         totalPerCategory = state.totalPerCategory,
                         categoryBarStates = state.categoryBarStates
-                    ) {
-
-                    }
+                    ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                     Spacer(modifier = Modifier.height(16.dp))
                     HomeScreenContent(navigator)
                     Spacer(modifier = Modifier.height(16.dp))
