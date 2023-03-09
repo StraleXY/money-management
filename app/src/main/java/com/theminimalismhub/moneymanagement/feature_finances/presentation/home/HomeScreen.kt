@@ -21,6 +21,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
@@ -110,8 +111,8 @@ fun HomeScreen(
                     QuickSpendingOverview(
                         modifier = Modifier
                             .padding(horizontal = 20.dp),
-                        amount = 450.0,
-                        average = 100.0,
+                        amount = state.results.sumOf { finance -> if(finance.finance.type == FinanceType.OUTCOME) finance.finance.amount else 0.0 },
+                        rangeLength = vm.rangeService.rangeLength,
                         limit = 1000.0
                     )
                     Spacer(modifier = Modifier.height(16.dp))

@@ -18,6 +18,7 @@ class RangePickerService {
     private var end: Calendar = Calendar.getInstance()
     private var distance = 1
     var type: RangeType = RangeType.DAILY
+    var rangeLength: Int = 1
 
     init {
         setModeDay()
@@ -35,6 +36,7 @@ class RangePickerService {
         end.set(Calendar.SECOND, 59)
         end.set(Calendar.MILLISECOND, 999)
         distance = 1
+        rangeLength = 1
         type = RangeType.DAILY
     }
 
@@ -43,14 +45,16 @@ class RangePickerService {
         while (start[Calendar.DAY_OF_WEEK] != Calendar.MONDAY) start.add(Calendar.DAY_OF_MONTH, -1)
         while (end[Calendar.DAY_OF_WEEK] != Calendar.SUNDAY) end.add(Calendar.DAY_OF_MONTH, 1)
         distance = 7
+        rangeLength = 7
         type = RangeType.WEEKLY
     }
 
     fun setModeMonth() {
         setModeDay()
         start.set(LocalDateTime.now().year, LocalDateTime.now().monthValue - 1, 1)
-        end.set(LocalDateTime.now().year, LocalDateTime.now().monthValue - 1, YearMonth.of(start.get(Calendar.YEAR), start.get(Calendar.MONTH)).lengthOfMonth())
+        end.set(LocalDateTime.now().year, LocalDateTime.now().monthValue - 1, YearMonth.of(start.get(Calendar.YEAR), start.get(Calendar.MONTH) + 1).lengthOfMonth())
         distance = -1
+        rangeLength = YearMonth.of(start.get(Calendar.YEAR), start.get(Calendar.MONTH) + 1).lengthOfMonth()
         type = RangeType.MONTHLY
     }
 
@@ -58,6 +62,7 @@ class RangePickerService {
         if (distance == -1) {
             start.add(Calendar.MONTH, 1)
             end[start[Calendar.YEAR], start[Calendar.MONTH]] = YearMonth.of(start[Calendar.YEAR], start[Calendar.MONTH] + 1).lengthOfMonth()
+            rangeLength = YearMonth.of(start.get(Calendar.YEAR), start.get(Calendar.MONTH) + 1).lengthOfMonth()
         } else {
             start.add(Calendar.DAY_OF_MONTH, distance)
             end.add(Calendar.DAY_OF_MONTH, distance)
@@ -75,19 +80,17 @@ class RangePickerService {
             startCopy[Calendar.MINUTE]
         end[newTime[Calendar.YEAR], newTime[Calendar.MONTH], newTime[Calendar.DAY_OF_MONTH], endCopy[Calendar.HOUR]] =
             endCopy[Calendar.MINUTE]
-        // TODO set text
     }
 
     fun previous() {
         if (distance == -1) {
             start.add(Calendar.MONTH, -1)
-            end[start[Calendar.YEAR], start[Calendar.MONTH]] =
-                YearMonth.of(start[Calendar.YEAR], start[Calendar.MONTH] + 1).lengthOfMonth()
+            end[start[Calendar.YEAR], start[Calendar.MONTH]] = YearMonth.of(start[Calendar.YEAR], start[Calendar.MONTH] + 1).lengthOfMonth()
+            rangeLength = YearMonth.of(start.get(Calendar.YEAR), start.get(Calendar.MONTH) + 1).lengthOfMonth()
         } else {
             start.add(Calendar.DAY_OF_MONTH, -distance)
             end.add(Calendar.DAY_OF_MONTH, -distance)
         }
-        // TODO set text
     }
 
     fun formattedDate(): String? {
