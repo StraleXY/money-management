@@ -51,10 +51,8 @@ class HomeViewModel @Inject constructor(
                 getCategoryTotals()
             }
             is HomeEvent.CategoryClicked -> {
-                viewModelScope.launch {
-                    toggleCategoryBar(event.id)
-                    getFinances(selectedCategoryId)
-                }
+                toggleCategoryBar(event.id)
+                getFinances(selectedCategoryId)
             }
         }
     }
@@ -67,6 +65,7 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     results = finance
                 )
+                getGraphData(categoryId)
             }
             .launchIn(viewModelScope)
     }
@@ -81,11 +80,11 @@ class HomeViewModel @Inject constructor(
     private fun getCategoryTotals() {
         getPerCategoryJob?.cancel()
         getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange)
-            .onEach { earnings ->
+            .onEach { totals ->
                 _state.value = _state.value.copy(
-                    totalPerCategory = earnings.sortedBy { it.amount }.reversed()
+                    totalPerCategory = totals.sortedBy { it.amount }.reversed()
                 )
-                earnings.forEach {
+                totals.forEach {
                     _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
                         when (selectedCategoryId) {
                             null -> CategoryBarState.NEUTRAL
