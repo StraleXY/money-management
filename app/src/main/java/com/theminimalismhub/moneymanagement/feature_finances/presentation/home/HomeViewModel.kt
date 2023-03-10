@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
@@ -14,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -102,6 +104,21 @@ class HomeViewModel @Inject constructor(
         } else {
             _state.value.categoryBarStates.forEach { (id, state) -> state.value = if(id == categoryId) CategoryBarState.SELECTED else CategoryBarState.DESELECTED }
             selectedCategoryId = categoryId
+        }
+    }
+    private suspend fun getGraphData(categoryId: Int? = null) {
+        if(rangeService.rangeLength == 1) return
+        _state.value = _state.value.copy(
+            earningsPerTimePeriod = useCases.getTotalPerCategory.getPerDay(
+                range = _state.value.dateRange,
+                type = FinanceType.OUTCOME,
+                categoryId = categoryId
+            )
+        )
+        if(categoryId == null) {
+            _state.value = _state.value.copy(
+                maxEarnings = _state.value.earningsPerTimePeriod.maxOf { it.value }
+            )
         }
     }
 }

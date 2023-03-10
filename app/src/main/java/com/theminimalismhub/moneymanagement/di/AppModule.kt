@@ -54,10 +54,10 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesHomeUseCases(repo: FinanceRepo): HomeUseCases {
+    fun providesHomeUseCases(financeRepo: FinanceRepo, categoryRepo: CategoryRepo): HomeUseCases {
         return HomeUseCases(
-            getFinances = GetFinances(repo),
-            getTotalPerCategory = GetTotalPerCategory(repo)
+            getFinances = GetFinances(financeRepo),
+            getTotalPerCategory = GetTotalPerCategory(financeRepo, categoryRepo)
         )
     }
 

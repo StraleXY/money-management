@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -28,10 +29,7 @@ import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenD
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryTotalsOverview
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.QuickSpendingOverview
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.RangePicker
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
 import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -131,6 +129,14 @@ fun HomeScreen(
                         rangeLength = vm.rangeService.rangeLength,
                         limit = 1000.0
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if(vm.rangeService.rangeLength > 1){
+                        GraphSpendingOverview(
+                            earningsPerTimePeriod = state.earningsPerTimePeriod,
+                            maxEarnings = state.maxEarnings
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     CategoryTotalsOverview(
                         totalPerCategory = state.totalPerCategory,
