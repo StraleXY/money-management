@@ -2,7 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -32,6 +32,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_ed
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
 import java.util.*
 
+@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
 @Destination(style = BaseTransition::class)
@@ -129,15 +130,23 @@ fun HomeScreen(
                         rangeLength = vm.rangeService.rangeLength,
                         limit = 1000.0
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    if(vm.rangeService.rangeLength > 1){
+                    Spacer(modifier = Modifier.height(12.dp))
+                    AnimatedVisibility(
+                        visible = vm.rangeService.rangeLength > 1,
+                        enter = expandVertically(tween(400))
+                                + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
+                                + fadeIn(tween(300, 450)),
+                        exit = scaleOut(targetScale = 0.9f, animationSpec = tween(300))
+                                + fadeOut(tween(300))
+                                + shrinkVertically(tween(450, 250))
+                    ) {
                         GraphSpendingOverview(
+                            modifier = Modifier
+                                .padding(horizontal = 20.dp),
                             earningsPerTimePeriod = state.earningsPerTimePeriod,
                             maxEarnings = state.maxEarnings
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                     CategoryTotalsOverview(
                         totalPerCategory = state.totalPerCategory,
                         categoryBarStates = state.categoryBarStates

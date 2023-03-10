@@ -1,5 +1,8 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,15 +37,24 @@ fun CategoryTotalsOverview(
             horizontalAlignment = Alignment.Start
         ) {
             if(totalPerCategory.isEmpty()) ErrorNoData()
-            totalPerCategory.forEach { earnings ->
-                CategoryBar(
-                    modifier = Modifier.padding(vertical = 3.dp),
-                    categoryInfo = earnings,
-                    maxAmount = totalPerCategory.maxOf { it.amount } + totalPerCategory.minOf { it.amount } * 0.01,
-                    state = categoryBarStates[earnings.categoryId]!!.value,
-                    clicked = onClick
-                )
+            AnimatedVisibility(
+                visible = totalPerCategory.isNotEmpty(),
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column(horizontalAlignment = Alignment.Start) {
+                    totalPerCategory.forEach { earnings ->
+                        CategoryBar(
+                            modifier = Modifier.padding(vertical = 3.dp),
+                            categoryInfo = earnings,
+                            maxAmount = totalPerCategory.maxOf { it.amount } + totalPerCategory.minOf { it.amount } * 0.01,
+                            state = categoryBarStates[earnings.categoryId]!!.value,
+                            clicked = onClick
+                        )
+                    }
+                }
             }
+
         }
     }
 }
