@@ -107,11 +107,13 @@ class AddEditFinanceService(
                             financeAccountId = _state.value.selectedAccountId!!
                         )
                     )
+                    useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
                 }
             }
             AddEditFinanceEvent.DeleteFinance -> {
                 scope.launch {
                     useCases.delete(state.value.currentFinanceId!!)
+                    useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.INCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
                 }
             }
         }

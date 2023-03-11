@@ -7,7 +7,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Financ
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
 
 data class HomeState(
-    val isAddEditOpen: Boolean = true,
+    val isAddEditOpen: Boolean = false,
     val results: List<Finance> = emptyList(),
 
     val dateRange: Pair<Long, Long> = Pair(System.currentTimeMillis(), System.currentTimeMillis()),

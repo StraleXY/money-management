@@ -13,6 +13,9 @@ interface AccountDao {
     @Query("SELECT * FROM Account WHERE accountId = :id")
     suspend fun getAccountById(id: Int): Account?
 
+    @Query("UPDATE Account SET balance = balance + :amount WHERE accountId = :id")
+    suspend fun updateAccountBalance(amount: Double, id: Int)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAccount(account: Account): Long
 

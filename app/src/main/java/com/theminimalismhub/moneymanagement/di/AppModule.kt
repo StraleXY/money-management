@@ -6,6 +6,7 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.repository.A
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.AddAccount
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.GetAccounts
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.UpdateAccountBalance
 import com.theminimalismhub.moneymanagement.feature_categories.data.repository.CategoryRepoImpl
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.AddCategory
@@ -55,11 +56,12 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesAddEditFinanceUseCases(financeRepo: FinanceRepo, categoryRepo: CategoryRepo): AddEditFinanceUseCases {
+    fun providesAddEditFinanceUseCases(financeRepo: FinanceRepo, categoryRepo: CategoryRepo, accountRepo: AccountRepo): AddEditFinanceUseCases {
         return AddEditFinanceUseCases(
             getCategories = GetCategories(categoryRepo),
             add = AddFinance(financeRepo),
-            delete = DeleteFinance(financeRepo)
+            delete = DeleteFinance(financeRepo),
+            updateAccountBalance = UpdateAccountBalance(accountRepo)
         )
     }
 

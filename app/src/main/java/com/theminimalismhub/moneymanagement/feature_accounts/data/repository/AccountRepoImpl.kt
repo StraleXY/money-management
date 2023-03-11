@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 class AccountRepoImpl constructor(
     private val dao: AccountDao
 ) : AccountRepo {
+    override suspend fun updateAccountBalance(amount: Double, id: Int) {
+        dao.updateAccountBalance(amount, id)
+    }
 
     override fun getAll(): Flow<List<Account>> {
         return dao.getAll()
