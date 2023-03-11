@@ -131,6 +131,8 @@ fun HomeScreen(
                         limit = 1000.0
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+                    AccountsList(accounts = state.accounts)
+                    Spacer(modifier = Modifier.height(12.dp))
                     AnimatedVisibility(
                         visible = vm.rangeService.rangeLength > 1,
                         enter = expandVertically(tween(400))
