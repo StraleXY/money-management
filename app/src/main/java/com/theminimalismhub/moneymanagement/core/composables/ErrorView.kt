@@ -1,9 +1,7 @@
 package com.theminimalismhub.moneymanagement.core.composables
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +29,7 @@ fun ErrorNoData(
             .padding(vertical = 48.dp)
     ) {
         Text(
-            text = text.uppercase(Locale.ROOT),
+            text = text,
             style = MaterialTheme.typography.body2
                 .copy(
                     textAlign = TextAlign.Center,
@@ -88,4 +86,27 @@ fun ErrorBox(
             hint = hint
         )
     }
+}
+
+@Composable
+fun DashedBox(
+    modifier: Modifier = Modifier,
+    strokeColor: Color = MaterialTheme.colors.secondary,
+    content: @Composable BoxScope.() -> Unit
+) {
+    val stroke = Stroke(
+        width = 2.5f,
+        pathEffect = PathEffect.dashPathEffect(floatArrayOf(16f, 16f), 0f)
+    )
+    Box(
+        modifier = modifier
+            .drawBehind {
+                drawRoundRect(
+                    color = strokeColor,
+                    style = stroke,
+                    cornerRadius = CornerRadius(15.dp.toPx())
+                )
+            },
+        contentAlignment = Alignment.Center
+    ) { content() }
 }
