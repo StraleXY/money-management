@@ -71,7 +71,7 @@ fun HomeScreen(
         )
     }
 
-    val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed)
+    val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
         peekHeight = 0.dp,
@@ -165,21 +165,10 @@ fun HomeScreen(
                     ) {
                         item {
                             Spacer(modifier = Modifier.height(36.dp))
-//                            Box(
-//                                modifier = Modifier
-//                                    .width(50.dp)
-//                                    .height(4.dp)
-//                                    .background(
-//                                        MaterialTheme.colors.primaryVariant,
-//                                        RoundedCornerShape(100)
-//                                    )
-//                            )
-//                            Spacer(modifier = Modifier.height(16.dp))
                             RangePicker(
                                 rangeService = vm.rangeService,
                                 rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
                             QuickSpendingOverview(
                                 modifier = Modifier
                                     .padding(horizontal = 20.dp),
@@ -187,7 +176,6 @@ fun HomeScreen(
                                 rangeLength = vm.rangeService.rangeLength,
                                 limit = 1000.0
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
                             AnimatedVisibility(
                                 visible = vm.rangeService.rangeLength > 1,
                                 enter = expandVertically(tween(400))
@@ -208,7 +196,6 @@ fun HomeScreen(
                                 totalPerCategory = state.totalPerCategory,
                                 categoryBarStates = state.categoryBarStates
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
-                            Spacer(modifier = Modifier.height(16.dp))
                         }
                         items(state.results) {
                             FinanceCard(
@@ -225,6 +212,7 @@ fun HomeScreen(
                         state = vm.addEditService.state.value,
                         isOpen = state.isAddEditOpen,
                         form = vm.addEditService.formState,
+                        accounts = state.accounts,
                         cardToggled = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) },
                         typeToggled = { vm.onEvent(AddEditFinanceEvent.ToggleType) },
                         categorySelected = { vm.onEvent(AddEditFinanceEvent.CategorySelected(it)) },

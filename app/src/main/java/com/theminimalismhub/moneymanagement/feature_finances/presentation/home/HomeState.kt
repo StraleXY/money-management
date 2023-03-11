@@ -20,13 +20,15 @@ data class HomeState(
             accountId = 1,
             name = "Gotovina",
             balance = 4000.0,
-            active = true
+            active = true,
+            primary = true
         ),
         Account(
             accountId = 2,
             name = "Kartica",
             balance = 21450.0,
-            active = false
+            active = true,
+            primary = false
         )
     )
 )

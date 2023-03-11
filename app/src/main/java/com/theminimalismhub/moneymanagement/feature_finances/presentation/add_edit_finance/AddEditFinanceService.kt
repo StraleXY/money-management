@@ -123,8 +123,9 @@ class AddEditFinanceService(
             category.categoryId?.let { id -> _state.value.categoryStates[id] = mutableStateOf(category.categoryId == _state.value.selectedCategoryId) }
         }
     }
+
     private var getCategoriesJob: Job? = null
-    fun getCategories() {
+    private fun getCategories() {
         getCategoriesJob?.cancel()
         getCategoriesJob = useCases.getCategories()
             .onEach {

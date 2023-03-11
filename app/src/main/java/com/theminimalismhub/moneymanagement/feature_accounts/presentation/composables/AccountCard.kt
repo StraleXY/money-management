@@ -9,8 +9,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
+import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,10 +21,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
@@ -38,7 +38,7 @@ fun AccountCardMini(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(15.dp),
-        elevation = 8.dp
+        elevation = if(account.primary) 16.dp else 8.dp
     ) {
         Column(
             modifier = Modifier
@@ -93,11 +93,17 @@ fun AccountCardLarge(
 
                     val width = size.width.toInt()
                     val height = size.height.toInt()
-                    val spotOffset = 15.dp.toPx().toInt()
-                    val dotOffset = 50.dp.toPx().toInt()
+                    val spotOffset = 15.dp
+                        .toPx()
+                        .toInt()
+                    val dotOffset = 50.dp
+                        .toPx()
+                        .toInt()
                     val dotsPerColor = 35
                     val dotOpacity = 0.05f
-                    val inset = 30.dp.toPx().toInt()
+                    val inset = 30.dp
+                        .toPx()
+                        .toInt()
 
                     val possibleSpots = mutableListOf(
                         Point(inset, inset),
@@ -162,16 +168,13 @@ fun AccountCardLarge(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 28.dp, horizontal = 28.dp),
-                verticalArrangement = Arrangement.Bottom
+                    .padding(vertical = 28.dp, horizontal = 28.dp)
             ) {
                 Text(
                     modifier = Modifier
-                        .padding(start = 4.dp),
+                        .padding(start = 2.dp),
                     text = account.name,
-                    style = MaterialTheme.typography.body2.copy(
-                        fontSize = 19.sp
-                    )
+                    style = MaterialTheme.typography.body1
                 )
                 Text(
                     text = "${account.balance.toInt()} $currency",
@@ -182,7 +185,27 @@ fun AccountCardLarge(
                 )
             }
 
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 20.dp, bottom = 20.dp),
+                imageVector = Icons.Default.AccountBalanceWallet,
+                contentDescription = Icons.Default.CreditCard.name
+            )
         }
+    }
+}
+
+@Composable
+private fun CardNumber(
+    lastDigits: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = lastDigits
+        )
     }
 }
 

@@ -32,8 +32,10 @@ import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import java.util.*
 
@@ -42,6 +44,7 @@ fun AddEditFinanceCard(
     state: AddEditFinanceState,
     isOpen: Boolean,
     form: FormState<TextFieldState>,
+    accounts: List<Account>,
     cardToggled: (Finance?) -> Unit,
     typeToggled: () -> Unit,
     categorySelected: (Int) -> Unit,
@@ -56,7 +59,10 @@ fun AddEditFinanceCard(
 
     FloatingCard(
         modifier = Modifier.padding(horizontal = 16.dp),
-        visible = isOpen
+        visible = isOpen,
+        header = {
+            AccountsList(accounts = accounts)
+        }
     ) {
         LazyRow(
             modifier = Modifier

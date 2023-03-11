@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 fun FloatingCard(
     visible: Boolean,
     modifier: Modifier = Modifier,
+    header: @Composable ColumnScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
     AnimatedVisibility(
@@ -26,25 +27,31 @@ fun FloatingCard(
         )
     ) {
         Box(
-            modifier = modifier
-                .fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
         ) {
-            Card(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .padding(bottom = 58.dp)
+                    .fillMaxSize()
                     .align(Alignment.BottomCenter),
-                elevation = Dp(8f),
-                shape = RoundedCornerShape(15.dp),
+                verticalArrangement = Arrangement.Bottom
             ) {
-                Column(
+                header()
+                Card(
                     modifier = Modifier
-                        .padding(vertical = 20.dp)
-                        .padding(top = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    content = content
-                )
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .padding(bottom = 58.dp),
+                    elevation = Dp(8f),
+                    shape = RoundedCornerShape(15.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                            .padding(top = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        content = content
+                    )
+                }
             }
         }
     }
