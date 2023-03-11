@@ -15,8 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -32,7 +35,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_ed
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
 import java.util.*
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
 @Destination(style = BaseTransition::class)
@@ -63,124 +66,141 @@ fun HomeScreen(
         )
     }
 
-    Scaffold(
-        floatingActionButton = {
-            androidx.compose.material3.ExtendedFloatingActionButton(
-                onClick = { vm.onEvent(HomeEvent.ToggleAddEditCard(null)) },
-                text = {
-                    Text(
-                        text = stringResource(id = R.string.action_cancel),
-                        style = MaterialTheme.typography.button,
-                        color = MaterialTheme.colors.onPrimary
-                    )
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(id = R.string.hs_new_finance),
-                        tint = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier
-                            .size(26.dp)
-                            .rotate(
-                                animateFloatAsState(
-                                    targetValue = if (state.isAddEditOpen) -45f else 0f,
-                                    tween(400)
-                                ).value
-                            )
-                    )
-                },
-                modifier = Modifier
-                    .height(
-                        animateDpAsState(
-                            targetValue = if (state.isAddEditOpen) 45.dp else 56.dp,
-                            tween(350)
-                        ).value
-                    )
-                    .padding(
-                        end = animateDpAsState(
-                            targetValue = if (state.isAddEditOpen) 17.dp else 0.dp,
-                            tween(350)
-                        ).value
-                    ),
-                containerColor = MaterialTheme.colors.primary,
-                shape = RoundedCornerShape(64.dp),
-                expanded = state.isAddEditOpen
+    val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
+    BackdropScaffold(
+        scaffoldState = backdropScaffoldState,
+        peekHeight = 0.dp,
+        backLayerBackgroundColor = MaterialTheme.colors.background,
+        frontLayerScrimColor = Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (255 * 0.90).toInt())),
+        frontLayerElevation = 2.dp,
+        appBar = {
+            ScreenHeader(
+                title = "Money Management",
+                hint = "Take your finances into your hands!"
             )
         },
-        scaffoldState = scaffoldState,
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    //HomeScreenContent(navigator = navigator)
-                    Spacer(modifier = Modifier.height(64.dp))
-                    RangePicker(
-                        rangeService = vm.rangeService,
-                        rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    QuickSpendingOverview(
+        backLayerContent = {
+            HomeScreenContent(navigator)
+            AccountsList(accounts = state.accounts)
+            Spacer(modifier = Modifier.height(24.dp))
+        },
+        frontLayerContent = {
+            Scaffold(
+                floatingActionButton = {
+                    androidx.compose.material3.ExtendedFloatingActionButton(
+                        onClick = { vm.onEvent(HomeEvent.ToggleAddEditCard(null)) },
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.action_cancel),
+                                style = MaterialTheme.typography.button,
+                                color = MaterialTheme.colors.onPrimary
+                            )
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(id = R.string.hs_new_finance),
+                                tint = MaterialTheme.colors.onPrimary,
+                                modifier = Modifier
+                                    .size(26.dp)
+                                    .rotate(
+                                        animateFloatAsState(
+                                            targetValue = if (state.isAddEditOpen) -45f else 0f,
+                                            tween(400)
+                                        ).value
+                                    )
+                            )
+                        },
                         modifier = Modifier
-                            .padding(horizontal = 20.dp),
-                        amount = state.results.sumOf { finance -> if(finance.finance.type == FinanceType.OUTCOME) finance.finance.amount else 0.0 },
-                        rangeLength = vm.rangeService.rangeLength,
-                        limit = 1000.0
+                            .height(
+                                animateDpAsState(
+                                    targetValue = if (state.isAddEditOpen) 45.dp else 56.dp,
+                                    tween(350)
+                                ).value
+                            )
+                            .padding(
+                                end = animateDpAsState(
+                                    targetValue = if (state.isAddEditOpen) 17.dp else 0.dp,
+                                    tween(350)
+                                ).value
+                            ),
+                        containerColor = MaterialTheme.colors.primary,
+                        shape = RoundedCornerShape(64.dp),
+                        expanded = state.isAddEditOpen
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    AccountsList(accounts = state.accounts)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    AnimatedVisibility(
-                        visible = vm.rangeService.rangeLength > 1,
-                        enter = expandVertically(tween(400))
-                                + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
-                                + fadeIn(tween(300, 450)),
-                        exit = scaleOut(targetScale = 0.9f, animationSpec = tween(300))
-                                + fadeOut(tween(300))
-                                + shrinkVertically(tween(450, 250))
+                },
+                scaffoldState = scaffoldState,
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        contentPadding = PaddingValues(bottom = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        GraphSpendingOverview(
-                            modifier = Modifier
-                                .padding(horizontal = 20.dp),
-                            earningsPerTimePeriod = state.earningsPerTimePeriod,
-                            maxEarnings = state.maxEarnings
-                        )
+                        item {
+                            Spacer(modifier = Modifier.height(32.dp))
+                            RangePicker(
+                                rangeService = vm.rangeService,
+                                rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            QuickSpendingOverview(
+                                modifier = Modifier
+                                    .padding(horizontal = 20.dp),
+                                amount = state.results.sumOf { finance -> if(finance.finance.type == FinanceType.OUTCOME) finance.finance.amount else 0.0 },
+                                rangeLength = vm.rangeService.rangeLength,
+                                limit = 1000.0
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            AnimatedVisibility(
+                                visible = vm.rangeService.rangeLength > 1,
+                                enter = expandVertically(tween(400))
+                                        + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
+                                        + fadeIn(tween(300, 450)),
+                                exit = scaleOut(targetScale = 0.9f, animationSpec = tween(300))
+                                        + fadeOut(tween(300))
+                                        + shrinkVertically(tween(450, 250))
+                            ) {
+                                GraphSpendingOverview(
+                                    modifier = Modifier
+                                        .padding(horizontal = 20.dp),
+                                    earningsPerTimePeriod = state.earningsPerTimePeriod,
+                                    maxEarnings = state.maxEarnings
+                                )
+                            }
+                            CategoryTotalsOverview(
+                                totalPerCategory = state.totalPerCategory,
+                                categoryBarStates = state.categoryBarStates
+                            ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        items(state.results) {
+                            FinanceCard(
+                                modifier = Modifier.alpha(animatedAlpha.value),
+                                finance = it,
+                                previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                                onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
-                    CategoryTotalsOverview(
-                        totalPerCategory = state.totalPerCategory,
-                        categoryBarStates = state.categoryBarStates
-                    ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HomeScreenContent(navigator)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                items(state.results) {
-                    FinanceCard(
-                        modifier = Modifier.alpha(animatedAlpha.value),
-                        finance = it,
-                        previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
-                        onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
+                    TranslucentOverlay(visible = state.isAddEditOpen)
+                    AddEditFinanceCard(
+                        state = vm.addEditService.state.value,
+                        isOpen = state.isAddEditOpen,
+                        form = vm.addEditService.formState,
+                        cardToggled = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) },
+                        typeToggled = { vm.onEvent(AddEditFinanceEvent.ToggleType) },
+                        categorySelected = { vm.onEvent(AddEditFinanceEvent.CategorySelected(it)) },
+                        addFinance = { vm.onEvent(AddEditFinanceEvent.AddFinance) },
+                        deleteFinance = { vm.onEvent(AddEditFinanceEvent.DeleteFinance)},
+                        dateChanged = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-            TranslucentOverlay(visible = state.isAddEditOpen)
-            AddEditFinanceCard(
-                state = vm.addEditService.state.value,
-                isOpen = state.isAddEditOpen,
-                form = vm.addEditService.formState,
-                cardToggled = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) },
-                typeToggled = { vm.onEvent(AddEditFinanceEvent.ToggleType) },
-                categorySelected = { vm.onEvent(AddEditFinanceEvent.CategorySelected(it)) },
-                addFinance = { vm.onEvent(AddEditFinanceEvent.AddFinance) },
-                deleteFinance = { vm.onEvent(AddEditFinanceEvent.DeleteFinance)},
-                dateChanged = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) }
-            )
         }
-    }
+    )
+
 }
 
 @Composable

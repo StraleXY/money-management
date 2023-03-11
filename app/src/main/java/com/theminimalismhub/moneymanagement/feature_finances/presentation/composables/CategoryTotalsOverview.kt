@@ -29,7 +29,7 @@ fun CategoryTotalsOverview(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .fillMaxWidth(),
-        elevation = 1.dp
+        elevation = 0.dp
     ) {
         Column(
             modifier = Modifier

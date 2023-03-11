@@ -36,8 +36,8 @@ fun TranslucentOverlay(
                 .background(
                     Color(
                         ColorUtils.setAlphaComponent(
-                            MaterialTheme.colors.background.toArgb(),
-                            (255 * 0.85).toInt()
+                            MaterialTheme.colors.surface.toArgb(),
+                            (255 * 0.95).toInt()
                         )
                     )
                 )
