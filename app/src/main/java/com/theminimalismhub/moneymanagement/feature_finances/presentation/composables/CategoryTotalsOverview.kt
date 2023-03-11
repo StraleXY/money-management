@@ -14,11 +14,11 @@ import androidx.compose.ui.unit.dp
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBar
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBarState
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 
 @Composable
 fun CategoryTotalsOverview(
-    totalPerCategory: List<CategoryEarnings>,
+    totalPerCategory: List<CategoryAmount>,
     categoryBarStates: HashMap<Int, MutableState<CategoryBarState>>,
     onClick: (Int) -> Unit
 ) {

@@ -5,7 +5,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.data_source.Fi
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
 
 class FinanceRepoImpl constructor(
@@ -17,7 +17,7 @@ class FinanceRepoImpl constructor(
         return dao.getAll(range.first, range.second, categoryId)
     }
 
-    override fun getPerCategory(range: Pair<Long, Long>): Flow<List<CategoryEarnings>> {
+    override fun getPerCategory(range: Pair<Long, Long>): Flow<List<CategoryAmount>> {
         return dao.getPerCategory(range.first, range.second)
     }
 

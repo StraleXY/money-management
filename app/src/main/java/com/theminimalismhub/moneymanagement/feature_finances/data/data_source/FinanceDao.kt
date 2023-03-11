@@ -4,7 +4,7 @@ import androidx.room.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,11 +22,11 @@ interface FinanceDao {
     @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC")
     fun getAll(from: Long, to: Long, categoryId: Int): Flow<List<Finance>>
 
-    @Query("SELECT Finance.financeCategoryId as categoryId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
+    @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
             "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
             "WHERE timestamp >= :from AND timestamp <= :to " +
             "GROUP BY financeCategoryId")
-    fun getPerCategory(from: Long, to: Long): Flow<List<CategoryEarnings>>
+    fun getPerCategory(from: Long, to: Long): Flow<List<CategoryAmount>>
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
             "WHERE type = :type AND timestamp >= :from AND timestamp <= :to ")

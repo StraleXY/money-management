@@ -76,7 +76,7 @@ fun HomeScreen(
         scaffoldState = backdropScaffoldState,
         peekHeight = 0.dp,
         backLayerBackgroundColor = MaterialTheme.colors.background,
-        frontLayerScrimColor = Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (255 * 0.90).toInt())),
+        frontLayerScrimColor = Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (255 * 0.80).toInt())),
         frontLayerElevation = 2.dp,
         gesturesEnabled = !state.isAddEditOpen,
         appBar = {
@@ -96,8 +96,8 @@ fun HomeScreen(
                 items(state.accounts) { account ->
                     AccountCardLarge(
                         account = account,
-                        totalPerCategory = state.totalPerCategory,
-                        maxAmount = if(state.totalPerCategory.isEmpty()) 0.0 else state.totalPerCategory.maxOf { it.amount }
+                        totalPerCategory = state.totalsPerAccount[account.accountId] ?: emptyList(),
+                        maxAmount = if(!state.totalsPerAccount.containsKey(account.accountId) || state.totalsPerAccount[account.accountId]!!.isEmpty()) 0.0 else state.totalsPerAccount[account.accountId]!!.maxOf { it.amount }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }

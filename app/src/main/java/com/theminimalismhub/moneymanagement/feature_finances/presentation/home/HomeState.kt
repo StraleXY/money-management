@@ -1,7 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import androidx.compose.runtime.MutableState
-import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
@@ -11,10 +10,11 @@ data class HomeState(
     val results: List<Finance> = emptyList(),
 
     val dateRange: Pair<Long, Long> = Pair(System.currentTimeMillis(), System.currentTimeMillis()),
-    val totalPerCategory: List<CategoryEarnings> = emptyList(),
+    val totalPerCategory: List<CategoryAmount> = emptyList(),
     val categoryBarStates: HashMap<Int, MutableState<CategoryBarState>> = HashMap(),
     val earningsPerTimePeriod: List<GraphEntry> = emptyList(),
     val maxEarnings: Double = 0.0,
 
-    val accounts: List<Account> = emptyList()
+    val accounts: List<Account> = emptyList(),
+    val totalsPerAccount: Map<Int, List<CategoryAmount>> = HashMap()
 )

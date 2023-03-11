@@ -27,6 +27,8 @@ class AddEditFinanceService(
 
     private var incomeCategories: List<Category> = emptyList()
     private var outcomeCategories: List<Category> = emptyList()
+    private var initialAccountId: Int? = null
+    private var initialAmount: Double = 0.0
 
     init {
         getCategories()
@@ -57,16 +59,23 @@ class AddEditFinanceService(
                     selectCategoryType(_state.value.currentType)
                     formState.fields[0].change("")
                     formState.fields[1].change("")
+                    onEvent(AddEditFinanceEvent.AccountSelected(_state.value.accounts.find { it.primary }?.accountId!!))
+                    initialAccountId = null
+                    initialAmount = 0.0
                 } else {
                     _state.value = _state.value.copy(
                         currentFinanceId = event.finance.finance.id,
                         currentType = event.finance.finance.type,
-                        timestamp = event.finance.finance.timestamp
+                        timestamp = event.finance.finance.timestamp,
+                        selectedAccountId = event.finance.finance.financeAccountId
                     )
                     selectCategoryType(_state.value.currentType)
                     onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId))
                     formState.fields[0].change(event.finance.finance.name)
                     formState.fields[1].change(event.finance.finance.amount.toInt().toString())
+                    onEvent(AddEditFinanceEvent.AccountSelected(event.finance.finance.financeAccountId))
+                    initialAccountId = event.finance.finance.financeAccountId
+                    initialAmount = event.finance.finance.amount
                 }
             }
             is AddEditFinanceEvent.AccountSelected -> {
@@ -107,7 +116,15 @@ class AddEditFinanceService(
                             financeAccountId = _state.value.selectedAccountId!!
                         )
                     )
-                    useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
+                    if (_state.value.currentFinanceId == null) useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
+                    else if (_state.value.currentFinanceId != null && initialAccountId == _state.value.selectedAccountId) {
+                        useCases.updateAccountBalance(if (_state.value.currentType == FinanceType.OUTCOME) -((formState.fields[1].value).toDouble() - initialAmount) else ((formState.fields[1].value).toDouble() - initialAmount), _state.value.selectedAccountId!!)
+                    }
+                    else if (_state.value.currentFinanceId != null && initialAccountId != _state.value.selectedAccountId) {
+                        useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) initialAmount else -initialAmount, initialAccountId!!)
+                        useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
+
+                    }
                 }
             }
             AddEditFinanceEvent.DeleteFinance -> {

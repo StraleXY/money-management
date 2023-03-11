@@ -86,6 +86,10 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     totalPerCategory = totals.sortedBy { it.amount }.reversed()
                 )
+                _state.value = _state.value.copy(
+                    totalsPerAccount = totals.groupBy { it.accountId }
+                )
+
                 totals.forEach {
                     _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
                         when (selectedCategoryId) {

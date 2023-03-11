@@ -7,7 +7,7 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
@@ -15,7 +15,7 @@ class GetTotalPerCategory constructor(
     private val repo: FinanceRepo,
     private val categoryRepo: CategoryRepo
 ) {
-    operator fun invoke(range: Pair<Long, Long>) : Flow<List<CategoryEarnings>> {
+    operator fun invoke(range: Pair<Long, Long>) : Flow<List<CategoryAmount>> {
         return repo.getPerCategory(range)
     }
 

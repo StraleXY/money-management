@@ -26,13 +26,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import com.theminimalismhub.moneymanagement.ui.theme.credit_card
 import com.theminimalismhub.moneymanagement.ui.theme.economica
 import kotlin.random.Random
@@ -86,7 +85,7 @@ fun AccountCardLarge(
     account: Account,
     currency: String = "RSD",
     maxAmount: Double,
-    totalPerCategory: List<CategoryEarnings>
+    totalPerCategory: List<CategoryAmount>
 ) {
     val random = Random(System.currentTimeMillis()) //21132020
 
@@ -142,7 +141,7 @@ fun AccountCardLarge(
                     if (totalPerCategory.isEmpty()) return@drawBehind
 
                     totalPerCategory
-                        .filter { it.amount > maxAmount * 0.25 }
+                        .filter { it.amount > maxAmount * 0.22 }
                         .forEach {
                             if (possibleSpots.isEmpty()) return@drawBehind
 
