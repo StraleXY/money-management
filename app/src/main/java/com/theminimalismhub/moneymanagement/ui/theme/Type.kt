@@ -14,6 +14,10 @@ val anton = FontFamily(
     Font(R.font.anton_regular)
 )
 
+val credit_card = FontFamily(
+    Font(R.font.c_card)
+)
+
 val economica = FontFamily(
     Font(R.font.economica)
 )

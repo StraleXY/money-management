@@ -27,7 +27,7 @@ fun FloatingCard(
         )
     ) {
         Box(
-            modifier = modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
         ) {
             Column(
                 modifier = Modifier
@@ -37,7 +37,7 @@ fun FloatingCard(
             ) {
                 header()
                 Card(
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                         .padding(bottom = 58.dp),

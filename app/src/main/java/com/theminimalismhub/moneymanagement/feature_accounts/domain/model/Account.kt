@@ -15,9 +15,8 @@ data class Account(
     @PrimaryKey val accountId: Int? = null,
 
     @ColumnInfo(name = "primary", defaultValue = "0") val primary: Boolean,
-//    @ColumnInfo(name = "type", defaultValue = "CASH") val type: AccountType,
-//    @ColumnInfo(name = "description", defaultValue = "") val description: String,
-//    @ColumnInfo(name = "expiration", defaultValue = "") val expiration: String
+    @ColumnInfo(name = "type", defaultValue = "CASH") val type: AccountType,
+    @ColumnInfo(name = "description", defaultValue = "") val description: String = ""
 
 ) : Serializable
 

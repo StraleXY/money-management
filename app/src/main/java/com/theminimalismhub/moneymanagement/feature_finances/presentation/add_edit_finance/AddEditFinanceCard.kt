@@ -61,7 +61,9 @@ fun AddEditFinanceCard(
         modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
         header = {
-            AccountsList(accounts = accounts)
+            AccountsList(
+                accounts = accounts
+            )
         }
     ) {
         LazyRow(

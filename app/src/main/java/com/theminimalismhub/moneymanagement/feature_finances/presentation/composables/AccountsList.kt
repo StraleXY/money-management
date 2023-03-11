@@ -17,12 +17,12 @@ fun AccountsList(
     LazyRow(
         modifier = modifier
             .fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(horizontal = 32.dp),
         horizontalArrangement = Arrangement.Start
     ) {
         items(accounts.filter { it.active }) { account ->
             AccountCardMini(account = account)
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(16.dp))
         }
     }
 }

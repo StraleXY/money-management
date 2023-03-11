@@ -21,11 +21,15 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
+import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.ui.theme.credit_card
 import com.theminimalismhub.moneymanagement.ui.theme.economica
 import kotlin.random.Random
 
@@ -38,25 +42,29 @@ fun AccountCardMini(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(15.dp),
-        elevation = if(account.primary) 16.dp else 8.dp
+        elevation = 8.dp
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .padding(vertical = 18.dp, horizontal = 22.dp)
                 .widthIn(120.dp)
+                .padding(vertical = 18.dp, horizontal = 26.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = account.name,
-                style = MaterialTheme.typography.body2.copy(
-                    fontSize = 18.sp
+            Column {
+                Text(
+                    text = account.name,
+                    style = MaterialTheme.typography.body2
                 )
-            )
-            Text(
-                text = "${account.balance.toInt()} $currency",
-                style = MaterialTheme.typography.body1.copy(
-                    fontSize = 24.sp
+                Text(
+                    text = "${account.balance.toInt()} $currency",
+                    style = MaterialTheme.typography.body1.copy(
+                        fontSize = 24.sp,
+                        lineHeight = 24.sp
+                    )
                 )
-            )
+            }
+            Spacer(modifier = Modifier.width(34.dp))
+            AccountIcon(type = account.type)
         }
     }
 }
@@ -184,28 +192,21 @@ fun AccountCardLarge(
                     )
                 )
             }
-
-            Icon(
+            if(account.type == AccountType.CARD) {
+                CardNumber(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 28.dp, bottom = 25.dp),
+                    lastDigits = account.description
+                )
+            }
+            AccountIcon(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 20.dp, bottom = 20.dp),
-                imageVector = Icons.Default.AccountBalanceWallet,
-                contentDescription = Icons.Default.CreditCard.name
+                type = account.type
             )
         }
-    }
-}
-
-@Composable
-private fun CardNumber(
-    lastDigits: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = lastDigits
-        )
     }
 }
 
@@ -242,4 +243,47 @@ fun AddNewAccount(
             )
         }
     }
+}
+
+@Composable
+private fun CardNumber(
+    modifier: Modifier = Modifier,
+    lastDigits: String
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.offset(0.dp, (-2).dp),
+            text = "● ● ● ● ",
+            style = TextStyle(
+                fontFamily = credit_card,
+                fontSize = 11.sp
+            )
+        )
+        Text(
+            text = lastDigits,
+            style = TextStyle(
+                fontFamily = credit_card,
+                fontSize = 12.sp
+            )
+        )
+    }
+}
+
+@Composable
+private fun AccountIcon(
+    modifier: Modifier = Modifier,
+    type: AccountType
+) {
+    Icon(
+        modifier = modifier,
+        imageVector = when(type) {
+            AccountType.CARD -> Icons.Default.CreditCard
+            AccountType.CASH -> Icons.Default.AccountBalanceWallet
+            else -> Icons.Default.CreditCard
+        },
+        contentDescription = Icons.Default.CreditCard.name
+    )
 }
