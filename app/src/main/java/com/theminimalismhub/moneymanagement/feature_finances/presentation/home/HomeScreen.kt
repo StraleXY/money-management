@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -73,6 +75,7 @@ fun HomeScreen(
         backLayerBackgroundColor = MaterialTheme.colors.background,
         frontLayerScrimColor = Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (255 * 0.90).toInt())),
         frontLayerElevation = 2.dp,
+        gesturesEnabled = !state.isAddEditOpen,
         appBar = {
             ScreenHeader(
                 title = "Money Management",
@@ -131,6 +134,7 @@ fun HomeScreen(
                 },
                 scaffoldState = scaffoldState,
             ) {
+                // HOME CONTENT
                 Box(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = 20.dp),
@@ -138,7 +142,17 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         item {
-                            Spacer(modifier = Modifier.height(32.dp))
+                            Spacer(modifier = Modifier.height(36.dp))
+//                            Box(
+//                                modifier = Modifier
+//                                    .width(50.dp)
+//                                    .height(4.dp)
+//                                    .background(
+//                                        MaterialTheme.colors.primaryVariant,
+//                                        RoundedCornerShape(100)
+//                                    )
+//                            )
+//                            Spacer(modifier = Modifier.height(16.dp))
                             RangePicker(
                                 rangeService = vm.rangeService,
                                 rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
