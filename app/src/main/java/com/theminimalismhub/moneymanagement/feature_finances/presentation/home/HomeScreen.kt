@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -21,14 +23,16 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
 import java.util.*
 
+@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
 @Destination(style = BaseTransition::class)
@@ -43,6 +47,20 @@ fun HomeScreen(
 
     BackHandler(enabled = state.isAddEditOpen) {
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
+    }
+
+
+    val animatedAlpha = remember{ Animatable(1f) }
+    LaunchedEffect(state.results) {
+        animatedAlpha.snapTo(0f)
+        animatedAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = keyframes {
+                durationMillis = 400
+                0f at 150 with FastOutSlowInEasing
+                1f at 400
+            }
+        )
     }
 
     Scaffold(
@@ -98,11 +116,48 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 item {
-                    HomeScreenContent(navigator = navigator)
+                    //HomeScreenContent(navigator = navigator)
+                    Spacer(modifier = Modifier.height(64.dp))
+                    RangePicker(
+                        rangeService = vm.rangeService,
+                        rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    QuickSpendingOverview(
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp),
+                        amount = state.results.sumOf { finance -> if(finance.finance.type == FinanceType.OUTCOME) finance.finance.amount else 0.0 },
+                        rangeLength = vm.rangeService.rangeLength,
+                        limit = 1000.0
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    AnimatedVisibility(
+                        visible = vm.rangeService.rangeLength > 1,
+                        enter = expandVertically(tween(400))
+                                + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
+                                + fadeIn(tween(300, 450)),
+                        exit = scaleOut(targetScale = 0.9f, animationSpec = tween(300))
+                                + fadeOut(tween(300))
+                                + shrinkVertically(tween(450, 250))
+                    ) {
+                        GraphSpendingOverview(
+                            modifier = Modifier
+                                .padding(horizontal = 20.dp),
+                            earningsPerTimePeriod = state.earningsPerTimePeriod,
+                            maxEarnings = state.maxEarnings
+                        )
+                    }
+                    CategoryTotalsOverview(
+                        totalPerCategory = state.totalPerCategory,
+                        categoryBarStates = state.categoryBarStates
+                    ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HomeScreenContent(navigator)
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 items(state.results) {
                     FinanceCard(
+                        modifier = Modifier.alpha(animatedAlpha.value),
                         finance = it,
                         previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
                         onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
@@ -119,6 +174,7 @@ fun HomeScreen(
                 typeToggled = { vm.onEvent(AddEditFinanceEvent.ToggleType) },
                 categorySelected = { vm.onEvent(AddEditFinanceEvent.CategorySelected(it)) },
                 addFinance = { vm.onEvent(AddEditFinanceEvent.AddFinance) },
+                deleteFinance = { vm.onEvent(AddEditFinanceEvent.DeleteFinance)},
                 dateChanged = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) }
             )
         }
@@ -129,10 +185,6 @@ fun HomeScreen(
 private fun HomeScreenContent(
     navigator: DestinationsNavigator
 ) {
-    ScreenHeader(
-        title = "Money Manager",
-        hint = ""
-    )
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 24.dp),

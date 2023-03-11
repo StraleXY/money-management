@@ -46,6 +46,7 @@ fun AddEditFinanceCard(
     typeToggled: () -> Unit,
     categorySelected: (Int) -> Unit,
     addFinance: () -> Unit,
+    deleteFinance: () -> Unit,
     dateChanged: (Long) -> Unit
 
 ) {
@@ -143,6 +144,7 @@ fun AddEditFinanceCard(
                 alternatedColor = MaterialTheme.colors.error,
                 iconColor = MaterialTheme.colors.onBackground,
                 onHold = {
+                    deleteFinance()
                     cardToggled(null)
                 },
                 enabled = state.currentFinanceId != null

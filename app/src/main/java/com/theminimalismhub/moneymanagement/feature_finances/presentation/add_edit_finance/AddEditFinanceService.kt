@@ -100,6 +100,11 @@ class AddEditFinanceService(
                     )
                 }
             }
+            AddEditFinanceEvent.DeleteFinance -> {
+                scope.launch {
+                    useCases.delete(state.value.currentFinanceId!!)
+                }
+            }
         }
     }
     private fun selectCategoryType(type: FinanceType) {

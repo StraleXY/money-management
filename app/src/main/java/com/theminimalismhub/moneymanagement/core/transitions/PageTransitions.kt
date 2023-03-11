@@ -41,7 +41,7 @@ object AddEditScreenTransition : DestinationStyle.Animated {
 @OptIn(ExperimentalAnimationApi::class)
 object BaseTransition : DestinationStyle.Animated {
     override fun AnimatedContentScope<NavBackStackEntry>.enterTransition(): EnterTransition {
-//        if(targetState.appDestination() == HomeScreenDestination || initialState.appDestination() == ActivationScreenDestination) return getEnterTransition(0.95f)
+        if(targetState.appDestination() == HomeScreenDestination) return getEnterTransition(0.95f)
         return getEnterTransition(1.05f)
     }
 
@@ -52,7 +52,7 @@ object BaseTransition : DestinationStyle.Animated {
         }
     }
     override fun AnimatedContentScope<NavBackStackEntry>.popEnterTransition(): EnterTransition {
-//        if(targetState.appDestination() == HomeScreenDestination || initialState.appDestination() == ActivationScreenDestination) return getEnterTransition(0.95f)
+        if(targetState.appDestination() == HomeScreenDestination) return getEnterTransition(0.95f)
         return getEnterTransition(1.05f)
     }
 

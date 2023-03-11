@@ -157,7 +157,7 @@ fun ManageCategoriesScreen(
                 }
                 Spacer(modifier = Modifier.height(28.dp))
                 HarmonyColorPicker(
-                    modifier = Modifier.size(250.dp),
+                    modifier = Modifier.size(275.dp),
                     color = state.currentColor,
                     isBrightnessFixed = false
                 ) { color -> vm.onEvent(ManageCategoriesEvent.ColorChanged(color)) }

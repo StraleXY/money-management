@@ -25,13 +25,13 @@ data class Finance(
 ) : Serializable {
     fun getDay() : Int {
         val time = Calendar.getInstance()
-        time.time = Date(finance.timestamp)
+        time.timeInMillis = finance.timestamp
         return time.get(Calendar.DAY_OF_MONTH)
     }
     @SuppressLint("SimpleDateFormat")
     fun getMonth() : String {
         val time = Calendar.getInstance()
         time.time = Date(finance.timestamp)
-        return SimpleDateFormat("MMM").format(time.getTime())
+        return SimpleDateFormat("MMM").format(time.time)
     }
 }

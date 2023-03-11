@@ -4,5 +4,6 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.
 
 data class AddEditFinanceUseCases(
     val getCategories: GetCategories,
-    val add: AddFinance
+    val add: AddFinance,
+    val delete: DeleteFinance
 )
