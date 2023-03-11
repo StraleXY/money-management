@@ -90,7 +90,7 @@ fun HomeScreen(
             MainAppActions(navigator)
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 20.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
                 items(state.accounts) { account ->
@@ -252,6 +252,19 @@ private fun MainAppActions(
             )
             Spacer(modifier = Modifier.width(8.dp))
             ActionChip(
+                text = "ACCOUNTS",
+                icon = Icons.Default.AccountBalance,
+                textStyle = MaterialTheme.typography.button,
+                borderThickness = 1.dp,
+                accentColor = MaterialTheme.colors.primaryVariant,
+                backgroundStrength = 0f,
+                modifier = Modifier
+                    .padding(bottom = 12.dp),
+                onClick = {
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ActionChip(
                 text = "SETTINGS",
                 icon = Icons.Default.Settings,
                 textStyle = MaterialTheme.typography.button,
@@ -266,4 +279,5 @@ private fun MainAppActions(
             )
         }
     }
+    Spacer(modifier = Modifier.width(16.dp))
 }

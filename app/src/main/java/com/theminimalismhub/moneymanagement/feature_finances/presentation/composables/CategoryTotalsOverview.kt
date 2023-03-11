@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -27,7 +28,10 @@ fun CategoryTotalsOverview(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .fillMaxWidth(),
-        elevation = 0.dp
+        backgroundColor = MaterialTheme.colors.surface.copy(
+            red = 0.1f, green = 0.1f, blue = 0.1f
+        ),
+        elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
