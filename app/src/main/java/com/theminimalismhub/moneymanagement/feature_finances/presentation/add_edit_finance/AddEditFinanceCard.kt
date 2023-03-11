@@ -44,8 +44,8 @@ fun AddEditFinanceCard(
     state: AddEditFinanceState,
     isOpen: Boolean,
     form: FormState<TextFieldState>,
-    accounts: List<Account>,
     cardToggled: (Finance?) -> Unit,
+    accountSelected: (Int) -> Unit,
     typeToggled: () -> Unit,
     categorySelected: (Int) -> Unit,
     addFinance: () -> Unit,
@@ -62,8 +62,9 @@ fun AddEditFinanceCard(
         visible = isOpen,
         header = {
             AccountsList(
-                accounts = accounts
-            )
+                accounts = state.accounts,
+                states = state.accountStates
+            ) { accountSelected(it) }
         }
     ) {
         LazyRow(

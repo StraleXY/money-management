@@ -1,7 +1,9 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables
 
 import android.graphics.Point
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -14,8 +16,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -37,10 +41,17 @@ import kotlin.random.Random
 fun AccountCardMini(
     modifier: Modifier = Modifier,
     account: Account,
-    currency: String = "RSD"
+    selected: Boolean,
+    currency: String = "RSD",
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .clickable (
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick() }
+            .alpha(animateFloatAsState(targetValue = if(selected) 1f else 0.5f).value),
         shape = RoundedCornerShape(15.dp),
         elevation = 8.dp
     ) {

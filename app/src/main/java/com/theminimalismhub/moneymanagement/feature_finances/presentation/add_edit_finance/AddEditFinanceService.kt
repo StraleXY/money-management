@@ -6,6 +6,7 @@ import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
@@ -68,6 +69,14 @@ class AddEditFinanceService(
                     formState.fields[1].change(event.finance.finance.amount.toInt().toString())
                 }
             }
+            is AddEditFinanceEvent.AccountSelected -> {
+                _state.value.accountStates.forEach { (id, _) ->
+                    _state.value.accountStates[id]?.value = id == event.id
+                }
+                _state.value = _state.value.copy(
+                    selectedAccountId = event.id
+                )
+            }
             AddEditFinanceEvent.ToggleType -> {
                 _state.value = _state.value.copy(
                     currentType = FinanceType[(_state.value.currentType.value + 1) % 2]!!,
@@ -95,7 +104,7 @@ class AddEditFinanceService(
                             type = _state.value.currentType,
                             id = _state.value.currentFinanceId,
                             financeCategoryId = _state.value.selectedCategoryId!!,
-                            financeAccountId = 1
+                            financeAccountId = _state.value.selectedAccountId!!
                         )
                     )
                 }
@@ -135,5 +144,15 @@ class AddEditFinanceService(
                     FinanceType.OUTCOME)
             }
             .launchIn(scope)
+    }
+
+    fun setAccounts(accounts: List<Account>) {
+        _state.value = _state.value.copy(
+            accounts = accounts,
+            selectedAccountId = accounts.find { it.primary }?.accountId
+        )
+        accounts.forEach { account ->
+            account.accountId?.let { id -> _state.value.accountStates[id] = mutableStateOf(account.accountId == _state.value.selectedAccountId) }
+        }
     }
 }

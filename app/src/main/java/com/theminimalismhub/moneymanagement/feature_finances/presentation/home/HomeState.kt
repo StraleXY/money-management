@@ -16,23 +16,5 @@ data class HomeState(
     val earningsPerTimePeriod: List<GraphEntry> = emptyList(),
     val maxEarnings: Double = 0.0,
 
-    val accounts: List<Account> = listOf(
-        Account(
-            accountId = 1,
-            name = "Gotovina",
-            balance = 4000.0,
-            type = AccountType.CASH,
-            active = true,
-            primary = true
-        ),
-        Account(
-            accountId = 2,
-            name = "Kartica",
-            balance = 21450.0,
-            type = AccountType.CARD,
-            description = "3802",
-            active = true,
-            primary = false
-        )
-    )
+    val accounts: List<Account> = emptyList()
 )

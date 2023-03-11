@@ -21,7 +21,7 @@ fun GraphSpendingOverview(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp),
-        elevation = 1.dp
+        elevation = 0.dp
     ) {
         if(earningsPerTimePeriod.isNotEmpty()) {
             Graph(
