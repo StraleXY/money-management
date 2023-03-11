@@ -30,12 +30,15 @@ class HomeViewModel @Inject constructor(
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
+
+    private var selectedCategoryId: Int? = null
     val rangeService = RangePickerService()
 
     init {
         initDateRange()
         getFinances(null)
         getCategoryTotals()
+        getAccounts()
     }
     fun onEvent(event: HomeEvent) {
         when(event) {
@@ -57,6 +60,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // Finances
     private var getFinancesJob: Job? = null
     private fun getFinances(categoryId: Int?) {
         getFinancesJob?.cancel()
@@ -69,6 +73,8 @@ class HomeViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
     }
+
+    // Overview
     private fun initDateRange() {
         _state.value = _state.value.copy(
             dateRange = Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp())
@@ -76,7 +82,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private var getPerCategoryJob: Job? = null
-    private var selectedCategoryId: Int? = null
     private fun getCategoryTotals() {
         getPerCategoryJob?.cancel()
         getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange)
@@ -119,6 +124,19 @@ class HomeViewModel @Inject constructor(
                 maxEarnings = _state.value.earningsPerTimePeriod.maxOf { it.value }
             )
         }
+    }
+
+    // Accounts
+    private var getAccountsJob: Job? = null
+    private fun getAccounts() {
+        getAccountsJob?.cancel()
+        getAccountsJob = useCases.getAccounts()
+            .onEach {
+                _state.value = _state.value.copy(
+                    accounts = it
+                )
+            }
+            .launchIn(viewModelScope)
     }
 }
 

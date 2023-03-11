@@ -3,6 +3,9 @@ package com.theminimalismhub.moneymanagement.di
 import android.app.Application
 import com.theminimalismhub.moneymanagement.feature_accounts.data.repository.AccountRepoImpl
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.repository.AccountRepo
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.AddAccount
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.GetAccounts
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
 import com.theminimalismhub.moneymanagement.feature_categories.data.repository.CategoryRepoImpl
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.AddCategory
@@ -61,10 +64,18 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesHomeUseCases(financeRepo: FinanceRepo, categoryRepo: CategoryRepo): HomeUseCases {
+    fun providesHomeUseCases(financeRepo: FinanceRepo, categoryRepo: CategoryRepo, accountRepo: AccountRepo): HomeUseCases {
         return HomeUseCases(
             getFinances = GetFinances(financeRepo),
-            getTotalPerCategory = GetTotalPerCategory(financeRepo, categoryRepo)
+            getTotalPerCategory = GetTotalPerCategory(financeRepo, categoryRepo),
+            getAccounts = GetAccounts(accountRepo)
+        )
+    }
+
+    @Provides @Singleton
+    fun providesManageAccountsUseCases(repo: AccountRepo): ManageAccountsUseCases {
+        return ManageAccountsUseCases(
+            add = AddAccount(repo)
         )
     }
 
