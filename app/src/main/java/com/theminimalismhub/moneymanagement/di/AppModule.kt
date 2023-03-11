@@ -1,6 +1,8 @@
 package com.theminimalismhub.moneymanagement.di
 
 import android.app.Application
+import com.theminimalismhub.moneymanagement.feature_accounts.data.repository.AccountRepoImpl
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.repository.AccountRepo
 import com.theminimalismhub.moneymanagement.feature_categories.data.repository.CategoryRepoImpl
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.AddCategory
@@ -33,6 +35,11 @@ object AppModule {
     @Provides @Singleton
     fun provideFinanceRepo(db: MoneyDatabase): FinanceRepo {
         return FinanceRepoImpl(db.financeDao)
+    }
+
+    @Provides @Singleton
+    fun providesAccountRepo(db: MoneyDatabase): AccountRepo {
+        return AccountRepoImpl(db.accountDao)
     }
 
     @Provides @Singleton

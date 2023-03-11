@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.theminimalismhub.moneymanagement.feature_accounts.data.data_source.AccountDao
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.data.data_source.CategoryDao
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
@@ -29,6 +30,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {
     abstract val categoryDao: CategoryDao
     abstract val financeDao: FinanceDao
+    abstract val accountDao: AccountDao
     companion object {
         @Volatile
         var Instance: MoneyDatabase? = null
