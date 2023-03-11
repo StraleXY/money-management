@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -32,6 +30,7 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
@@ -68,7 +67,7 @@ fun HomeScreen(
         )
     }
 
-    val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
+    val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed)
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
         peekHeight = 0.dp,
@@ -83,8 +82,22 @@ fun HomeScreen(
             )
         },
         backLayerContent = {
-            HomeScreenContent(navigator)
-            AccountsList(accounts = state.accounts)
+            // BACKDROP CONTENT
+            MainAppActions(navigator)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                items(state.accounts) { account ->
+                    AccountCardLarge(
+                        account = account,
+                        totalPerCategory = state.totalPerCategory,
+                        maxAmount = if(state.totalPerCategory.isEmpty()) 0.0 else state.totalPerCategory.maxOf { it.amount }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
             Spacer(modifier = Modifier.height(24.dp))
         },
         frontLayerContent = {
@@ -218,7 +231,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HomeScreenContent(
+private fun MainAppActions(
     navigator: DestinationsNavigator
 ) {
     LazyRow(

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
-import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCard
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardMini
 
 @Composable
 fun AccountsList(
@@ -21,7 +21,7 @@ fun AccountsList(
         horizontalArrangement = Arrangement.Start
     ) {
         items(accounts) { account ->
-            AccountCard(account = account)
+            AccountCardMini(account = account)
             Spacer(modifier = Modifier.width(8.dp))
         }
     }
