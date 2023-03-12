@@ -86,7 +86,8 @@ fun AccountCardLarge(
     currency: String = "RSD",
     maxAmount: Double = 0.0,
     totalPerCategory: List<CategoryAmount> = emptyList(),
-    scale: Float = 1f
+    scale: Float = 1f,
+    overlayStrength: Float = 0.05f
 ) {
     val random = Random(System.currentTimeMillis()) //21132020
 
@@ -136,7 +137,7 @@ fun AccountCardLarge(
                     drawRect(
                         color = Color.White,
                         size = size,
-                        alpha = 0.05f
+                        alpha = overlayStrength
                     )
 
                     if (totalPerCategory.isEmpty()) return@drawBehind

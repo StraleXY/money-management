@@ -3,5 +3,6 @@ package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manag
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 
 data class ManageAccountsState(
-    val accounts: List<Account> = emptyList()
+    val accounts: List<Account> = emptyList(),
+    val selectedAccount: Account? = null
 )

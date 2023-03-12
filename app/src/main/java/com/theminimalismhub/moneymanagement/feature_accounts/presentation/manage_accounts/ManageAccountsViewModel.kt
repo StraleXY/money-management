@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,7 +25,23 @@ class ManageAccountsViewModel @Inject constructor(
     }
 
     fun onEvent(event: ManageAccountsEvent) {
-
+        when(event) {
+            is ManageAccountsEvent.CardSelected -> {
+                _state.value = _state.value.copy(
+                    selectedAccount = _state.value.accounts[event.idx]
+                )
+            }
+            ManageAccountsEvent.ToggleActive -> {
+                viewModelScope.launch {
+                    _state.value.selectedAccount?.let {
+                        _state.value = _state.value.copy(
+                            selectedAccount = it.copy(active = !it.active)
+                        )
+                        useCases.add(_state.value.selectedAccount!!)
+                    }
+                }
+            }
+        }
     }
 
     private var getAccountsJob: Job? = null
@@ -33,7 +50,8 @@ class ManageAccountsViewModel @Inject constructor(
         getAccountsJob = useCases.getAccounts()
             .onEach {
                 _state.value = _state.value.copy(
-                    accounts = it
+                    accounts = it,
+                    selectedAccount = _state.value.selectedAccount ?: it.first()
                 )
             }
             .launchIn(viewModelScope)
