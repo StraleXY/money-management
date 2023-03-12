@@ -85,7 +85,8 @@ fun AccountCardLarge(
     account: Account,
     currency: String = "RSD",
     maxAmount: Double = 0.0,
-    totalPerCategory: List<CategoryAmount> = emptyList()
+    totalPerCategory: List<CategoryAmount> = emptyList(),
+    scale: Float = 1f
 ) {
     val random = Random(System.currentTimeMillis()) //21132020
 
@@ -105,8 +106,8 @@ fun AccountCardLarge(
     ) {
         Box(
             modifier = Modifier
-                .width(260.dp)
-                .height(165.dp)
+                .width((260 * scale).dp)
+                .height((165 * scale).dp)
                 .drawBehind {
 
                     val width = size.width.toInt()
@@ -222,14 +223,15 @@ fun AccountCardLarge(
 
 @Composable
 fun AddNewAccount(
+    scale: Float = 1f,
     onClick: () -> Unit
 ) {
     DashedBox(
         modifier = Modifier
             .clip(RoundedCornerShape(15.dp))
             .clickable { onClick() }
-            .width(260.dp)
-            .height(165.dp)
+            .width((260 * scale).dp)
+            .height((165 * scale).dp)
     ) {
         Column(
             modifier = Modifier,
