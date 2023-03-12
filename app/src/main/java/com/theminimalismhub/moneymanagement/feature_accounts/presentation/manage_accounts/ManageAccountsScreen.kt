@@ -118,6 +118,8 @@ fun ManageAccountsScreen(
                         enabled = !pagerState.isScrollInProgress
                     ) { }
                     CircularActionButton(
+                        modifier = Modifier
+                            .alpha(animateFloatAsState(targetValue = if(!pagerState.isScrollInProgress && !(state.selectedAccount?.primary ?: true)) 1f else 0.65f, tween(200)).value),
                         icon = Icons.Default.CreditScore,
                         action = "Set As Primary",
                         enabled = !pagerState.isScrollInProgress && !(state.selectedAccount?.primary ?: true)
@@ -147,12 +149,11 @@ private fun CircularActionButton(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .alpha(animateFloatAsState(targetValue = if(enabled) 1f else 0.65f, tween(75)).value),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .size(70.dp)
                 .background(
                     MaterialTheme.colors.surface,
@@ -198,12 +199,11 @@ private fun DashedCircularActionButton(
     )
 
     Column(
-        modifier = Modifier
-            .alpha(animateFloatAsState(targetValue = if(enabled) 1f else 0.65f, tween(75)).value),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .size(70.dp)
                 .drawBehind {
                     drawRoundRect(

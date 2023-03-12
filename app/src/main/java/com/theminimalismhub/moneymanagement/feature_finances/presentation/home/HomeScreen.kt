@@ -89,6 +89,7 @@ fun HomeScreen(
         backLayerContent = {
             // BACKDROP CONTENT
             MainAppActions(navigator)
+            Spacer(modifier = Modifier.height(12.dp))
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 24.dp),

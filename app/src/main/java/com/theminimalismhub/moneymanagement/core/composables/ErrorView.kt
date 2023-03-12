@@ -26,7 +26,7 @@ fun ErrorNoData(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 48.dp)
+            .padding(vertical = 24.dp)
     ) {
         Text(
             text = text,
