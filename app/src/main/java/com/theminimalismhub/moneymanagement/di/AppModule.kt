@@ -77,7 +77,8 @@ object AppModule {
     @Provides @Singleton
     fun providesManageAccountsUseCases(repo: AccountRepo): ManageAccountsUseCases {
         return ManageAccountsUseCases(
-            add = AddAccount(repo)
+            add = AddAccount(repo),
+            getAccounts = GetAccounts(repo)
         )
     }
 

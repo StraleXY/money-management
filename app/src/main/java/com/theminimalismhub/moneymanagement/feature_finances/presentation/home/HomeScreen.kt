@@ -31,6 +31,7 @@ import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
@@ -261,6 +262,7 @@ private fun MainAppActions(
                 modifier = Modifier
                     .padding(bottom = 12.dp),
                 onClick = {
+                    navigator.navigate(ManageAccountsScreenDestination())
                 }
             )
             Spacer(modifier = Modifier.width(8.dp))

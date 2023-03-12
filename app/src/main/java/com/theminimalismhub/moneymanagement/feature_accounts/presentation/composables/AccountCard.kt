@@ -84,8 +84,8 @@ fun AccountCardLarge(
     modifier: Modifier = Modifier,
     account: Account,
     currency: String = "RSD",
-    maxAmount: Double,
-    totalPerCategory: List<CategoryAmount>
+    maxAmount: Double = 0.0,
+    totalPerCategory: List<CategoryAmount> = emptyList()
 ) {
     val random = Random(System.currentTimeMillis()) //21132020
 
