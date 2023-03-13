@@ -74,7 +74,11 @@ fun ManageAccountsScreen(
     var contentHeight by remember { mutableStateOf(0.dp) }
     val scroll: ScrollState = rememberScrollState(0)
 
-    
+    LaunchedEffect(scroll.isScrollInProgress) {
+        if(scroll.isScrollInProgress) return@LaunchedEffect
+        if(scroll.value.dp < 300.dp) scroll.animateScrollTo(0, tween(250))
+        else if(scroll.value < ((headerHeight - accountsPagerHeight - 48.dp).value * density).toInt()) scroll.animateScrollTo(((headerHeight - accountsPagerHeight - 48.dp).value * density).toInt(), tween(250))
+    }
 
     LaunchedEffect(pagerState.currentPage) {
         vm.onEvent(ManageAccountsEvent.CardSelected(pagerState.currentPage))
