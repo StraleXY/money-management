@@ -69,7 +69,14 @@ fun ManageAccountsScreen(
         ) {
 
             item {
-                Column(modifier = Modifier.onSizeChanged { headerHeight = Dp(it.height / density) }) {
+                Column(
+                    modifier = Modifier
+                        .onSizeChanged { headerHeight = Dp(it.height / density) }
+                        .graphicsLayer { translationY = -(scroll.value.toFloat() * 1.2f)
+                            .coerceAtLeast(0f)
+                            .coerceAtMost(440f)
+                        }
+                ) {
                     ScreenHeader(
                         title = "Management Accounts",
                         hint = "Track your balance across multiple accounts!"
@@ -89,12 +96,14 @@ fun ManageAccountsScreen(
             }
 
         }
-        var textTrans = 0f
-        Column() {
+        
+        var textTrans by remember { mutableStateOf(0f) }
+        Column {
             Spacer(Modifier.height(accountsPagerHeight))
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
+                    .clip(RoundedCornerShape(15.dp))
                     .graphicsLayer {
                         translationY =
                             ((headerHeight - accountsPagerHeight - scroll.value.dp).toPx()).coerceAtLeast(
@@ -105,6 +114,7 @@ fun ManageAccountsScreen(
             ) {
                 Column(
                     modifier = Modifier
+                        .clip(RoundedCornerShape(15.dp))
                         .graphicsLayer {
                             val cardTranslationY = ((headerHeight - accountsPagerHeight - scroll.value.dp).toPx()).coerceAtLeast(0f)
                             textTrans = if (cardTranslationY > 0) scroll.value.dp.toPx() / 2 else textTrans
