@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts
 
 import android.util.Log
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -54,6 +55,14 @@ fun ManageAccountsScreen(
     val screenHeight by remember { mutableStateOf(Dp(root.height / density)) }
     val scroll: ScrollState = rememberScrollState(0)
 
+    LaunchedEffect(scroll.isScrollInProgress && scroll.value.dp > 5.dp && scroll.value < (headerHeight - accountsPagerHeight).value ) {
+        Log.d("SCROLL", scroll.isScrollInProgress.toString())
+        if(!scroll.isScrollInProgress) {
+            if (scroll.value.dp < 150.dp) scroll.animateScrollTo(0, tween(175))
+            else if (scroll.value < (headerHeight - accountsPagerHeight + 64.dp).value) scroll.animateScrollTo((headerHeight - accountsPagerHeight + 65.dp).value.toInt(), tween(175))
+        }
+    }
+
     val TAG = "ACCOUNT"
     LaunchedEffect(screenHeight) { Log.w(TAG, "Screen Height $screenHeight | Density $density")}
     LaunchedEffect(headerHeight) { Log.w(TAG, "Header Height $headerHeight")}
@@ -72,9 +81,10 @@ fun ManageAccountsScreen(
                 Column(
                     modifier = Modifier
                         .onSizeChanged { headerHeight = Dp(it.height / density) }
-                        .graphicsLayer { translationY = -(scroll.value.toFloat() * 1.2f)
-                            .coerceAtLeast(0f)
-                            .coerceAtMost(440f)
+                        .graphicsLayer {
+                            translationY = -(scroll.value.toFloat() * 1.2f)
+                                .coerceAtLeast(0f)
+                                .coerceAtMost(440f)
                         }
                 ) {
                     ScreenHeader(
@@ -108,9 +118,7 @@ fun ManageAccountsScreen(
                     .clip(RoundedCornerShape(15.dp))
                     .graphicsLayer {
                         translationY =
-                            ((headerHeight - accountsPagerHeight - scroll.value.dp).toPx()).coerceAtLeast(
-                                0f
-                            )
+                            ((headerHeight - accountsPagerHeight - scroll.value.dp).toPx()).coerceAtLeast(0f)
                     }
                     .verticalScroll(scroll)
             ) {
@@ -149,5 +157,12 @@ fun ManageAccountsScreen(
             }
         }
     }
+}
+
+@Composable
+fun SlidingCard(
+
+) {
+
 }
 
