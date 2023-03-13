@@ -51,7 +51,7 @@ fun ManageAccountsScreen(
     val root = LocalView.current
     var headerHeight by remember { mutableStateOf(0.dp) }
     var accountsPagerHeight by remember { mutableStateOf(0.dp) }
-    var screenHeight by remember { mutableStateOf(root.height / density) }
+    val screenHeight by remember { mutableStateOf(Dp(root.height / density)) }
     val scroll: ScrollState = rememberScrollState(0)
 
     val TAG = "ACCOUNT"
@@ -96,13 +96,15 @@ fun ManageAccountsScreen(
             }
 
         }
-        
+
         var textTrans by remember { mutableStateOf(0f) }
-        Column {
+        Column(modifier = Modifier.fillMaxSize()) {
             Spacer(Modifier.height(accountsPagerHeight))
+            // CARD
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
+                    .fillMaxSize()
                     .clip(RoundedCornerShape(15.dp))
                     .graphicsLayer {
                         translationY =
@@ -112,8 +114,10 @@ fun ManageAccountsScreen(
                     }
                     .verticalScroll(scroll)
             ) {
+                // CONTENT CONTAINER - translates content to the top and then keeps it there
                 Column(
                     modifier = Modifier
+                        .fillMaxSize()
                         .clip(RoundedCornerShape(15.dp))
                         .graphicsLayer {
                             val cardTranslationY = ((headerHeight - accountsPagerHeight - scroll.value.dp).toPx()).coerceAtLeast(0f)
@@ -121,13 +125,15 @@ fun ManageAccountsScreen(
                             translationY = textTrans
                         }
                 ) {
+                    // CONTENT - adds bottom podding
                     Column(
                         modifier = Modifier
                             .clip(RoundedCornerShape(15.dp))
                             .shadow(8.dp)
+                            .heightIn(screenHeight - accountsPagerHeight + 160.dp)
                             .background(Color(0XFF212121))
                     ) {
-                        repeat(50) {
+                        repeat(8) {
                             Text(
                                 text = "In the modern design world, Lorem Ipsum is the industry standard when placing dummy text onto an unfinished page, whether it's a newspaper, magazine, or advertisement. The Latin text was first used in the 16th century, when a printer scrambled a row of type (known as a \"galley\") so it could be used in a book that showcased the type's quality. This text saw a resurgence when electronic typesetting became popular in the 1960s, mainly because the French typography company Letraset started selling sheets with Lorem Ipsum.",
                                 style = MaterialTheme.typography.body1,
