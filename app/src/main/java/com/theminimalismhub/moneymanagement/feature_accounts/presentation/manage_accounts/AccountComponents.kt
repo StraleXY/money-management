@@ -42,6 +42,7 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AccountsPager(
+    modifier: Modifier = Modifier,
     accounts: List<Account>,
     pagerState: PagerState,
     onAccountSelected: (Int) -> Unit
@@ -53,7 +54,7 @@ fun AccountsPager(
 
     HorizontalPager(
         state = pagerState,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 40.dp, bottom = 40.dp)
     ) {itemIdx ->
@@ -117,6 +118,7 @@ fun AccountActions(
             enabled = enabled
         ) { }
     }
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable
