@@ -4,6 +4,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dsc.form_builder.FormState
+import com.dsc.form_builder.TextFieldState
+import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -19,6 +22,19 @@ class ManageAccountsViewModel @Inject constructor(
 
     private val _state = mutableStateOf(ManageAccountsState())
     val state: State<ManageAccountsState> = _state
+
+    val formState = FormState(
+        fields = listOf(
+            TextFieldState(
+                name = "name",
+                validators = listOf(Validators.Required()),
+            ),
+            TextFieldState(
+                name = "balance",
+                validators = listOf(Validators.MinValue(0, "Amount must be higher than 0"), Validators.Required()),
+            )
+        )
+    )
 
     init {
         getAccounts()
@@ -40,6 +56,11 @@ class ManageAccountsViewModel @Inject constructor(
                         useCases.add(_state.value.selectedAccount!!)
                     }
                 }
+            }
+            ManageAccountsEvent.ToggleAddEdit -> {
+                _state.value = _state.value.copy(
+                    isAddEditOpen = !_state.value.isAddEditOpen
+                )
             }
         }
     }

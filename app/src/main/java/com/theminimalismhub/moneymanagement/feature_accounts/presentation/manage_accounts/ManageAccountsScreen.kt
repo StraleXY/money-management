@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -26,7 +27,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.*
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
+import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddEditAccountCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -49,6 +53,9 @@ fun ManageAccountsScreen(
     val screenHeight by remember { mutableStateOf(Dp(root.height / density)) }
     val scroll: ScrollState = rememberScrollState(0)
 
+    BackHandler(enabled = state.isAddEditOpen) {
+        vm.onEvent(ManageAccountsEvent.ToggleAddEdit)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -81,7 +88,8 @@ fun ManageAccountsScreen(
                     AccountActions(
                         enabled = !pagerState.isScrollInProgress,
                         account = state.selectedAccount,
-                        onToggleActivate = { vm.onEvent(ManageAccountsEvent.ToggleActive) }
+                        onToggleActivate = { vm.onEvent(ManageAccountsEvent.ToggleActive) },
+                        onToggleAddEdit = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit) }
                     )
                 }
             }
@@ -102,9 +110,14 @@ fun ManageAccountsScreen(
                         .padding(16.dp)
                 )
             }
-            Text(text = "LRAJK")
         }
 
+        TranslucentOverlay(visible = state.isAddEditOpen)
+        AddEditAccountCard(
+            isOpen = state.isAddEditOpen,
+            account = state.selectedAccount,
+            form = vm.formState
+        )
     }
 }
 

@@ -65,12 +65,14 @@ fun AccountsPager(
                     val pageOffset =
                         calculateCurrentOffsetForPage(itemIdx).absoluteValue
 
-                    MathUtils.lerp(
-                        0.95f, 1.15f, 1f - pageOffset.coerceIn(0f, 1f)
-                    ).also { scale ->
-                        scaleX = scale
-                        scaleY = scale
-                    }
+                    MathUtils
+                        .lerp(
+                            0.95f, 1.15f, 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                        .also { scale ->
+                            scaleX = scale
+                            scaleY = scale
+                        }
                 }
                 .padding(horizontal = 12.dp)
         ) {
@@ -88,7 +90,8 @@ fun AccountsPager(
 fun AccountActions(
     enabled: Boolean = true,
     account: Account?,
-    onToggleActivate: () -> Unit
+    onToggleActivate: () -> Unit,
+    onToggleAddEdit: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -113,12 +116,12 @@ fun AccountActions(
             onClick = onToggleActivate
         )
         DashedCircularActionButton(
-            icon = Icons.Default.AddCard,
-            action = "Add Account",
+            icon = Icons.Default.EditNote,
+            action = "Edit Account",
             enabled = enabled
-        ) { }
+        ) { onToggleAddEdit() }
     }
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(24.dp))
 }
 
 @Composable
@@ -143,8 +146,8 @@ fun CircularActionButton(
                 .clip(RoundedCornerShape(100))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = if(enabled) LocalIndication.current else null
-                ) { if(enabled) onClick() },
+                    indication = if (enabled) LocalIndication.current else null
+                ) { if (enabled) onClick() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -196,8 +199,8 @@ fun DashedCircularActionButton(
                 .clip(RoundedCornerShape(100))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = if(enabled) LocalIndication.current else null
-                ) { if(enabled) onClick() },
+                    indication = if (enabled) LocalIndication.current else null
+                ) { if (enabled) onClick() },
             contentAlignment = Alignment.Center
         ) {
             Icon(

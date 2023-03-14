@@ -3,4 +3,5 @@ package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manag
 sealed class ManageAccountsEvent {
     data class CardSelected(val idx: Int) : ManageAccountsEvent()
     object ToggleActive : ManageAccountsEvent()
+    object ToggleAddEdit : ManageAccountsEvent()
 }

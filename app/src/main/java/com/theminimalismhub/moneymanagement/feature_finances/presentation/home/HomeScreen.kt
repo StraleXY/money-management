@@ -58,7 +58,6 @@ fun HomeScreen(
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
 
-
     val animatedAlpha = remember{ Animatable(1f) }
     LaunchedEffect(state.results) {
         animatedAlpha.snapTo(0f)

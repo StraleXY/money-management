@@ -30,6 +30,7 @@ import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
@@ -139,40 +140,18 @@ fun AddEditFinanceCard(
             hasError = amount.hasError
         )
         Spacer(modifier = Modifier.height(24.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            HoldableActionButton(
-                modifier = Modifier,
-                text = stringResource(id = R.string.action_delete),
-                icon = Icons.Default.Delete,
-                textStyle = MaterialTheme.typography.button,
-                duration = 2500,
-                circleColor = Color.Transparent,
-                alternatedColor = MaterialTheme.colors.error,
-                iconColor = MaterialTheme.colors.onBackground,
-                onHold = {
-                    deleteFinance()
-                    cardToggled(null)
-                },
-                enabled = state.currentFinanceId != null
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            ActionChip(
-                text = stringResource(id = R.string.action_save),
-                icon = Icons.Default.Save,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 0.dp,
-                backgroundStrength = 0f,
-                modifier = Modifier,
-                onClick = {
-                    if(!form.validate()) return@ActionChip
-                    addFinance()
-                    cardToggled(null)
-                }
-            )
-        }
+        CRUDButtons(
+            onSave = {
+                if(!form.validate()) return@CRUDButtons
+                addFinance()
+                cardToggled(null)
+            },
+            deleteEnabled =  state.currentFinanceId != null,
+            onDelete = {
+                deleteFinance()
+                cardToggled(null)
+            }
+        )
         Spacer(modifier = Modifier.height(8.dp))
     }
 }
