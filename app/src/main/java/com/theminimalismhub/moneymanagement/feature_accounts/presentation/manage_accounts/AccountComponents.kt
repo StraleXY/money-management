@@ -91,7 +91,7 @@ fun AccountActions(
     enabled: Boolean = true,
     account: Account?,
     onToggleActivate: () -> Unit,
-    onToggleAddEdit: () -> Unit
+    onToggleEdit: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -119,7 +119,7 @@ fun AccountActions(
             icon = Icons.Default.EditNote,
             action = "Edit Account",
             enabled = enabled
-        ) { onToggleAddEdit() }
+        ) { onToggleEdit() }
     }
     Spacer(modifier = Modifier.height(24.dp))
 }

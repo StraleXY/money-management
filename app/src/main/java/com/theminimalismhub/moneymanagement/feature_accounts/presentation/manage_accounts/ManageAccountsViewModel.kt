@@ -10,6 +10,7 @@ import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -47,7 +48,7 @@ class ManageAccountsViewModel @Inject constructor(
                     selectedAccount = _state.value.accounts[event.idx]
                 )
             }
-            ManageAccountsEvent.ToggleActive -> {
+            is ManageAccountsEvent.ToggleActive -> {
                 viewModelScope.launch {
                     _state.value.selectedAccount?.let {
                         _state.value = _state.value.copy(
@@ -57,10 +58,20 @@ class ManageAccountsViewModel @Inject constructor(
                     }
                 }
             }
-            ManageAccountsEvent.ToggleAddEdit -> {
-                _state.value = _state.value.copy(
-                    isAddEditOpen = !_state.value.isAddEditOpen
-                )
+            is ManageAccountsEvent.ToggleAddEdit -> {
+                viewModelScope.launch {
+                    _state.value = _state.value.copy(
+                        isAddEditOpen = !_state.value.isAddEditOpen
+                    )
+                    if(event.account == null) {
+                        delay(450)
+                        formState.fields[0].change("")
+                        formState.fields[1].change("")
+                    } else {
+                        formState.fields[0].change(event.account.name)
+                        formState.fields[1].change(event.account.balance.toInt().toString())
+                    }
+                }
             }
         }
     }

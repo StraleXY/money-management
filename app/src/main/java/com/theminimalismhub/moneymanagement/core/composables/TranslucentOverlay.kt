@@ -33,14 +33,7 @@ fun TranslucentOverlay(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Color(
-                        ColorUtils.setAlphaComponent(
-                            MaterialTheme.colors.surface.toArgb(),
-                            (255 * 0.95).toInt()
-                        )
-                    )
-                )
+                .background(MaterialTheme.colors.surface.copy(0.95f,0.05f,0.05f, 0.05f))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null

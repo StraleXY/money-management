@@ -1,7 +1,11 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables
 
 import android.graphics.Point
+import android.util.Log
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -16,7 +20,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,15 +31,22 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import com.theminimalismhub.moneymanagement.ui.theme.credit_card
 import com.theminimalismhub.moneymanagement.ui.theme.economica
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.log10
+import kotlin.math.log2
 import kotlin.random.Random
 
 @Composable
@@ -46,11 +59,11 @@ fun AccountCardMini(
 ) {
     Card(
         modifier = modifier
-            .clickable (
+            .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onClick() }
-            .alpha(animateFloatAsState(targetValue = if(selected) 1f else 0.5f).value),
+            .alpha(animateFloatAsState(targetValue = if (selected) 1f else 0.5f).value),
         shape = RoundedCornerShape(15.dp),
         elevation = 8.dp
     ) {
@@ -217,6 +230,122 @@ fun AccountCardLarge(
                     .align(Alignment.BottomEnd)
                     .padding(end = 20.dp, bottom = 20.dp),
                 type = account.type
+            )
+        }
+    }
+}
+
+@Composable
+fun NewAccountExampleCard(
+    modifier: Modifier = Modifier,
+    name: String,
+    balance: String,
+    type: AccountType,
+    description: String = "1234",
+    currency: String = "RSD",
+    scale: Float = 1f,
+    overlayStrength: Float = 0.05f
+) {
+
+    val animatedRotationX = remember { Animatable(0f) }
+    val animatedRotationY = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+
+    fun calc(len: Int) : Float {
+        return -log2(len + 7f) + 8f
+    }
+
+    LaunchedEffect(name) {
+        scope.launch {
+            animatedRotationX.stop()
+            animatedRotationX.animateTo(0f, animationSpec = keyframes {
+                0f at animatedRotationX.value.toInt()
+                5f at 100
+                5.1f at 1050
+                0f at 1150
+            })
+        }
+        scope.launch {
+            animatedRotationY.stop()
+            animatedRotationY.animateTo(0f, animationSpec = keyframes {
+                0f at animatedRotationX.value.toInt()
+                -calc(name.length) at 100
+                -calc(name.length) - 0.1f at 1050
+                0f at 1150
+            })
+        }
+    }
+    LaunchedEffect(balance) {
+        scope.launch {
+            animatedRotationX.stop()
+            animatedRotationX.animateTo(0f, animationSpec = keyframes {
+                0f at animatedRotationX.value.toInt()
+                1f at 100
+                1.1f at 1050
+                0f at 1150
+            })
+        }
+        scope.launch {
+            animatedRotationY.stop()
+            animatedRotationY.animateTo(0f, animationSpec = keyframes {
+                0f at animatedRotationX.value.toInt()
+                -calc(name.length) at 100
+                -calc(name.length) - 0.1f at 1050
+                0f at 1150
+            })
+        }
+    }
+
+    Card(
+        modifier = modifier
+            .graphicsLayer {
+                rotationX = animatedRotationX.value
+                rotationY = animatedRotationY.value
+            },
+        shape = RoundedCornerShape(15.dp),
+        backgroundColor = MaterialTheme.colors.background,
+        elevation = 16.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .width((260 * scale).dp)
+                .height((165 * scale).dp)
+                .background(Color(ColorUtils.setAlphaComponent(Color.White.toArgb(), (255L * overlayStrength).toInt()))),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 28.dp, horizontal = 28.dp)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .alpha(animateFloatAsState(targetValue = if (name.isEmpty()) 0.5f else 1f).value)
+                        .padding(start = 2.dp),
+                    text = name.ifEmpty { "Account Name" },
+                    style = MaterialTheme.typography.body1
+                )
+                Text(
+                    modifier = Modifier.alpha(animateFloatAsState(targetValue = if (balance.isEmpty()) 0.65f else 1f).value),
+                    text = if(balance.isEmpty()) "Account Balance" else "$balance $currency",
+                    style = MaterialTheme.typography.body1.copy(
+                        fontFamily = economica,
+                        fontSize = 40.sp
+                    )
+                )
+            }
+            if(type == AccountType.CARD) {
+                CardNumber(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 28.dp, bottom = 25.dp),
+                    lastDigits = description
+                )
+            }
+            AccountIcon(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 20.dp, bottom = 20.dp),
+                type = type
             )
         }
     }
