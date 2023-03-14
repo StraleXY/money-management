@@ -2,9 +2,14 @@ package com.theminimalismhub.moneymanagement.feature_accounts.presentation.compo
 
 import android.graphics.Point
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,14 +20,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCard
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -88,6 +87,49 @@ fun AccountCardMini(
             }
             Spacer(modifier = Modifier.width(34.dp))
             AccountIcon(type = account.type)
+        }
+    }
+}
+
+@Composable
+fun AccountTypeCard(
+    modifier: Modifier = Modifier,
+    type: AccountType,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val background = MaterialTheme.colors.surface
+    val foreground = MaterialTheme.colors.onBackground
+    val animatedBackground = animateColorAsState(targetValue = if(selected) foreground else background)
+    val animatedForeground = animateColorAsState(targetValue = if(selected) background else foreground)
+
+    Card(
+        modifier = modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick() },
+        shape = RoundedCornerShape(100),
+        elevation = 4.dp,
+        backgroundColor = animatedBackground.value
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .padding(start = 22.dp, end = 18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = type.title,
+                style = MaterialTheme.typography.body1,
+                color = animatedForeground.value
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            AccountIcon(
+                modifier = Modifier.size(20.dp),
+                type = type,
+                color = animatedForeground.value
+            )
         }
     }
 }
@@ -241,12 +283,13 @@ fun NewAccountExampleCard(
     name: String,
     balance: String,
     type: AccountType,
-    description: String = "1234",
+    description: String,
     currency: String = "RSD",
     scale: Float = 1f,
     overlayStrength: Float = 0.05f
 ) {
 
+    var descriptionVisible by remember { mutableStateOf(type == AccountType.CARD) }
     val animatedRotationX = remember { Animatable(0f) }
     val animatedRotationY = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
@@ -255,13 +298,13 @@ fun NewAccountExampleCard(
         return -log2(len + 7f) + 8f
     }
 
-    LaunchedEffect(name) {
+    fun animate(x: Float, y: Float) {
         scope.launch {
             animatedRotationX.stop()
             animatedRotationX.animateTo(0f, animationSpec = keyframes {
                 0f at animatedRotationX.value.toInt()
-                5f at 100
-                5.1f at 1050
+                x at 100
+                x * 0.02f at 1050
                 0f at 1150
             })
         }
@@ -269,32 +312,20 @@ fun NewAccountExampleCard(
             animatedRotationY.stop()
             animatedRotationY.animateTo(0f, animationSpec = keyframes {
                 0f at animatedRotationX.value.toInt()
-                -calc(name.length) at 100
-                -calc(name.length) - 0.1f at 1050
+                y at 100
+                y * 0.02f at 1050
                 0f at 1150
             })
         }
     }
-    LaunchedEffect(balance) {
-        scope.launch {
-            animatedRotationX.stop()
-            animatedRotationX.animateTo(0f, animationSpec = keyframes {
-                0f at animatedRotationX.value.toInt()
-                1f at 100
-                1.1f at 1050
-                0f at 1150
-            })
-        }
-        scope.launch {
-            animatedRotationY.stop()
-            animatedRotationY.animateTo(0f, animationSpec = keyframes {
-                0f at animatedRotationX.value.toInt()
-                -calc(name.length) at 100
-                -calc(name.length) - 0.1f at 1050
-                0f at 1150
-            })
-        }
+
+    LaunchedEffect(name) { animate(5f, -calc(name.length)) }
+    LaunchedEffect(balance) { animate(1f, -calc(name.length)) }
+    LaunchedEffect(type) {
+        animate(-5f, 5f)
+        descriptionVisible = type == AccountType.CARD
     }
+    LaunchedEffect(description) { animate(-5f, -5f) }
 
     Card(
         modifier = modifier
@@ -333,14 +364,13 @@ fun NewAccountExampleCard(
                     )
                 )
             }
-            if(type == AccountType.CARD) {
-                CardNumber(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 28.dp, bottom = 25.dp),
-                    lastDigits = description
-                )
-            }
+            CardNumber(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 28.dp, bottom = 25.dp),
+                lastDigits = description,
+                visible = descriptionVisible
+            )
             AccountIcon(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -390,42 +420,95 @@ fun AddNewAccount(
 @Composable
 private fun CardNumber(
     modifier: Modifier = Modifier,
-    lastDigits: String
+    lastDigits: String,
+    visible: Boolean = true
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            modifier = Modifier.offset(0.dp, (-2).dp),
-            text = "● ● ● ● ",
-            style = TextStyle(
-                fontFamily = credit_card,
-                fontSize = 11.sp
-            )
-        )
-        Text(
-            text = lastDigits,
-            style = TextStyle(
-                fontFamily = credit_card,
-                fontSize = 12.sp
-            )
-        )
+    Box(modifier = modifier) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(tween(100)), exit = fadeOut(tween(100))
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier.offset(0.dp, (-2).dp),
+                    text = "● ● ● ●",
+                    style = TextStyle(
+                        fontFamily = credit_card,
+                        fontSize = 11.sp
+                    )
+                )
+                Spacer(modifier = Modifier.width(if(lastDigits.isEmpty()) 5.dp else 4.dp))
+                Text(
+                    text = lastDigits,
+                    style = TextStyle(
+                        fontFamily = credit_card,
+                        fontSize = 12.sp,
+                        letterSpacing = 3.sp
+                    )
+                )
+                if(lastDigits.isEmpty()) {
+                    Text(
+                        modifier = Modifier.offset(0.dp, (-2).dp),
+                        text = "●",
+                        style = TextStyle(
+                            fontFamily = credit_card,
+                            fontSize = 11.sp
+                        )
+                    )
+                }
+                if(lastDigits.length < 2) {
+                    Text(
+                        modifier = Modifier.offset(0.dp, (-2).dp),
+                        text = " ●",
+                        style = TextStyle(
+                            fontFamily = credit_card,
+                            fontSize = 11.sp
+                        )
+                    )
+                }
+                if(lastDigits.length < 3) {
+                    Text(
+                        modifier = Modifier.offset(0.dp, (-2).dp),
+                        text = " ●",
+                        style = TextStyle(
+                            fontFamily = credit_card,
+                            fontSize = 11.sp
+                        )
+                    )
+                }
+                if(lastDigits.length < 4) {
+                    Text(
+                        modifier = Modifier.offset(0.dp, (-2).dp),
+                        text = " ●",
+                        style = TextStyle(
+                            fontFamily = credit_card,
+                            fontSize = 11.sp
+                        )
+                    )
+                }
+            }
+        }
     }
+
+
 }
 
 @Composable
 private fun AccountIcon(
     modifier: Modifier = Modifier,
-    type: AccountType
+    type: AccountType,
+    color: Color = MaterialTheme.colors.onBackground
 ) {
     Icon(
         modifier = modifier,
         imageVector = when(type) {
             AccountType.CARD -> Icons.Default.CreditCard
             AccountType.CASH -> Icons.Default.AccountBalanceWallet
-            else -> Icons.Default.CreditCard
+            AccountType.SAVINGS -> Icons.Default.Savings
+            AccountType.HELP -> Icons.Default.SupervisorAccount
+            AccountType.INSURANCE -> Icons.Default.MonitorHeart
         },
-        contentDescription = Icons.Default.CreditCard.name
+        contentDescription = Icons.Default.CreditCard.name,
+        tint = color
     )
 }

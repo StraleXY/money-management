@@ -1,16 +1,18 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
@@ -22,19 +24,21 @@ import com.dsc.form_builder.TextFieldState
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
-import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AddEditAccountCard(
     isOpen: Boolean,
-    account: Account?,
-    form: FormState<TextFieldState>
+    type: AccountType,
+    form: FormState<TextFieldState>,
+    accountTypeStates: HashMap<AccountType, MutableState<Boolean>>,
+    onTypeChanged: (AccountType) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val name: TextFieldState = form.getState("name")
     val balance: TextFieldState = form.getState("balance")
+    val description: TextFieldState = form.getState("description")
+    val descriptionVisible by remember { mutableStateOf(type == AccountType.CARD) }
 
     FloatingCard(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -51,13 +55,28 @@ fun AddEditAccountCard(
                     modifier = Modifier.scale(1.15f),
                     name = name.value,
                     balance = balance.value,
-                    type = AccountType.CASH,
+                    description = description.value,
+                    type = type,
                     overlayStrength = 0.1f,
                     scale = 1.05f
                 )
             }
         }
     ) {
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 36.dp)
+        ) {
+            items(accountTypeStates.toSortedMap().keys.toList()) { type ->
+                AccountTypeCard(
+                    type = type,
+                    selected = accountTypeStates[type]!!.value
+                ) { onTypeChanged(type) }
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
             value = name.value,
             onValueChange = { name.change(it) },
@@ -77,7 +96,8 @@ fun AddEditAccountCard(
             message = name.errorMessage,
             hasError = name.hasError
         )
-        if(!balance.hasError) Spacer(modifier = Modifier.height(4.dp))
+        if(!name.hasError) Spacer(modifier = Modifier.height(4.dp))
+
         OutlinedTextField(
             value = balance.value,
             onValueChange = { balance.change(it) },
@@ -87,8 +107,11 @@ fun AddEditAccountCard(
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Balance") },
             isError = balance.hasError,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = if(descriptionVisible) ImeAction.Next else ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus(true) },
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            )
         )
         ErrorText(
             modifier = Modifier
@@ -97,6 +120,33 @@ fun AddEditAccountCard(
             message = balance.errorMessage,
             hasError = balance.hasError
         )
+        if(!balance.hasError) Spacer(modifier = Modifier.height(4.dp))
+
+        AnimatedVisibility(
+            visible = type == AccountType.CARD
+        ) {
+            OutlinedTextField(
+                value = description.value,
+                onValueChange = { description.change(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 36.dp),
+                textStyle = MaterialTheme.typography.body1,
+                label = { Text(text = if(type == AccountType.CARD) "Last 4 Digits" else "Description") },
+                isError = description.hasError,
+                keyboardOptions = KeyboardOptions(keyboardType = if(type == AccountType.CARD) KeyboardType.Number else KeyboardType.Text, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+            )
+            ErrorText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 36.dp),
+                message = description.errorMessage,
+                hasError = description.hasError
+            )
+            if(!description.hasError) Spacer(modifier = Modifier.height(4.dp))
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
         CRUDButtons(
             onSave = { /*TODO*/ },

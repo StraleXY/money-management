@@ -120,8 +120,10 @@ fun ManageAccountsScreen(
             TranslucentOverlay(visible = state.isAddEditOpen)
             AddEditAccountCard(
                 isOpen = state.isAddEditOpen,
-                account = state.selectedAccount,
-                form = vm.formState
+                type = state.currentType,
+                form = vm.formState,
+                accountTypeStates = state.accountTypeStates,
+                onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) }
             )
         }
     }
