@@ -1,37 +1,46 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.*
 import com.ramcosta.composedestinations.annotation.Destination
+import com.theminimalismhub.moneymanagement.R
+import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddEditAccountCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 @Destination(style = BaseTransition::class)
@@ -40,6 +49,7 @@ fun ManageAccountsScreen(
 ) {
 
     val state = vm.state.value
+    val scaffoldState = rememberScaffoldState()
 
     val pagerState = rememberPagerState(
         pageCount = state.accounts.size,
@@ -57,67 +67,72 @@ fun ManageAccountsScreen(
         vm.onEvent(ManageAccountsEvent.ToggleAddEdit)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen) { vm.onEvent(ManageAccountsEvent.ToggleAddEdit) } },
+        scaffoldState = scaffoldState,
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
 
-        LazyColumn(
-            contentPadding = PaddingValues(bottom = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            LazyColumn(
+                contentPadding = PaddingValues(bottom = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
-            item {
-                Column(
-                    modifier = Modifier
-                        .onSizeChanged { headerHeight = Dp(it.height / density) }
-                        .graphicsLayer {
-                            translationY = -(scroll.value.toFloat() * 1.2f)
-                                .coerceAtLeast(0f)
-                                .coerceAtMost(430f)
-                        }
-                ) {
-                    ScreenHeader(
-                        title = "Management Accounts",
-                        hint = "Track your balance across multiple accounts!"
-                    )
-                    AccountsPager(
-                        modifier = Modifier.onSizeChanged { accountsPagerHeight = Dp(it.height / density) },
-                        accounts = state.accounts,
-                        pagerState = pagerState,
-                        onAccountSelected = { vm.onEvent(ManageAccountsEvent.CardSelected(it)) }
-                    )
-                    AccountActions(
-                        enabled = !pagerState.isScrollInProgress,
-                        account = state.selectedAccount,
-                        onToggleActivate = { vm.onEvent(ManageAccountsEvent.ToggleActive) },
-                        onToggleAddEdit = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit) }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .onSizeChanged { headerHeight = Dp(it.height / density) }
+                            .graphicsLayer {
+                                translationY = -(scroll.value.toFloat() * 1.2f)
+                                    .coerceAtLeast(0f)
+                                    .coerceAtMost(430f)
+                            }
+                    ) {
+                        ScreenHeader(
+                            title = "Management Accounts",
+                            hint = "Track your balance across multiple accounts!"
+                        )
+                        AccountsPager(
+                            modifier = Modifier.onSizeChanged { accountsPagerHeight = Dp(it.height / density) },
+                            accounts = state.accounts,
+                            pagerState = pagerState,
+                            onAccountSelected = { vm.onEvent(ManageAccountsEvent.CardSelected(it)) }
+                        )
+                        AccountActions(
+                            enabled = !pagerState.isScrollInProgress,
+                            account = state.selectedAccount,
+                            onToggleActivate = { vm.onEvent(ManageAccountsEvent.ToggleActive) },
+                            onToggleAddEdit = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit) }
+                        )
+                    }
+                }
+
+            }
+            SlidingCard(
+                headerHeight = headerHeight,
+                accountsPagerHeight = accountsPagerHeight,
+                screenHeight = screenHeight,
+                scrollState = scroll
+            ) {
+                repeat(8) {
+                    Text(
+                        text = "In the modern design world, Lorem Ipsum is the industry standard when placing dummy text onto an unfinished page, whether it's a newspaper, magazine, or advertisement. The Latin text was first used in the 16th century, when a printer scrambled a row of type (known as a \"galley\") so it could be used in a book that showcased the type's quality. This text saw a resurgence when electronic typesetting became popular in the 1960s, mainly because the French typography company Letraset started selling sheets with Lorem Ipsum.",
+                        style = MaterialTheme.typography.body1,
+                        textAlign = TextAlign.Justify,
+                        modifier = Modifier
+                            .padding(16.dp)
                     )
                 }
             }
 
+            TranslucentOverlay(visible = state.isAddEditOpen)
+            AddEditAccountCard(
+                isOpen = state.isAddEditOpen,
+                account = state.selectedAccount,
+                form = vm.formState
+            )
         }
-        SlidingCard(
-            headerHeight = headerHeight,
-            accountsPagerHeight = accountsPagerHeight,
-            screenHeight = screenHeight,
-            scrollState = scroll
-        ) {
-            repeat(8) {
-                Text(
-                    text = "In the modern design world, Lorem Ipsum is the industry standard when placing dummy text onto an unfinished page, whether it's a newspaper, magazine, or advertisement. The Latin text was first used in the 16th century, when a printer scrambled a row of type (known as a \"galley\") so it could be used in a book that showcased the type's quality. This text saw a resurgence when electronic typesetting became popular in the 1960s, mainly because the French typography company Letraset started selling sheets with Lorem Ipsum.",
-                    style = MaterialTheme.typography.body1,
-                    textAlign = TextAlign.Justify,
-                    modifier = Modifier
-                        .padding(16.dp)
-                )
-            }
-        }
-
-        TranslucentOverlay(visible = state.isAddEditOpen)
-        AddEditAccountCard(
-            isOpen = state.isAddEditOpen,
-            account = state.selectedAccount,
-            form = vm.formState
-        )
     }
 }
 

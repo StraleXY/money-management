@@ -38,6 +38,7 @@ import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyC
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloatingActionButton3
@@ -62,43 +63,7 @@ fun ManageCategoriesScreen(
     }
 
     Scaffold(
-        floatingActionButton = {
-            ExtendedFloatingActionButton3(
-                onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null)) },
-                text = {
-                    Text(
-                        text = stringResource(id = R.string.action_cancel),
-                        style = MaterialTheme.typography.button,
-                        color = MaterialTheme.colors.onPrimary
-                    )
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(id = R.string.cs_new_category),
-                        tint = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier
-                            .size(26.dp)
-                            .rotate(
-                                animateFloatAsState(
-                                    targetValue = if (state.isAddEditOpen) -45f else 0f,
-                                    tween(400)
-                                ).value
-                            )
-                    )
-                },
-                modifier = Modifier
-                    .height(
-                        animateDpAsState(
-                            targetValue = if (state.isAddEditOpen) 45.dp else 56.dp,
-                            tween(350)
-                        ).value
-                    ),
-                containerColor = MaterialTheme.colors.primary,
-                shape = RoundedCornerShape(64.dp),
-                expanded = state.isAddEditOpen
-            )
-        },
+        floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen) { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null)) } },
         scaffoldState = scaffoldState,
     ) {
         Box(

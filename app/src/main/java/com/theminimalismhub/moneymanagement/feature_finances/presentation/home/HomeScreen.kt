@@ -36,6 +36,7 @@ import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenD
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddNewAccount
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.ManageAccountsEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
@@ -112,49 +113,7 @@ fun HomeScreen(
         },
         frontLayerContent = {
             Scaffold(
-                floatingActionButton = {
-                    androidx.compose.material3.ExtendedFloatingActionButton(
-                        onClick = { vm.onEvent(HomeEvent.ToggleAddEditCard(null)) },
-                        text = {
-                            Text(
-                                text = stringResource(id = R.string.action_cancel),
-                                style = MaterialTheme.typography.button,
-                                color = MaterialTheme.colors.onPrimary
-                            )
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = stringResource(id = R.string.hs_new_finance),
-                                tint = MaterialTheme.colors.onPrimary,
-                                modifier = Modifier
-                                    .size(26.dp)
-                                    .rotate(
-                                        animateFloatAsState(
-                                            targetValue = if (state.isAddEditOpen) -45f else 0f,
-                                            tween(400)
-                                        ).value
-                                    )
-                            )
-                        },
-                        modifier = Modifier
-                            .height(
-                                animateDpAsState(
-                                    targetValue = if (state.isAddEditOpen) 45.dp else 56.dp,
-                                    tween(350)
-                                ).value
-                            )
-                            .padding(
-                                end = animateDpAsState(
-                                    targetValue = if (state.isAddEditOpen) 17.dp else 0.dp,
-                                    tween(350)
-                                ).value
-                            ),
-                        containerColor = MaterialTheme.colors.primary,
-                        shape = RoundedCornerShape(64.dp),
-                        expanded = state.isAddEditOpen
-                    )
-                },
+                floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen) { vm.onEvent(HomeEvent.ToggleAddEditCard(null)) } },
                 scaffoldState = scaffoldState,
             ) {
                 // HOME CONTENT
