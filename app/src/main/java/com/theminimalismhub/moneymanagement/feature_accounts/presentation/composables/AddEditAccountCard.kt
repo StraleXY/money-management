@@ -32,7 +32,9 @@ fun AddEditAccountCard(
     type: AccountType,
     form: FormState<TextFieldState>,
     accountTypeStates: HashMap<AccountType, MutableState<Boolean>>,
-    onTypeChanged: (AccountType) -> Unit
+    onTypeChanged: (AccountType) -> Unit,
+    onSave: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     val name: TextFieldState = form.getState("name")
@@ -149,8 +151,8 @@ fun AddEditAccountCard(
 
         Spacer(modifier = Modifier.height(24.dp))
         CRUDButtons(
-            onSave = { /*TODO*/ },
-            onDelete = { /*TODO*/ }
+            onSave = onSave,
+            onDelete = onDelete
         )
         Spacer(modifier = Modifier.height(8.dp))
     }

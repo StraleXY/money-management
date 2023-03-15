@@ -9,6 +9,7 @@ import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -48,8 +49,11 @@ class ManageAccountsViewModel @Inject constructor(
     fun onEvent(event: ManageAccountsEvent) {
         when(event) {
             is ManageAccountsEvent.CardSelected -> {
+                if(event.idx >= _state.value.accounts.size) return
                 _state.value = _state.value.copy(
-                    selectedAccount = _state.value.accounts[event.idx]
+                    selectedAccount = _state.value.accounts[event.idx],
+                    selectedAccountId = _state.value.accounts[event.idx].accountId,
+                    currentType = _state.value.accounts[event.idx].type
                 )
             }
             is ManageAccountsEvent.ToggleActive -> {
@@ -65,7 +69,8 @@ class ManageAccountsViewModel @Inject constructor(
             is ManageAccountsEvent.ToggleAddEdit -> {
                 viewModelScope.launch {
                     _state.value = _state.value.copy(
-                        isAddEditOpen = !_state.value.isAddEditOpen
+                        isAddEditOpen = !_state.value.isAddEditOpen,
+                        selectedAccountId = event.account?.accountId
                     )
                     if(event.account == null) {
                         if(!_state.value.isAddEditOpen) delay(450)
@@ -82,6 +87,21 @@ class ManageAccountsViewModel @Inject constructor(
                 }
             }
             is ManageAccountsEvent.TypeChanged -> selectType(event.type)
+            ManageAccountsEvent.SaveAccount -> {
+                viewModelScope.launch {
+                    useCases.add(Account(
+                        name = formState.fields[0].value,
+                        balance = formState.fields[1].value.toDouble(),
+                        active = _state.value.selectedAccount?.active ?: false,
+                        accountId = _state.value.selectedAccountId,
+                        primary = _state.value.selectedAccount?.primary ?: false,
+                        type = _state.value.currentType,
+                        description = formState.fields[2].value
+                    ))
+                    _state.value.selectedAccount?.let { onEvent(ManageAccountsEvent.CardSelected(_state.value.accounts.indexOf(it))) }
+                    onEvent(ManageAccountsEvent.ToggleAddEdit(null))
+                }
+            }
         }
     }
 

@@ -366,6 +366,7 @@ fun NewAccountExampleCard(
             }
             CardNumber(
                 modifier = Modifier
+                    .alpha(animateFloatAsState(targetValue = if (description.isEmpty()) 0.5f else 1f).value)
                     .align(Alignment.BottomStart)
                     .padding(start = 28.dp, bottom = 25.dp),
                 lastDigits = description,

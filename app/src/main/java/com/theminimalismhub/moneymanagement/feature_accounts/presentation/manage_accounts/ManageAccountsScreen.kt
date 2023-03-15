@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -112,6 +113,7 @@ fun ManageAccountsScreen(
                         style = MaterialTheme.typography.body1,
                         textAlign = TextAlign.Justify,
                         modifier = Modifier
+                            .alpha(0.25f)
                             .padding(16.dp)
                     )
                 }
@@ -123,7 +125,9 @@ fun ManageAccountsScreen(
                 type = state.currentType,
                 form = vm.formState,
                 accountTypeStates = state.accountTypeStates,
-                onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) }
+                onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) },
+                onSave = { vm.onEvent(ManageAccountsEvent.SaveAccount) },
+                onDelete = {}
             )
         }
     }

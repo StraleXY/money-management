@@ -10,6 +10,7 @@ data class ManageAccountsState(
     val isAddEditOpen: Boolean = false,
     val accounts: List<Account> = emptyList(),
     val selectedAccount: Account? = null,
+    val selectedAccountId: Int? = null,
     val currentType: AccountType = AccountType.CASH,
     val accountTypeStates: HashMap<AccountType, MutableState<Boolean>> = hashMapOf(
         AccountType.CASH to mutableStateOf(true),

@@ -58,7 +58,7 @@ fun AccountsPager(
             .fillMaxWidth()
             .padding(top = 40.dp, bottom = 40.dp)
     ) {itemIdx ->
-        if(accounts.isEmpty()) return@HorizontalPager
+        if(accounts.isEmpty() || itemIdx >= accounts.size) return@HorizontalPager
         Box(
             modifier = Modifier
                 .graphicsLayer {
