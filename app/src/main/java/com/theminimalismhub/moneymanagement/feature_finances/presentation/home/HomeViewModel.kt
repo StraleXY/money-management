@@ -81,7 +81,7 @@ class HomeViewModel @Inject constructor(
     private var getPerCategoryJob: Job? = null
     private fun getCategoryTotals() {
         getPerCategoryJob?.cancel()
-        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange)
+        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, FinanceType.OUTCOME)
             .onEach { totals ->
                 _state.value = _state.value.copy(
                     totalPerCategory = totals.sortedBy { it.amount }.reversed()

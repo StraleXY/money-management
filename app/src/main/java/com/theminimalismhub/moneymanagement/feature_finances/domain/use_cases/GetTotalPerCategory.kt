@@ -15,8 +15,8 @@ class GetTotalPerCategory constructor(
     private val repo: FinanceRepo,
     private val categoryRepo: CategoryRepo
 ) {
-    operator fun invoke(range: Pair<Long, Long>) : Flow<List<CategoryAmount>> {
-        return repo.getPerCategory(range)
+    operator fun invoke(range: Pair<Long, Long>, type: FinanceType) : Flow<List<CategoryAmount>> {
+        return repo.getPerCategory(range, type)
     }
 
     suspend fun getPerDay(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?): List<GraphEntry> {
