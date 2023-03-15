@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 
 data class ManageAccountsState(
     val isAddEditOpen: Boolean = false,
@@ -16,5 +17,6 @@ data class ManageAccountsState(
         AccountType.CASH to mutableStateOf(true),
         AccountType.CARD to mutableStateOf(false),
         AccountType.SAVINGS to mutableStateOf(false)
-    )
+    ),
+    val results: List<Finance> = emptyList()
 )

@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
@@ -62,8 +63,7 @@ fun FinanceCard(
                     modifier = Modifier
                         .width(5.dp)
                         .height(54.dp)
-                        //TODO Add null check
-                        .background(Color(finance.category!!.color), RoundedCornerShape(100))
+                        .background(Color(finance.category?.color ?: Color.White.toArgb()), RoundedCornerShape(100))
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(

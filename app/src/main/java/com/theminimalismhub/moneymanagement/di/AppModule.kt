@@ -78,7 +78,8 @@ object AppModule {
             getAll = GetAccounts(repo),
             setPrimary = SetPrimaryUseCase(repo),
             delete = DeleteAccount(repo),
-            addTransaction = AddTransaction(financeRepo, repo)
+            addTransaction = AddTransaction(financeRepo, repo),
+            getTransactions = GetFinances(financeRepo)
         )
     }
 

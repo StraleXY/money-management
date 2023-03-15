@@ -8,6 +8,7 @@ import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,6 +63,7 @@ class ManageAccountsViewModel @Inject constructor(
                     selectedAccountId = _state.value.accounts[event.idx].accountId,
                     currentType = _state.value.accounts[event.idx].type
                 )
+                getTransactions(_state.value.selectedAccountId)
             }
             is ManageAccountsEvent.ToggleActive -> {
                 viewModelScope.launch {
@@ -151,6 +153,7 @@ class ManageAccountsViewModel @Inject constructor(
                     accounts = it.toMutableList(),
                     selectedAccount = _state.value.selectedAccount ?: it.first()
                 )
+                getTransactions(_state.value.selectedAccount?.accountId)
             }
             .launchIn(viewModelScope)
     }
@@ -163,6 +166,19 @@ class ManageAccountsViewModel @Inject constructor(
     private suspend fun setPrimary(id: Int) {
         useCases.setPrimary(id)
         _state.value.selectedAccount = _state.value.selectedAccount?.copy(primary = _state.value.selectedAccount?.accountId == id)
+    }
+
+    private var getFinancesJob: Job? = null
+    private fun getTransactions(accountId: Int?) {
+        if(accountId == null) return
+        getFinancesJob?.cancel()
+        getFinancesJob = useCases.getTransactions(Pair(-1L, Long.MAX_VALUE), accountId, listOf(FinanceType.TRANSACTION, FinanceType.INCOME))
+            .onEach { finance ->
+                _state.value = _state.value.copy(
+                    results = finance
+                )
+            }
+            .launchIn(viewModelScope)
     }
 
 }

@@ -6,6 +6,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.*
@@ -27,11 +29,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.*
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
+import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddEditAccountCard
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.TransactionCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalPagerApi::class)
@@ -114,16 +119,17 @@ fun ManageAccountsScreen(
                 screenHeight = screenHeight,
                 scrollState = scroll
             ) {
-                repeat(8) {
-                    Text(
-                        text = "In the modern design world, Lorem Ipsum is the industry standard when placing dummy text onto an unfinished page, whether it's a newspaper, magazine, or advertisement. The Latin text was first used in the 16th century, when a printer scrambled a row of type (known as a \"galley\") so it could be used in a book that showcased the type's quality. This text saw a resurgence when electronic typesetting became popular in the 1960s, mainly because the French typography company Letraset started selling sheets with Lorem Ipsum.",
-                        style = MaterialTheme.typography.body1,
-                        textAlign = TextAlign.Justify,
-                        modifier = Modifier
-                            .alpha(0.25f)
-                            .padding(16.dp)
+                Spacer(modifier = Modifier.height(24.dp))
+                if(state.results.isEmpty()) ErrorNoData()
+                state.results.forEach {
+                    FinanceCard(
+                        finance = it,
+                        previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                        onEdit = { }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
+                //TODO OPTIMIZE :)
             }
 
             TranslucentOverlay(visible = state.isAddEditOpen || state.isTransactionOpen)
