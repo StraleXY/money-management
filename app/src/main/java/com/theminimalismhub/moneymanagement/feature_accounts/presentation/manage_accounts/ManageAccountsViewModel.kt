@@ -1,6 +1,5 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -58,12 +57,18 @@ class ManageAccountsViewModel @Inject constructor(
             }
             is ManageAccountsEvent.ToggleActive -> {
                 viewModelScope.launch {
-                    _state.value.selectedAccount?.let {
+                    _state.value.selectedAccount?.let { account ->
                         _state.value = _state.value.copy(
-                            selectedAccount = it.copy(active = !it.active)
+                            selectedAccount = account.copy(active = !account.active)
                         )
                         useCases.add(_state.value.selectedAccount!!)
+                        if(account.primary) setPrimary(_state.value.accounts.first { it.accountId != account.accountId }.accountId!!)
                     }
+                }
+            }
+            is ManageAccountsEvent.PrimarySelected -> {
+                _state.value.selectedAccount?.let {
+                    viewModelScope.launch { setPrimary(it.accountId!!) }
                 }
             }
             is ManageAccountsEvent.ToggleAddEdit -> {
@@ -105,7 +110,10 @@ class ManageAccountsViewModel @Inject constructor(
             }
             ManageAccountsEvent.DeleteAccount -> {
                 viewModelScope.launch {
-                    _state.value.selectedAccountId?.let { useCases.deleteAccount(it) }
+                    _state.value.selectedAccount?.let { account ->
+                        useCases.delete(account.accountId!!)
+                        if(account.primary) setPrimary(_state.value.accounts.first { it.accountId != account.accountId }.accountId!!)
+                    }
                 }
                 onEvent(ManageAccountsEvent.ToggleAddEdit(null))
             }
@@ -115,10 +123,10 @@ class ManageAccountsViewModel @Inject constructor(
     private var getAccountsJob: Job? = null
     private fun getAccounts() {
         getAccountsJob?.cancel()
-        getAccountsJob = useCases.getAccounts()
+        getAccountsJob = useCases.getAll()
             .onEach {
                 _state.value = _state.value.copy(
-                    accounts = it,
+                    accounts = it.toMutableList(),
                     selectedAccount = _state.value.selectedAccount ?: it.first()
                 )
             }
@@ -129,6 +137,10 @@ class ManageAccountsViewModel @Inject constructor(
             _state.value.accountTypeStates[value] = mutableStateOf(value.value == type.value)
         }
         _state.value = _state.value.copy(currentType = type)
+    }
+    private suspend fun setPrimary(id: Int) {
+        useCases.setPrimary(id)
+        _state.value.selectedAccount = _state.value.selectedAccount?.copy(primary = _state.value.selectedAccount?.accountId == id)
     }
 
 }

@@ -95,7 +95,8 @@ fun ManageAccountsScreen(
                             enabled = !pagerState.isScrollInProgress,
                             account = state.selectedAccount,
                             onToggleActivate = { vm.onEvent(ManageAccountsEvent.ToggleActive) },
-                            onToggleEdit = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit(state.selectedAccount)) }
+                            onToggleEdit = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit(state.selectedAccount)) },
+                            onSetPrimary = { vm.onEvent(ManageAccountsEvent.PrimarySelected) }
                         )
                     }
                 }

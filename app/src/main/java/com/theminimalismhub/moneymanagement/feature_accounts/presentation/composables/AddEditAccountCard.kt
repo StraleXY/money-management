@@ -109,7 +109,7 @@ fun AddEditAccountCard(
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Balance") },
             isError = balance.hasError,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = if(descriptionVisible) ImeAction.Next else ImeAction.Done),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = if(descriptionVisible) ImeAction.Next else ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.clearFocus(true) },
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }

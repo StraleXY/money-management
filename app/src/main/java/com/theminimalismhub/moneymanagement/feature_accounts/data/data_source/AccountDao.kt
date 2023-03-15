@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_accounts.data.data_source
 import androidx.room.*
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.annotations.NotNull
 
 @Dao
 interface AccountDao {
@@ -19,4 +20,6 @@ interface AccountDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAccount(account: Account): Long
 
+    @Query("UPDATE Account SET `primary` = CASE WHEN accountId = :id THEN 1 ELSE 0 END")
+    suspend fun setPrimary(id: Int)
 }

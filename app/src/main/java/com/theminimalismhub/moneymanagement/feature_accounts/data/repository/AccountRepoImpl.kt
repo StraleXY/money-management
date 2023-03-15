@@ -12,6 +12,10 @@ class AccountRepoImpl constructor(
         dao.updateAccountBalance(amount, id)
     }
 
+    override suspend fun setPrimary(id: Int) {
+        dao.setPrimary(id)
+    }
+
     override fun getAll(): Flow<List<Account>> {
         return dao.getAll()
     }

@@ -6,4 +6,5 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Accoun
 
 interface AccountRepo : RepoBase<Account> {
     suspend fun updateAccountBalance(amount: Double, id: Int)
+    suspend fun setPrimary(id: Int)
 }

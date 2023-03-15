@@ -75,8 +75,9 @@ object AppModule {
     fun providesManageAccountsUseCases(repo: AccountRepo): ManageAccountsUseCases {
         return ManageAccountsUseCases(
             add = AddAccount(repo),
-            getAccounts = GetAccounts(repo),
-            deleteAccount = DeleteAccount(repo)
+            getAll = GetAccounts(repo),
+            setPrimary = SetPrimaryUseCase(repo),
+            delete = DeleteAccount(repo)
         )
     }
 

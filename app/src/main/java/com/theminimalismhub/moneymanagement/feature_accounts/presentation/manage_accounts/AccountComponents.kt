@@ -91,7 +91,8 @@ fun AccountActions(
     enabled: Boolean = true,
     account: Account?,
     onToggleActivate: () -> Unit,
-    onToggleEdit: () -> Unit
+    onToggleEdit: () -> Unit,
+    onSetPrimary: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -104,15 +105,17 @@ fun AccountActions(
         ) { }
         CircularActionButton(
             modifier = Modifier
-                .alpha(animateFloatAsState(targetValue = if(enabled && !(account?.primary ?: true)) 1f else 0.65f, tween(200)).value),
+                .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
             icon = Icons.Default.CreditScore,
             action = "Set As Primary",
             enabled = enabled && !(account?.primary ?: true)
-        ) { }
+        ) { onSetPrimary() }
         CircularActionButton(
+            modifier = Modifier
+                .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
             icon = if(account?.active != false) Icons.Default.RemoveShoppingCart else Icons.Default.AddShoppingCart,
             action = if(account?.active != false) "Disable" else "Enable",
-            enabled = enabled,
+            enabled = enabled && account?.primary == false,
             onClick = onToggleActivate
         )
         DashedCircularActionButton(

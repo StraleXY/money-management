@@ -6,6 +6,7 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Accoun
 sealed class ManageAccountsEvent {
     data class CardSelected(val idx: Int) : ManageAccountsEvent()
     data class ToggleAddEdit(val account: Account?) : ManageAccountsEvent()
+    object PrimarySelected : ManageAccountsEvent()
     data class TypeChanged(val type: AccountType) : ManageAccountsEvent()
     object ToggleActive : ManageAccountsEvent()
     object SaveAccount : ManageAccountsEvent()
