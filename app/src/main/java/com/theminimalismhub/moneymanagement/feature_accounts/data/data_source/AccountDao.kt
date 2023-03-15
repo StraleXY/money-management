@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AccountDao {
 
-    @Query("SELECT * FROM Account")
+    @Query("SELECT * FROM Account WHERE deleted = 0")
     fun getAll(): Flow<List<Account>>
 
     @Query("SELECT * FROM Account WHERE accountId = :id")
@@ -18,9 +18,5 @@ interface AccountDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAccount(account: Account): Long
-
-    @Transaction
-    @Query("DELETE FROM Account WHERE accountId = :id")
-    suspend fun deleteAccount(id: Int)
 
 }

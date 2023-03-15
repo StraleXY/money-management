@@ -127,7 +127,7 @@ fun ManageAccountsScreen(
                 accountTypeStates = state.accountTypeStates,
                 onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) },
                 onSave = { vm.onEvent(ManageAccountsEvent.SaveAccount) },
-                onDelete = {}
+                onDelete = { vm.onEvent(ManageAccountsEvent.DeleteAccount) }
             )
         }
     }

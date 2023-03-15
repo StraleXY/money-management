@@ -96,11 +96,18 @@ class ManageAccountsViewModel @Inject constructor(
                         accountId = _state.value.selectedAccountId,
                         primary = _state.value.selectedAccount?.primary ?: false,
                         type = _state.value.currentType,
-                        description = formState.fields[2].value
+                        description = formState.fields[2].value,
+                        deleted = _state.value.selectedAccount?.deleted ?: false
                     ))
                     _state.value.selectedAccount?.let { onEvent(ManageAccountsEvent.CardSelected(_state.value.accounts.indexOf(it))) }
                     onEvent(ManageAccountsEvent.ToggleAddEdit(null))
                 }
+            }
+            ManageAccountsEvent.DeleteAccount -> {
+                viewModelScope.launch {
+                    _state.value.selectedAccountId?.let { useCases.deleteAccount(it) }
+                }
+                onEvent(ManageAccountsEvent.ToggleAddEdit(null))
             }
         }
     }

@@ -20,11 +20,12 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
         Account::class,
         FinanceItem::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(1, 2),
-        AutoMigration(2, 3)
+        AutoMigration(1, 2), // primary: account
+        AutoMigration(2, 3), // extra fields: account
+        AutoMigration(3, 4)  // deleted: account
     ]
 )
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {

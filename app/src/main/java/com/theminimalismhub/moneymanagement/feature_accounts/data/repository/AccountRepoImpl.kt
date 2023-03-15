@@ -25,6 +25,6 @@ class AccountRepoImpl constructor(
     }
 
     override suspend fun delete(id: Int) {
-        dao.deleteAccount(id)
+        dao.getAccountById(id)?.let { dao.insertAccount(it.copy(deleted = true)) }
     }
 }

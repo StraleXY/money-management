@@ -9,4 +9,5 @@ sealed class ManageAccountsEvent {
     data class TypeChanged(val type: AccountType) : ManageAccountsEvent()
     object ToggleActive : ManageAccountsEvent()
     object SaveAccount : ManageAccountsEvent()
+    object DeleteAccount : ManageAccountsEvent()
 }
