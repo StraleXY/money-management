@@ -20,12 +20,14 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
         Account::class,
         FinanceItem::class
     ],
-    version = 4,
+    version = 6,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(1, 2), // primary: account
-        AutoMigration(2, 3), // extra fields: account
-        AutoMigration(3, 4)  // deleted: account
+        AutoMigration(1, 2),  // account: primary
+        AutoMigration(2, 3),  // account: extra fields
+        AutoMigration(3, 4),  // account: deleted
+        AutoMigration(4, 5),  // finance item: accountTo
+        AutoMigration(5, 6),  // finance item: category can be null
     ]
 )
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {
@@ -44,7 +46,6 @@ abstract class MoneyDatabase protected constructor() : RoomDatabase() {
                         MoneyDatabase::class.java,
                         DATABASE_NAME
                     )
-//                    .addMigrations(MIGRATION_1_2)
 //                    .createFromAsset("MONEY_InitialDB.db")
                     .fallbackToDestructiveMigration()
                     .build()

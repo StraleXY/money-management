@@ -72,12 +72,13 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesManageAccountsUseCases(repo: AccountRepo): ManageAccountsUseCases {
+    fun providesManageAccountsUseCases(repo: AccountRepo, financeRepo: FinanceRepo): ManageAccountsUseCases {
         return ManageAccountsUseCases(
             add = AddAccount(repo),
             getAll = GetAccounts(repo),
             setPrimary = SetPrimaryUseCase(repo),
-            delete = DeleteAccount(repo)
+            delete = DeleteAccount(repo),
+            addTransaction = AddTransaction(financeRepo, repo)
         )
     }
 

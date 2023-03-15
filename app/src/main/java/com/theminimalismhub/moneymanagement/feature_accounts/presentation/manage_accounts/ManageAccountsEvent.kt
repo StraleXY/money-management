@@ -10,7 +10,7 @@ sealed class ManageAccountsEvent {
     object PrimarySelected : ManageAccountsEvent()
     data class TypeChanged(val type: AccountType) : ManageAccountsEvent()
     object ToggleActive : ManageAccountsEvent()
-    object ConfirmTransaction : ManageAccountsEvent()
+    class ConfirmTransaction(val accountTo: Account) : ManageAccountsEvent()
     object SaveAccount : ManageAccountsEvent()
     object DeleteAccount : ManageAccountsEvent()
 }

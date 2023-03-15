@@ -62,7 +62,8 @@ fun FinanceCard(
                     modifier = Modifier
                         .width(5.dp)
                         .height(54.dp)
-                        .background(Color(finance.category.color), RoundedCornerShape(100))
+                        //TODO Add null check
+                        .background(Color(finance.category!!.color), RoundedCornerShape(100))
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(

@@ -10,7 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.South
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -38,11 +38,12 @@ fun TransactionCard(
     form: FormState<TextFieldState>,
     accountFrom: Account?,
     accounts: List<Account>,
-    onTransaction: () -> Unit
+    onTransaction: (Account) -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
     val amount: TextFieldState = form.getState("amount")
+    var accountTo by remember { mutableStateOf(if(accounts.isNotEmpty()) accounts[0] else null) }
 
     FloatingCard(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -74,7 +75,7 @@ fun TransactionCard(
                     ),
                     minAlpha = 0.5f,
                     cardOverlayStrength = 0.1f,
-                    onAccountSelected = {  }
+                    onAccountSelected = { accountTo = accounts[it] }
                 )
             }
         }
@@ -109,7 +110,7 @@ fun TransactionCard(
             circleColor = Color.Transparent,
             alternatedColor = MaterialTheme.colors.primary,
             iconColor = MaterialTheme.colors.onBackground,
-            onHold = onTransaction
+            onHold = { onTransaction(accountTo!!) }
         )
         Spacer(modifier = Modifier.height(8.dp))
     }

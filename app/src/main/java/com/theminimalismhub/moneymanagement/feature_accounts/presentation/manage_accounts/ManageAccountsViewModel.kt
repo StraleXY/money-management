@@ -100,7 +100,7 @@ class ManageAccountsViewModel @Inject constructor(
                 }
             }
             is ManageAccountsEvent.TypeChanged -> selectType(event.type)
-            ManageAccountsEvent.SaveAccount -> {
+            is ManageAccountsEvent.SaveAccount -> {
                 viewModelScope.launch {
                     useCases.add(Account(
                         name = addEditFormState.fields[0].value,
@@ -116,7 +116,7 @@ class ManageAccountsViewModel @Inject constructor(
                     onEvent(ManageAccountsEvent.ToggleAddEdit(null))
                 }
             }
-            ManageAccountsEvent.DeleteAccount -> {
+            is ManageAccountsEvent.DeleteAccount -> {
                 viewModelScope.launch {
                     _state.value.selectedAccount?.let { account ->
                         useCases.delete(account.accountId!!)
@@ -125,7 +125,7 @@ class ManageAccountsViewModel @Inject constructor(
                 }
                 onEvent(ManageAccountsEvent.ToggleAddEdit(null))
             }
-            ManageAccountsEvent.ToggleTransaction -> {
+            is ManageAccountsEvent.ToggleTransaction -> {
                 _state.value = _state.value.copy(
                     isTransactionOpen = !_state.value.isTransactionOpen
                 )
@@ -133,8 +133,11 @@ class ManageAccountsViewModel @Inject constructor(
                     transactionFormState.fields[0].change("")
                 }
             }
-            ManageAccountsEvent.ConfirmTransaction -> {
-
+            is ManageAccountsEvent.ConfirmTransaction -> {
+                viewModelScope.launch {
+                    useCases.addTransaction(_state.value.selectedAccount!!, event.accountTo, transactionFormState.fields[0].value.toDouble())
+                }
+                onEvent(ManageAccountsEvent.ToggleTransaction)
             }
         }
     }

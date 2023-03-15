@@ -11,15 +11,15 @@ import kotlinx.coroutines.flow.Flow
 interface FinanceDao {
 
     @Transaction
-    @Query("SELECT * FROM finance ORDER BY timestamp ASC")
+    @Query("SELECT * FROM finance WHERE type != 'TRANSACTION' ORDER BY timestamp ASC")
     fun getAll(): Flow<List<Finance>>
 
     @Transaction
-    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC")
+    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to AND type != 'TRANSACTION' ORDER BY timestamp ASC")
     fun getAll(from: Long, to: Long): Flow<List<Finance>>
 
     @Transaction
-    @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC")
+    @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type != 'TRANSACTION' ORDER BY timestamp ASC")
     fun getAll(from: Long, to: Long, categoryId: Int): Flow<List<Finance>>
 
     @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +

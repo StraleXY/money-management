@@ -70,7 +70,7 @@ class AddEditFinanceService(
                         selectedAccountId = event.finance.finance.financeAccountId
                     )
                     selectCategoryType(_state.value.currentType)
-                    onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId))
+                    onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId!!))
                     formState.fields[0].change(event.finance.finance.name)
                     formState.fields[1].change(event.finance.finance.amount.toInt().toString())
                     onEvent(AddEditFinanceEvent.AccountSelected(event.finance.finance.financeAccountId))
@@ -139,6 +139,7 @@ class AddEditFinanceService(
         when(type) {
             FinanceType.INCOME -> populateCategoryList(incomeCategories)
             FinanceType.OUTCOME -> populateCategoryList(outcomeCategories)
+            else -> {}
         }
     }
     private fun populateCategoryList(list: List<Category>) {

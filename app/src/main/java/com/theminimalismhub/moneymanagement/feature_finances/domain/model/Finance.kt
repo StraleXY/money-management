@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.domain.model
 import android.annotation.SuppressLint
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import java.io.Serializable
@@ -15,13 +16,18 @@ data class Finance(
         parentColumn = "financeCategoryId",
         entityColumn = "categoryId"
     )
-    val category: Category
-//    ,
-//    @Relation(
-//        parentColumn = "financeAccountId",
-//        entityColumn = "accountId"
-//    )
-//    val account: Account,
+    val category: Category?,
+    @Relation(
+        parentColumn = "financeAccountId",
+        entityColumn = "accountId"
+    )
+    val account: Account,
+    @Relation(
+        parentColumn = "financeAccountIdTo",
+        entityColumn = "accountId"
+    )
+    val accountTo: Account?,
+
 ) : Serializable {
     fun getDay() : Int {
         val time = Calendar.getInstance()
