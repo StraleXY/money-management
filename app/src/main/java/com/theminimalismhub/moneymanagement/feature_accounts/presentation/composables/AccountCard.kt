@@ -50,9 +50,10 @@ import kotlin.random.Random
 
 @Composable
 fun AccountCardMini(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.widthIn(120.dp),
     account: Account,
-    selected: Boolean,
+    balance: Double = account.balance,
+    selected: Boolean = true,
     currency: String = "RSD",
     onClick: () -> Unit
 ) {
@@ -68,9 +69,10 @@ fun AccountCardMini(
     ) {
         Row(
             modifier = Modifier
-                .widthIn(120.dp)
+                .fillMaxWidth()
                 .padding(vertical = 18.dp, horizontal = 26.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 Text(
@@ -78,7 +80,7 @@ fun AccountCardMini(
                     style = MaterialTheme.typography.body2
                 )
                 Text(
-                    text = "${account.balance.toInt()} $currency",
+                    text = "${balance.toInt()} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontSize = 24.sp,
                         lineHeight = 24.sp
@@ -138,6 +140,7 @@ fun AccountTypeCard(
 fun AccountCardLarge(
     modifier: Modifier = Modifier,
     account: Account,
+    balanceDelta: Double = 0.0,
     currency: String = "RSD",
     maxAmount: Double = 0.0,
     totalPerCategory: List<CategoryAmount> = emptyList(),
@@ -252,7 +255,7 @@ fun AccountCardLarge(
                     style = MaterialTheme.typography.body1
                 )
                 Text(
-                    text = "${account.balance.toInt()} $currency",
+                    text = "${(account.balance + balanceDelta).toInt()} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontFamily = economica,
                         fontSize = 40.sp

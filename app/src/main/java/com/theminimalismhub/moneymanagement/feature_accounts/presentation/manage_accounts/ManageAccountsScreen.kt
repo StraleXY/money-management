@@ -31,6 +31,7 @@ import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddEditAccountCard
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.TransactionCard
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalPagerApi::class)
@@ -55,12 +56,16 @@ fun ManageAccountsScreen(
     val screenHeight by remember { mutableStateOf(Dp(root.height / density)) }
     val scroll: ScrollState = rememberScrollState(0)
 
-    BackHandler(enabled = state.isAddEditOpen) {
-        vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null))
+    BackHandler(enabled = state.isAddEditOpen || state.isTransactionOpen) {
+        if (state.isAddEditOpen) vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null))
+        else if (state.isTransactionOpen) vm.onEvent(ManageAccountsEvent.ToggleTransaction)
     }
 
     Scaffold(
-        floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen) { vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null)) } },
+        floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen || state.isTransactionOpen) {
+            if (state.isTransactionOpen) vm.onEvent(ManageAccountsEvent.ToggleTransaction)
+            else vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null))
+        } },
         scaffoldState = scaffoldState,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -82,7 +87,7 @@ fun ManageAccountsScreen(
                             }
                     ) {
                         ScreenHeader(
-                            title = "Management Accounts",
+                            title = "Manage Accounts",
                             hint = "Track your balance across multiple accounts!"
                         )
                         AccountsPager(
@@ -96,7 +101,8 @@ fun ManageAccountsScreen(
                             account = state.selectedAccount,
                             onToggleActivate = { vm.onEvent(ManageAccountsEvent.ToggleActive) },
                             onToggleEdit = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit(state.selectedAccount)) },
-                            onSetPrimary = { vm.onEvent(ManageAccountsEvent.PrimarySelected) }
+                            onSetPrimary = { vm.onEvent(ManageAccountsEvent.PrimarySelected) },
+                            onTransaction = { vm.onEvent(ManageAccountsEvent.ToggleTransaction) }
                         )
                     }
                 }
@@ -120,15 +126,22 @@ fun ManageAccountsScreen(
                 }
             }
 
-            TranslucentOverlay(visible = state.isAddEditOpen)
+            TranslucentOverlay(visible = state.isAddEditOpen || state.isTransactionOpen)
             AddEditAccountCard(
                 isOpen = state.isAddEditOpen,
                 type = state.currentType,
-                form = vm.formState,
+                form = vm.addEditFormState,
                 accountTypeStates = state.accountTypeStates,
                 onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) },
                 onSave = { vm.onEvent(ManageAccountsEvent.SaveAccount) },
                 onDelete = { vm.onEvent(ManageAccountsEvent.DeleteAccount) }
+            )
+            TransactionCard(
+                isOpen = state.isTransactionOpen,
+                form = vm.transactionFormState,
+                accountFrom = state.selectedAccount,
+                accounts = state.accounts.filter { account -> account.accountId != state.selectedAccount?.accountId },
+                onTransaction = { vm.onEvent(ManageAccountsEvent.ConfirmTransaction) }
             )
         }
     }

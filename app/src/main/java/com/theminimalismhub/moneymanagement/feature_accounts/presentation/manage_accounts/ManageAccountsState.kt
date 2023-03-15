@@ -7,6 +7,7 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Accoun
 
 data class ManageAccountsState(
     val isAddEditOpen: Boolean = false,
+    val isTransactionOpen: Boolean = false,
     val accounts: MutableList<Account> = mutableListOf(),
     var selectedAccount: Account? = null,
     val selectedAccountId: Int? = null,

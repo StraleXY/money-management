@@ -26,7 +26,7 @@ class ManageAccountsViewModel @Inject constructor(
     private val _state = mutableStateOf(ManageAccountsState())
     val state: State<ManageAccountsState> = _state
 
-    val formState = FormState(
+    val addEditFormState = FormState(
         fields = listOf(
             TextFieldState(
                 name = "name",
@@ -39,6 +39,14 @@ class ManageAccountsViewModel @Inject constructor(
             TextFieldState(
                 name = "description",
                 validators = if(_state.value.currentType == AccountType.CASH) listOf(Validators.Required()) else emptyList(),
+            )
+        )
+    )
+    val transactionFormState = FormState(
+        fields = listOf(
+            TextFieldState(
+                name = "amount",
+                validators = listOf(Validators.MinValue(0, "Amount must be higher than 0"), Validators.Required()),
             )
         )
     )
@@ -79,14 +87,14 @@ class ManageAccountsViewModel @Inject constructor(
                     )
                     if(event.account == null) {
                         if(!_state.value.isAddEditOpen) delay(450)
-                        formState.fields[0].change("")
-                        formState.fields[1].change("")
-                        formState.fields[2].change("")
+                        addEditFormState.fields[0].change("")
+                        addEditFormState.fields[1].change("")
+                        addEditFormState.fields[2].change("")
                         selectType(AccountType.CARD)
                     } else {
-                        formState.fields[0].change(event.account.name)
-                        formState.fields[1].change(event.account.balance.toInt().toString())
-                        formState.fields[2].change(event.account.description)
+                        addEditFormState.fields[0].change(event.account.name)
+                        addEditFormState.fields[1].change(event.account.balance.toInt().toString())
+                        addEditFormState.fields[2].change(event.account.description)
                         selectType(event.account.type)
                     }
                 }
@@ -95,13 +103,13 @@ class ManageAccountsViewModel @Inject constructor(
             ManageAccountsEvent.SaveAccount -> {
                 viewModelScope.launch {
                     useCases.add(Account(
-                        name = formState.fields[0].value,
-                        balance = formState.fields[1].value.toDouble(),
+                        name = addEditFormState.fields[0].value,
+                        balance = addEditFormState.fields[1].value.toDouble(),
                         active = _state.value.selectedAccount?.active ?: false,
                         accountId = _state.value.selectedAccountId,
                         primary = _state.value.selectedAccount?.primary ?: false,
                         type = _state.value.currentType,
-                        description = formState.fields[2].value,
+                        description = addEditFormState.fields[2].value,
                         deleted = _state.value.selectedAccount?.deleted ?: false
                     ))
                     _state.value.selectedAccount?.let { onEvent(ManageAccountsEvent.CardSelected(_state.value.accounts.indexOf(it))) }
@@ -116,6 +124,17 @@ class ManageAccountsViewModel @Inject constructor(
                     }
                 }
                 onEvent(ManageAccountsEvent.ToggleAddEdit(null))
+            }
+            ManageAccountsEvent.ToggleTransaction -> {
+                _state.value = _state.value.copy(
+                    isTransactionOpen = !_state.value.isTransactionOpen
+                )
+                if(!_state.value.isTransactionOpen) {
+                    transactionFormState.fields[0].change("")
+                }
+            }
+            ManageAccountsEvent.ConfirmTransaction -> {
+
             }
         }
     }

@@ -15,12 +15,13 @@ fun AccountsList(
     modifier: Modifier = Modifier,
     accounts: List<Account>,
     states: HashMap<Int, MutableState<Boolean>>,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 32.dp),
     selectionChanged: (Int) -> Unit
 ) {
     LazyRow(
         modifier = modifier
             .fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 32.dp),
+        contentPadding = contentPadding,
         horizontalArrangement = Arrangement.Start
     ) {
         items(accounts.filter { it.active }) { account ->

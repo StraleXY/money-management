@@ -21,4 +21,7 @@
     <!-- Home Screen -->
     <string name="hs_new_finance">Add new finance</string>
 
+    <!-- Manage Account -->
+    <string name="ma_confirm_transaction"> CONFIRM TRANSACTION</string>
+
 </resources>

@@ -45,6 +45,9 @@ fun AccountsPager(
     modifier: Modifier = Modifier,
     accounts: List<Account>,
     pagerState: PagerState,
+    minAlpha: Float = 1f,
+    cardOverlayStrength: Float = 0.1f,
+    balanceDelta: Double = 0.0,
     onAccountSelected: (Int) -> Unit
 ) {
 
@@ -66,20 +69,23 @@ fun AccountsPager(
                         calculateCurrentOffsetForPage(itemIdx).absoluteValue
 
                     MathUtils
-                        .lerp(
-                            0.95f, 1.15f, 1f - pageOffset.coerceIn(0f, 1f)
-                        )
+                        .lerp(0.95f, 1.15f, 1f - pageOffset.coerceIn(0f, 1f))
                         .also { scale ->
                             scaleX = scale
                             scaleY = scale
                         }
+
+                    MathUtils
+                        .lerp(minAlpha, 1f, 1f - pageOffset.coerceIn(0f, 1f))
+                        .also { value -> alpha = value }
                 }
                 .padding(horizontal = 12.dp)
         ) {
             AccountCardLarge(
                 account = accounts[itemIdx],
+                balanceDelta = balanceDelta,
                 scale = 1.05f,
-                overlayStrength = 0.1f
+                overlayStrength = cardOverlayStrength
             )
         }
     }
@@ -92,7 +98,8 @@ fun AccountActions(
     account: Account?,
     onToggleActivate: () -> Unit,
     onToggleEdit: () -> Unit,
-    onSetPrimary: () -> Unit
+    onSetPrimary: () -> Unit,
+    onTransaction: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -102,7 +109,7 @@ fun AccountActions(
             icon = Icons.Default.SyncAlt,
             action = "Transfer",
             enabled = enabled
-        ) { }
+        ) { onTransaction() }
         CircularActionButton(
             modifier = Modifier
                 .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
