@@ -36,6 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColor
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
@@ -100,10 +101,10 @@ fun AccountTypeCard(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    val background = MaterialTheme.colors.surface
+    val background = Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), MaterialTheme.colors.onSurface.toArgb(), 0.18f))
     val foreground = MaterialTheme.colors.onBackground
     val animatedBackground = animateColorAsState(targetValue = if(selected) foreground else background)
-    val animatedForeground = animateColorAsState(targetValue = if(selected) background else foreground)
+    val animatedForeground = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.background else foreground)
 
     Card(
         modifier = modifier
@@ -246,7 +247,7 @@ fun AccountCardLarge(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 28.dp, horizontal = 28.dp)
+                    .padding(28.dp)
             ) {
                 Text(
                     modifier = Modifier

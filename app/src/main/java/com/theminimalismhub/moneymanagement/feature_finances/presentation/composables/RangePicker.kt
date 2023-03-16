@@ -102,7 +102,7 @@ fun RangePicker(
                             }
                         },
                     text = it,
-                    style = MaterialTheme.typography.body2.copy(fontSize = 18.sp)
+                    style = MaterialTheme.typography.body1.copy(fontSize = 19.sp)
                 )
             }
             RangeNext(

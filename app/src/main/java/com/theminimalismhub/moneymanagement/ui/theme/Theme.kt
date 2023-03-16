@@ -16,7 +16,7 @@ private val DarkColorPalette = darkColors(
     background = BackgroundDark,
     onBackground = White,
     error = Error,
-    surface = Surface
+    surface = SurfaceDark
 )
 
 private val LightColorPalette = lightColors(
@@ -28,6 +28,7 @@ private val LightColorPalette = lightColors(
     onSecondary = White,
     background = BackgroundLight,
     onBackground = Black,
+    surface = SurfaceLight,
     error = Error
 )
 

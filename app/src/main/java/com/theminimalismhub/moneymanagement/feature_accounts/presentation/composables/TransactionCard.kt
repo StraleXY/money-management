@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.South
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -57,24 +58,29 @@ fun TransactionCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 accountFrom?.let {
-                    AccountCardMini(
-                        modifier = Modifier.width(225.dp),
+                    AccountCardLarge(
+                        modifier = Modifier.scale(1.075f),
                         account = accountFrom,
-                        balance = accountFrom.balance - try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 }
-                    ) { }
+                        balanceDelta = try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
+                        scale = 1.025f,
+                        overlayStrength = 0.1f
+                    )
                 }
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(34.dp))
                 Icon(imageVector = Icons.Default.South, contentDescription = Icons.Default.South.name)
-                Spacer(modifier = Modifier.height(16.dp))
                 AccountsPager(
                     accounts = accounts,
                     balanceDelta = try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
                     pagerState = rememberPagerState(
                         pageCount = accounts.size,
-                        initialOffscreenLimit = 1,
+                        initialOffscreenLimit = 2,
                     ),
                     minAlpha = 0.5f,
-                    cardOverlayStrength = 0.1f,
+                    cardOverlayStrength = 0.1175f,
+                    initialCardScale = 1.025f,
+                    selectedCardStartScale = 0.85f,
+                    selectedCardScale = 1.075f,
+                    cardSpacing = 0.dp,
                     onAccountSelected = { accountTo = accounts[it] }
                 )
             }

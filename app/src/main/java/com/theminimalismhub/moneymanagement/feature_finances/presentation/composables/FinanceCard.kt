@@ -15,6 +15,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.SyncAlt
+import androidx.compose.material.icons.filled.Transform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -78,7 +80,7 @@ fun FinanceCard(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if(finance.finance.type == FinanceType.INCOME) {
+                        if(finance.finance.type == FinanceType.INCOME || finance.finance.type == FinanceType.TRANSACTION) {
                             Box(
                                 modifier = Modifier
                                     .size(20.dp)
@@ -92,11 +94,11 @@ fun FinanceCard(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowDownward,
-                                    contentDescription = Icons.Default.ArrowDownward.name,
+                                    imageVector = if(finance.finance.type == FinanceType.INCOME) Icons.Default.ArrowDownward else Icons.Default.SyncAlt,
+                                    contentDescription = "Finance type icon",
                                     tint = MaterialTheme.colors.primary,
                                     modifier = Modifier
-                                        .size(14.dp)
+                                        .size(13.dp)
                                 )
                             }
                             Spacer(modifier = Modifier.width(6.dp))
@@ -109,6 +111,7 @@ fun FinanceCard(
                 }
             }
             Column(
+                modifier = Modifier.padding(end = 2.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

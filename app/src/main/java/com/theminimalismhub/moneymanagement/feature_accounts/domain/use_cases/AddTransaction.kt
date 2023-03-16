@@ -14,7 +14,7 @@ class AddTransaction constructor(
         accountRepo.updateAccountBalance(-amount, accountFrom.accountId!!)
         accountRepo.updateAccountBalance(amount, accountTo.accountId!!)
         financeRepo.insert(FinanceItem(
-            name = "Transaction",
+            name = "Transaction from '${accountFrom.name}'",
             amount = amount,
             timestamp = System.currentTimeMillis(),
             type = FinanceType.TRANSACTION,

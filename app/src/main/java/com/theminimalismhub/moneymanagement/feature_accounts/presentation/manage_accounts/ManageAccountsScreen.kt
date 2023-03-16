@@ -51,7 +51,7 @@ fun ManageAccountsScreen(
 
     val pagerState = rememberPagerState(
         pageCount = state.accounts.size,
-        initialOffscreenLimit = 1,
+        initialOffscreenLimit = 2,
     )
 
     val density = LocalDensity.current.density

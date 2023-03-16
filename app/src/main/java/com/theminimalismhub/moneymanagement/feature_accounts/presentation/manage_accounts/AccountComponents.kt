@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -47,8 +48,12 @@ fun AccountsPager(
     pagerState: PagerState,
     minAlpha: Float = 1f,
     cardOverlayStrength: Float = 0.1f,
+    initialCardScale: Float = 1.05f,
+    selectedCardScale: Float = 1.15f,
+    selectedCardStartScale: Float = 0.95f,
     balanceDelta: Double = 0.0,
-    onAccountSelected: (Int) -> Unit
+    cardSpacing: Dp = 12.dp,
+    onAccountSelected: (Int) -> Unit,
 ) {
 
     LaunchedEffect(pagerState.currentPage) {
@@ -69,7 +74,7 @@ fun AccountsPager(
                         calculateCurrentOffsetForPage(itemIdx).absoluteValue
 
                     MathUtils
-                        .lerp(0.95f, 1.15f, 1f - pageOffset.coerceIn(0f, 1f))
+                        .lerp(selectedCardStartScale, selectedCardScale, 1f - pageOffset.coerceIn(0f, 1f))
                         .also { scale ->
                             scaleX = scale
                             scaleY = scale
@@ -79,12 +84,12 @@ fun AccountsPager(
                         .lerp(minAlpha, 1f, 1f - pageOffset.coerceIn(0f, 1f))
                         .also { value -> alpha = value }
                 }
-                .padding(horizontal = 12.dp)
+                .padding(horizontal = cardSpacing)
         ) {
             AccountCardLarge(
                 account = accounts[itemIdx],
                 balanceDelta = balanceDelta,
-                scale = 1.05f,
+                scale = initialCardScale,
                 overlayStrength = cardOverlayStrength
             )
         }
