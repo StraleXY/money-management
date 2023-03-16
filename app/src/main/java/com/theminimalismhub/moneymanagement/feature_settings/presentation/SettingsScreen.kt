@@ -94,10 +94,10 @@ fun SettingsScreen(
                         "App will automatically close after backup is complete.",
                 onClick = {
                     @SuppressLint("SimpleDateFormat")
-                    val dateFormat = SimpleDateFormat("yyyyMMddHHmm")
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
                     try {
-                        backupLauncher.launch("MM_DBBCK_${dateFormat.format(Date())}.db")
+                        backupLauncher.launch("MM_${dateFormat.format(Date())}.db")
                     } catch (e: ActivityNotFoundException) {
                         Log.d("DB", "Couldn't find an application to create documents")
                     }

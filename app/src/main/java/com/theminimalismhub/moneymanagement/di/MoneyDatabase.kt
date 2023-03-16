@@ -1,10 +1,8 @@
 package com.theminimalismhub.moneymanagement.di
 
 import android.content.Context
-import androidx.room.AutoMigration
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.theminimalismhub.moneymanagement.feature_accounts.data.data_source.AccountDao
@@ -20,7 +18,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
         Account::class,
         FinanceItem::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(1, 2),  // account: primary
@@ -28,6 +26,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
         AutoMigration(3, 4),  // account: deleted
         AutoMigration(4, 5),  // finance item: accountTo
         AutoMigration(5, 6),  // finance item: category can be null
+        AutoMigration(6, 7, spec = From6To7Migration::class),  // finance item: renamed financeTo to financeFrom
     ]
 )
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {
@@ -56,17 +55,9 @@ abstract class MoneyDatabase protected constructor() : RoomDatabase() {
     }
 }
 
-val MIGRATION_1_2 = object : Migration(2, 3) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE Account ADD COLUMN primary BOOLEAN")
-    }
-}
+@RenameColumn(tableName = "Finance", fromColumnName = "financeAccountIdTo", toColumnName = "financeAccountIdFrom")
+class From6To7Migration : AutoMigrationSpec
 
-class From1To2Migration : Migration(1, 2) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE Account ADD COLUMN primary BOOLEAN")
-    }
-}
 
 
 fun query(block: () -> Unit) = MoneyDatabase.Instance?.queryExecutor?.execute(block)

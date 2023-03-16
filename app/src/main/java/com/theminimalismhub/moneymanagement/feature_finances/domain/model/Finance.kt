@@ -23,7 +23,7 @@ data class Finance(
     )
     val account: Account,
     @Relation(
-        parentColumn = "financeAccountIdTo",
+        parentColumn = "financeAccountIdFrom",
         entityColumn = "accountId"
     )
     val accountTo: Account?,

@@ -15,5 +15,5 @@ data class FinanceItem(
     @PrimaryKey val id: Int? = null,
     val financeCategoryId: Int? = null,
     val financeAccountId: Int,
-    @ColumnInfo(name = "financeAccountIdTo", defaultValue = "NULL") val financeAccountIdTo: Int? = null
+    @ColumnInfo(name = "financeAccountIdFrom", defaultValue = "NULL") val financeAccountIdFrom: Int? = null
 ) : Serializable
