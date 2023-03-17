@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.xml.validation.Validator
 
 @HiltViewModel
 class ManageAccountsViewModel @Inject constructor(
@@ -39,7 +40,7 @@ class ManageAccountsViewModel @Inject constructor(
             ),
             TextFieldState(
                 name = "description",
-                validators = if(_state.value.currentType == AccountType.CASH) listOf(Validators.Required()) else emptyList(),
+                validators = listOf(Validators.Custom("This field is required") { value -> !(_state.value.currentType == AccountType.CARD && value.toString().isEmpty()) }),
             )
         )
     )
@@ -57,11 +58,10 @@ class ManageAccountsViewModel @Inject constructor(
     fun onEvent(event: ManageAccountsEvent) {
         when(event) {
             is ManageAccountsEvent.CardSelected -> {
-                if(event.idx >= _state.value.accounts.size) return
                 _state.value = _state.value.copy(
-                    selectedAccount = _state.value.accounts[event.idx],
-                    selectedAccountId = _state.value.accounts[event.idx].accountId,
-                    currentType = _state.value.accounts[event.idx].type
+                    selectedAccount = event.account,
+                    selectedAccountId = event.account.accountId,
+                    currentType = event.account.type
                 )
                 getTransactions(_state.value.selectedAccountId)
             }
@@ -104,17 +104,25 @@ class ManageAccountsViewModel @Inject constructor(
             is ManageAccountsEvent.TypeChanged -> selectType(event.type)
             is ManageAccountsEvent.SaveAccount -> {
                 viewModelScope.launch {
+                    if(_state.value.selectedAccount == null) return@launch
+                    _state.value = _state.value.copy(
+                        selectedAccount = _state.value.selectedAccount?.copy(
+                            name = addEditFormState.fields[0].value,
+                            balance = addEditFormState.fields[1].value.toDouble(),
+                            description = addEditFormState.fields[2].value
+                        )
+                    )
                     useCases.add(Account(
-                        name = addEditFormState.fields[0].value,
-                        balance = addEditFormState.fields[1].value.toDouble(),
+                        name = _state.value.selectedAccount!!.name,
+                        balance = _state.value.selectedAccount!!.balance,
                         active = _state.value.selectedAccount?.active ?: false,
                         accountId = _state.value.selectedAccountId,
                         primary = _state.value.selectedAccount?.primary ?: false,
                         type = _state.value.currentType,
-                        description = addEditFormState.fields[2].value,
+                        description =_state.value.selectedAccount!!.description,
                         deleted = _state.value.selectedAccount?.deleted ?: false
                     ))
-                    _state.value.selectedAccount?.let { onEvent(ManageAccountsEvent.CardSelected(_state.value.accounts.indexOf(it))) }
+                    _state.value.selectedAccount?.let { onEvent(ManageAccountsEvent.CardSelected(it)) }
                     onEvent(ManageAccountsEvent.ToggleAddEdit(null))
                 }
             }

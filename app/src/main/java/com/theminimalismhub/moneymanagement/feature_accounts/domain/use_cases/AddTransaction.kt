@@ -18,8 +18,8 @@ class AddTransaction constructor(
             amount = amount,
             timestamp = System.currentTimeMillis(),
             type = FinanceType.TRANSACTION,
-            financeAccountId = accountFrom.accountId,
-            financeAccountIdFrom = accountTo.accountId
+            financeAccountId = accountTo.accountId,
+            financeAccountIdFrom = accountFrom.accountId
         ))
     }
 }

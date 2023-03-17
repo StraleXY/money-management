@@ -127,26 +127,28 @@ fun AddEditAccountCard(
         AnimatedVisibility(
             visible = type == AccountType.CARD
         ) {
-            OutlinedTextField(
-                value = description.value,
-                onValueChange = { description.change(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 36.dp),
-                textStyle = MaterialTheme.typography.body1,
-                label = { Text(text = if(type == AccountType.CARD) "Last 4 Digits" else "Description") },
-                isError = description.hasError,
-                keyboardOptions = KeyboardOptions(keyboardType = if(type == AccountType.CARD) KeyboardType.Number else KeyboardType.Text, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
-            )
-            ErrorText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 36.dp),
-                message = description.errorMessage,
-                hasError = description.hasError
-            )
-            if(!description.hasError) Spacer(modifier = Modifier.height(4.dp))
+            Column {
+                OutlinedTextField(
+                    value = description.value,
+                    onValueChange = { description.change(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 36.dp),
+                    textStyle = MaterialTheme.typography.body1,
+                    label = { Text(text = if(type == AccountType.CARD) "Last 4 Digits" else "Description") },
+                    isError = description.hasError,
+                    keyboardOptions = KeyboardOptions(keyboardType = if(type == AccountType.CARD) KeyboardType.Number else KeyboardType.Text, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+                )
+                ErrorText(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 36.dp),
+                    message = description.errorMessage,
+                    hasError = description.hasError
+                )
+                if(!description.hasError) Spacer(modifier = Modifier.height(4.dp))
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))

@@ -99,7 +99,7 @@ fun ManageAccountsScreen(
                             modifier = Modifier.onSizeChanged { accountsPagerHeight = Dp(it.height / density) },
                             accounts = state.accounts,
                             pagerState = pagerState,
-                            onAccountSelected = { vm.onEvent(ManageAccountsEvent.CardSelected(it)) }
+                            onAccountSelected = { if(state.accounts.size > it) vm.onEvent(ManageAccountsEvent.CardSelected(state.accounts[it])) }
                         )
                         AccountActions(
                             enabled = !pagerState.isScrollInProgress,
@@ -139,7 +139,10 @@ fun ManageAccountsScreen(
                 form = vm.addEditFormState,
                 accountTypeStates = state.accountTypeStates,
                 onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) },
-                onSave = { vm.onEvent(ManageAccountsEvent.SaveAccount) },
+                onSave = {
+                    if(!vm.addEditFormState.validate()) return@AddEditAccountCard
+                    vm.onEvent(ManageAccountsEvent.SaveAccount)
+                },
                 onDelete = { vm.onEvent(ManageAccountsEvent.DeleteAccount) }
             )
             TransactionCard(
