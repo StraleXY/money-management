@@ -3,7 +3,6 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.compo
 import android.app.DatePickerDialog
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*

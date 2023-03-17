@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.theminimalismhub.jobmanagerv2.utils.Dater
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import java.text.SimpleDateFormat
@@ -26,15 +27,9 @@ class RangePickerService {
 
     fun setModeDay() {
         start.time = Date()
-        start.set(Calendar.HOUR_OF_DAY, 0)
-        start.set(Calendar.MINUTE, 0)
-        start.set(Calendar.SECOND, 0)
-        start.set(Calendar.MILLISECOND, 0)
+        Dater.setTimeToBeginningOfDay(start)
         end.time = Date()
-        end.set(Calendar.HOUR_OF_DAY, 23)
-        end.set(Calendar.MINUTE, 59)
-        end.set(Calendar.SECOND, 59)
-        end.set(Calendar.MILLISECOND, 999)
+        Dater.setTimeToEndOfDay(end)
         distance = 1
         rangeLength = 1
         type = RangeType.DAILY
@@ -70,16 +65,13 @@ class RangePickerService {
     }
 
     fun set(timestamp: Long) {
-        val startCopy = Calendar.getInstance()
-        startCopy.timeInMillis = start.timeInMillis
-        val endCopy = Calendar.getInstance()
-        endCopy.timeInMillis = end.timeInMillis
-        val newTime = Calendar.getInstance()
-        newTime.timeInMillis = timestamp
-        start[newTime[Calendar.YEAR], newTime[Calendar.MONTH], newTime[Calendar.DAY_OF_MONTH], startCopy[Calendar.HOUR]] =
-            startCopy[Calendar.MINUTE]
-        end[newTime[Calendar.YEAR], newTime[Calendar.MONTH], newTime[Calendar.DAY_OF_MONTH], endCopy[Calendar.HOUR]] =
-            endCopy[Calendar.MINUTE]
+        start = Calendar.getInstance()
+        start.time = Date(timestamp)
+        Dater.setTimeToBeginningOfDay(start)
+
+        end = Calendar.getInstance()
+        end.time = Date(timestamp)
+        Dater.setTimeToEndOfDay(end)
     }
 
     fun previous() {

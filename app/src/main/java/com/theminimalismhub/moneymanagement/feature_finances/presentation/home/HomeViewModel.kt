@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         initDateRange()
-        getFinances(null)
+        getFinances(null, _state.value.dateRange)
         getCategoryTotals()
         getAccounts()
     }
@@ -47,21 +47,21 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.RangeChanged -> {
                 toggleCategoryBar(selectedCategoryId)
                 _state.value = _state.value.copy(dateRange = event.range)
-                getFinances(null)
+                getFinances(null, event.range)
                 getCategoryTotals()
             }
             is HomeEvent.CategoryClicked -> {
                 toggleCategoryBar(event.id)
-                getFinances(selectedCategoryId)
+                getFinances(selectedCategoryId, _state.value.dateRange)
             }
         }
     }
 
     // Finances
     private var getFinancesJob: Job? = null
-    private fun getFinances(categoryId: Int?) {
+    private fun getFinances(categoryId: Int?, range: Pair<Long, Long>) {
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(_state.value.dateRange, categoryId)
+        getFinancesJob = useCases.getFinances(range, categoryId)
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
