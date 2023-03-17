@@ -97,7 +97,7 @@ fun HomeScreen(
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                items(state.accounts) { account ->
+                items(state.accounts.filter { it.active }) { account ->
                     AccountCardLarge(
                         account = account,
                         totalPerCategory = state.totalsPerAccount[account.accountId] ?: emptyList(),
@@ -106,9 +106,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 item {
-                    AddNewAccount {
-
-                    }
+                    AddNewAccount { navigator.navigate(ManageAccountsScreenDestination(isAddNew = true))}
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))

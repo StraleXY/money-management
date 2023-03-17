@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -43,6 +44,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.H
 @Composable
 @Destination(style = BaseTransition::class)
 fun ManageAccountsScreen(
+    isAddNew: Boolean = false,
     vm: ManageAccountsViewModel = hiltViewModel()
 ) {
 
@@ -60,6 +62,10 @@ fun ManageAccountsScreen(
     var accountsPagerHeight by remember { mutableStateOf(0.dp) }
     val screenHeight by remember { mutableStateOf(Dp(root.height / density)) }
     val scroll: ScrollState = rememberScrollState(0)
+
+    LaunchedEffect(isAddNew) {
+        if(isAddNew) vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null))
+    }
 
     BackHandler(enabled = state.isAddEditOpen || state.isTransactionOpen) {
         if (state.isAddEditOpen) vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null))
