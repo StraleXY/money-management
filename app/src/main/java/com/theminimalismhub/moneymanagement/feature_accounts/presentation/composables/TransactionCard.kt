@@ -61,7 +61,7 @@ fun TransactionCard(
                     AccountCardLarge(
                         modifier = Modifier.scale(1.075f),
                         account = accountFrom,
-                        balanceDelta = try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
+                        balanceDelta = try { -amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
                         scale = 1.025f,
                         overlayStrength = 0.1f
                     )

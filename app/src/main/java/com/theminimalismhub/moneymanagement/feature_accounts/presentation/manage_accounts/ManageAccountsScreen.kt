@@ -150,7 +150,10 @@ fun ManageAccountsScreen(
                 form = vm.transactionFormState,
                 accountFrom = state.selectedAccount,
                 accounts = state.accounts.filter { account -> account.accountId != state.selectedAccount?.accountId },
-                onTransaction = { vm.onEvent(ManageAccountsEvent.ConfirmTransaction(it)) }
+                onTransaction = {
+                    if(!vm.transactionFormState.validate()) return@TransactionCard
+                    vm.onEvent(ManageAccountsEvent.ConfirmTransaction(it))
+                }
             )
         }
     }

@@ -260,7 +260,8 @@ fun AccountCardLarge(
                     style = MaterialTheme.typography.body1.copy(
                         fontFamily = economica,
                         fontSize = 40.sp
-                    )
+                    ),
+                    color = if((account.balance + balanceDelta).toInt() < 0) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
                 )
             }
             if(account.type == AccountType.CARD) {
