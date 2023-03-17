@@ -123,11 +123,11 @@ fun AccountActions(
             enabled = enabled && !(account?.primary ?: true)
         ) { onSetPrimary() }
         CircularActionButton(
-            modifier = Modifier
-                .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
+            modifier = Modifier,
+//                .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
             icon = if(account?.active != false) Icons.Default.RemoveShoppingCart else Icons.Default.AddShoppingCart,
             action = if(account?.active != false) "Disable" else "Enable",
-            enabled = enabled && account?.primary == false,
+            enabled = enabled,
             onClick = onToggleActivate
         )
         DashedCircularActionButton(

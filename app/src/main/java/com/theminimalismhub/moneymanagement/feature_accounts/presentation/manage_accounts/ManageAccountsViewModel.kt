@@ -83,6 +83,7 @@ class ManageAccountsViewModel @Inject constructor(
             }
             is ManageAccountsEvent.PrimarySelected -> {
                 _state.value.selectedAccount?.let {
+                    if(!it.active) onEvent(ManageAccountsEvent.ToggleActive)
                     viewModelScope.launch { setPrimary(it.accountId!!) }
                 }
             }
