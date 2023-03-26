@@ -18,7 +18,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
         Account::class,
         FinanceItem::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(1, 2),  // account: primary
@@ -27,6 +27,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
         AutoMigration(4, 5),  // finance item: accountTo
         AutoMigration(5, 6),  // finance item: category can be null
         AutoMigration(6, 7, spec = From6To7Migration::class),  // finance item: renamed financeTo to financeFrom
+        AutoMigration(7, 8),  // add: trackable flag to category and finance item
     ]
 )
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {
