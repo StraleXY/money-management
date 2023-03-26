@@ -47,7 +47,7 @@ fun FloatingCard(
                     Column(
                         modifier = Modifier
                             .padding(vertical = 20.dp)
-                            .padding(top = 16.dp),
+                            .padding(top = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         content = content
                     )

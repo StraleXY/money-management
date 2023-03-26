@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +36,7 @@ import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
+import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
@@ -139,6 +141,12 @@ fun AddEditFinanceCard(
             message = amount.errorMessage,
             hasError = amount.hasError
         )
+        Spacer(modifier = Modifier.height(12.dp))
+        ToggleTracking(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            action = stringResource(id = R.string.track_finance_action),
+            actionHint = stringResource(id = R.string.track_finance_hint)
+        ) { }
         Spacer(modifier = Modifier.height(24.dp))
         CRUDButtons(
             onSave = {
