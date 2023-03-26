@@ -27,16 +27,16 @@ interface FinanceDao {
 
     @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
             "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
-            "WHERE timestamp >= :from AND timestamp <= :to AND Finance.type = :type " +
+            "WHERE timestamp >= :from AND timestamp <= :to AND Finance.type = :type AND Finance.trackable = 1 " +
             "GROUP BY financeCategoryId")
     fun getPerCategory(from: Long, to: Long, type: FinanceType): Flow<List<CategoryAmount>>
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
-            "WHERE type = :type AND timestamp >= :from AND timestamp <= :to ")
+            "WHERE type = :type AND timestamp >= :from AND timestamp <= :to AND trackable = 1 ")
     suspend fun getSpending(from: Long, to: Long, type: FinanceType): Double
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
-            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to ")
+            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND trackable = 1 ")
     suspend fun getSpending(from: Long, to: Long, categoryId: Int): Double
 
     @Transaction

@@ -119,7 +119,7 @@ fun HomeScreen(
                             QuickSpendingOverview(
                                 modifier = Modifier
                                     .padding(horizontal = 20.dp),
-                                amount = state.results.sumOf { finance -> if(finance.finance.type == FinanceType.OUTCOME) finance.finance.amount else 0.0 },
+                                amount = state.results.sumOf { finance -> if(finance.finance.type == FinanceType.OUTCOME && finance.finance.trackable) finance.finance.amount else 0.0 },
                                 rangeLength = vm.rangeService.rangeLength,
                                 limit = 1000.0
                             )
