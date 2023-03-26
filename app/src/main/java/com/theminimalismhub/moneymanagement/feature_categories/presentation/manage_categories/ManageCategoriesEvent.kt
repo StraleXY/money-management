@@ -10,4 +10,5 @@ sealed class ManageCategoriesEvent {
     data class ColorChanged(val value: HSVColor): ManageCategoriesEvent()
     object SaveCategory: ManageCategoriesEvent()
     object DeleteCategory: ManageCategoriesEvent()
+    object TrackableToggled: ManageCategoriesEvent()
 }

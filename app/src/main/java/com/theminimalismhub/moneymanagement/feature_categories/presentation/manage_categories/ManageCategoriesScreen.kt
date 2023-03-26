@@ -114,8 +114,9 @@ fun ManageCategoriesScreen(
                         ToggleTracking(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
                             action = stringResource(id = R.string.track_category_action),
-                            actionHint = stringResource(id = R.string.track_category_hint)
-                        ) { }
+                            actionHint = stringResource(id = R.string.track_category_hint),
+                            toggled = state.currentTrackable
+                        ) { vm.onEvent(ManageCategoriesEvent.TrackableToggled) }
                     }
                 }
             ) {
