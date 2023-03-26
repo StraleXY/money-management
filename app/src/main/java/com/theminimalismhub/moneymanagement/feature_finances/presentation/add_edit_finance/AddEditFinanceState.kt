@@ -13,6 +13,7 @@ data class AddEditFinanceState(
     val currentType: FinanceType = FinanceType.OUTCOME,
     val categoryStates: HashMap<Int, MutableState<Boolean>> = HashMap(),
     val timestamp: Long = System.currentTimeMillis(),
+    val currentTrackable: Boolean = true,
 
     val selectedAccountId: Int? = null,
     val accounts: List<Account> = emptyList(),

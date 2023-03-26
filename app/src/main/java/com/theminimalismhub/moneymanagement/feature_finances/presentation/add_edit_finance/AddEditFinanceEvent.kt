@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
+import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ManageCategoriesEvent
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 
@@ -11,4 +12,5 @@ sealed class AddEditFinanceEvent {
     data class DateChanged(val timestamp: Long): AddEditFinanceEvent()
     object AddFinance: AddEditFinanceEvent()
     object DeleteFinance: AddEditFinanceEvent()
+    object TrackableToggled: AddEditFinanceEvent()
 }

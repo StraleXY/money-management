@@ -64,14 +64,15 @@ class AddEditFinanceService(
                     initialAccountId = null
                     initialAmount = 0.0
                 } else {
+                    selectCategoryType(_state.value.currentType)
+                    onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId!!))
                     _state.value = _state.value.copy(
                         currentFinanceId = event.finance.finance.id,
                         currentType = event.finance.finance.type,
                         timestamp = event.finance.finance.timestamp,
-                        selectedAccountId = event.finance.finance.financeAccountId
+                        selectedAccountId = event.finance.finance.financeAccountId,
+                        currentTrackable = event.finance.finance.trackable
                     )
-                    selectCategoryType(_state.value.currentType)
-                    onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId!!))
                     formState.fields[0].change(event.finance.finance.name)
                     formState.fields[1].change(event.finance.finance.amount.toInt().toString())
                     onEvent(AddEditFinanceEvent.AccountSelected(event.finance.finance.financeAccountId))
@@ -87,7 +88,7 @@ class AddEditFinanceService(
                     selectedAccountId = event.id
                 )
             }
-            AddEditFinanceEvent.ToggleType -> {
+            is AddEditFinanceEvent.ToggleType -> {
                 _state.value = _state.value.copy(
                     currentType = FinanceType[(_state.value.currentType.value + 1) % 2]!!,
                 )
@@ -98,13 +99,19 @@ class AddEditFinanceService(
                     _state.value.categoryStates[id]?.value = id == event.id
                 }
                 _state.value = _state.value.copy(
-                    selectedCategoryId = event.id
+                    selectedCategoryId = event.id,
+                    currentTrackable = _state.value.categories.first { it.categoryId == event.id }.trackable
                 )
             }
             is AddEditFinanceEvent.DateChanged -> {
                 _state.value = _state.value.copy(timestamp = event.timestamp)
             }
-            AddEditFinanceEvent.AddFinance -> {
+            is AddEditFinanceEvent.TrackableToggled -> {
+                _state.value = _state.value.copy(
+                    currentTrackable = !_state.value.currentTrackable
+                )
+            }
+            is AddEditFinanceEvent.AddFinance -> {
                 scope.launch {
                     useCases.add(
                         FinanceItem(
@@ -114,7 +121,8 @@ class AddEditFinanceService(
                             type = _state.value.currentType,
                             id = _state.value.currentFinanceId,
                             financeCategoryId = _state.value.selectedCategoryId!!,
-                            financeAccountId = _state.value.selectedAccountId!!
+                            financeAccountId = _state.value.selectedAccountId!!,
+                            trackable = _state.value.currentTrackable
                         )
                     )
                     if (_state.value.currentFinanceId == null) useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
@@ -128,7 +136,7 @@ class AddEditFinanceService(
                     }
                 }
             }
-            AddEditFinanceEvent.DeleteFinance -> {
+            is AddEditFinanceEvent.DeleteFinance -> {
                 scope.launch {
                     useCases.delete(state.value.currentFinanceId!!)
                     useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.INCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
@@ -147,7 +155,8 @@ class AddEditFinanceService(
         _state.value = _state.value.copy(
             categories = list,
             selectedCategoryId = list[0].categoryId,
-            categoryStates = HashMap()
+            categoryStates = HashMap(),
+            currentTrackable = list[0].trackable
         )
         list.forEach { category ->
             category.categoryId?.let { id -> _state.value.categoryStates[id] = mutableStateOf(category.categoryId == _state.value.selectedCategoryId) }
@@ -161,8 +170,7 @@ class AddEditFinanceService(
             .onEach {
                 incomeCategories = it.filter { it.type == FinanceType.INCOME }
                 outcomeCategories = it.filter { it.type == FinanceType.OUTCOME }
-                if(incomeCategories.isNotEmpty() && outcomeCategories.isNotEmpty()) selectCategoryType(
-                    FinanceType.OUTCOME)
+                if(incomeCategories.isNotEmpty() && outcomeCategories.isNotEmpty()) selectCategoryType(FinanceType.OUTCOME)
             }
             .launchIn(scope)
     }

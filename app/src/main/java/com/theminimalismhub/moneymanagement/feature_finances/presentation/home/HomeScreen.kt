@@ -59,19 +59,6 @@ fun HomeScreen(
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
 
-//    val animatedAlpha = remember{ Animatable(1f) }
-//    LaunchedEffect(state.results) {
-//        animatedAlpha.snapTo(0f)
-//        animatedAlpha.animateTo(
-//            targetValue = 1f,
-//            animationSpec = keyframes {
-//                durationMillis = 400
-//                0f at 150 with FastOutSlowInEasing
-//                1f at 400
-//            }
-//        )
-//    }
-
     val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
@@ -177,7 +164,8 @@ fun HomeScreen(
                         categorySelected = { vm.onEvent(AddEditFinanceEvent.CategorySelected(it)) },
                         addFinance = { vm.onEvent(AddEditFinanceEvent.AddFinance) },
                         deleteFinance = { vm.onEvent(AddEditFinanceEvent.DeleteFinance)},
-                        dateChanged = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) }
+                        dateChanged = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) },
+                        trackableToggled = { vm.onEvent(AddEditFinanceEvent.TrackableToggled) }
                     )
                 }
             }

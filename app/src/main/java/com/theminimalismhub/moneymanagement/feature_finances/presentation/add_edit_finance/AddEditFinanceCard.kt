@@ -53,7 +53,8 @@ fun AddEditFinanceCard(
     categorySelected: (Int) -> Unit,
     addFinance: () -> Unit,
     deleteFinance: () -> Unit,
-    dateChanged: (Long) -> Unit
+    dateChanged: (Long) -> Unit,
+    trackableToggled: () -> Unit
 
 ) {
     val focusManager = LocalFocusManager.current
@@ -145,8 +146,9 @@ fun AddEditFinanceCard(
         ToggleTracking(
             modifier = Modifier.padding(horizontal = 24.dp),
             action = stringResource(id = R.string.track_finance_action),
-            actionHint = stringResource(id = R.string.track_finance_hint)
-        ) { }
+            actionHint = stringResource(id = R.string.track_finance_hint),
+            toggled = state.currentTrackable
+        ) { trackableToggled() }
         Spacer(modifier = Modifier.height(24.dp))
         CRUDButtons(
             onSave = {

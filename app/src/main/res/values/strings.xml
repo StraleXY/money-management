@@ -19,6 +19,7 @@
     <string name="cs_new_category">Add new category</string>
     <string name="track_category_action">Track Items From This Category</string>
     <string name="track_category_hint">Non-tracked items won\'t show up in main analytics</string>
+    <string name="track_category_warning">Changing this after creation won\'t affect previously created finance items under this category.</string>
 
     <!-- Home Screen -->
     <string name="hs_new_finance">Add new finance</string>
