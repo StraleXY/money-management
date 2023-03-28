@@ -44,6 +44,7 @@ fun TransactionCard(
 
     val focusManager = LocalFocusManager.current
     val amount: TextFieldState = form.getState("amount")
+    val name: TextFieldState = form.getState("name")
     var accountTo by remember { mutableStateOf(if(accounts.isNotEmpty()) accounts[0] else null) }
 
     FloatingCard(
@@ -86,6 +87,26 @@ fun TransactionCard(
             }
         }
     ) {
+        OutlinedTextField(
+            value = name.value,
+            onValueChange = { name.change(it) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 36.dp),
+            textStyle = MaterialTheme.typography.body1,
+            label = { Text(text = "Name") },
+            isError = name.hasError,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+        )
+        ErrorText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 36.dp),
+            message = amount.errorMessage,
+            hasError = amount.hasError
+        )
+        if(!name.hasError) Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = amount.value,
             onValueChange = { amount.change(it) },

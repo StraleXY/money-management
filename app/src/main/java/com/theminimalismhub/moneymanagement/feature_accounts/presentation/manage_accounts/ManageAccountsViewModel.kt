@@ -54,7 +54,8 @@ class ManageAccountsViewModel @Inject constructor(
                     Validators.Custom("You can't transfer more than you have.")
                         { value -> try { value.toString().toDouble() } catch (ex: java.lang.NumberFormatException) { 0.0 } <= (_state.value.selectedAccount?.balance ?: 0.0) }
                 ),
-            )
+            ),
+            TextFieldState(name = "name")
         )
     )
 
@@ -147,11 +148,17 @@ class ManageAccountsViewModel @Inject constructor(
                 )
                 if(!_state.value.isTransactionOpen) {
                     transactionFormState.fields[0].change("")
+                    transactionFormState.fields[1].change("")
                 }
             }
             is ManageAccountsEvent.ConfirmTransaction -> {
                 viewModelScope.launch {
-                    useCases.addTransaction(_state.value.selectedAccount!!, event.accountTo, transactionFormState.fields[0].value.toDouble())
+                    useCases.addTransaction(
+                        accountFrom = _state.value.selectedAccount!!,
+                        accountTo = event.accountTo,
+                        amount = transactionFormState.fields[0].value.toDouble(),
+                        name = transactionFormState.fields[1].value.ifBlank { "Transaction from '${_state.value.selectedAccount!!.name}'" }
+                    )
                 }
                 onEvent(ManageAccountsEvent.ToggleTransaction)
             }

@@ -10,11 +10,11 @@ class AddTransaction constructor(
     private val financeRepo: FinanceRepo,
     private val accountRepo: AccountRepo
 ) {
-    suspend operator fun invoke(accountFrom: Account, accountTo: Account, amount: Double) {
+    suspend operator fun invoke(accountFrom: Account, accountTo: Account, amount: Double, name: String = "Transaction from '${accountFrom.name}'") {
         accountRepo.updateAccountBalance(-amount, accountFrom.accountId!!)
         accountRepo.updateAccountBalance(amount, accountTo.accountId!!)
         financeRepo.insert(FinanceItem(
-            name = "Transaction from '${accountFrom.name}'",
+            name = name,
             amount = amount,
             timestamp = System.currentTimeMillis(),
             type = FinanceType.TRANSACTION,
