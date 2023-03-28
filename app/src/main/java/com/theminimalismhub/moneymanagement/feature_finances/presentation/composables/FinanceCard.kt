@@ -14,9 +14,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.SyncAlt
-import androidx.compose.material.icons.filled.Transform
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -80,7 +78,7 @@ fun FinanceCard(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if(finance.finance.type == FinanceType.INCOME || finance.finance.type == FinanceType.TRANSACTION) {
+                        if(finance.finance.type == FinanceType.INCOME || finance.finance.type == FinanceType.TRANSACTION || !finance.finance.trackable) {
                             Box(
                                 modifier = Modifier
                                     .size(20.dp)
@@ -94,7 +92,13 @@ fun FinanceCard(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = if(finance.finance.type == FinanceType.INCOME) Icons.Default.ArrowDownward else Icons.Default.SyncAlt,
+                                    imageVector =
+                                    if(!finance.finance.trackable) Icons.Default.MobiledataOff
+                                    else when (finance.finance.type) {
+                                            FinanceType.INCOME -> Icons.Default.ArrowDownward
+                                            FinanceType.TRANSACTION -> Icons.Default.SyncAlt
+                                            else -> Icons.Default.QuestionMark
+                                        },
                                     contentDescription = "Finance type icon",
                                     tint = MaterialTheme.colors.primary,
                                     modifier = Modifier
