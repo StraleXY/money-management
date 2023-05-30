@@ -10,6 +10,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.Ho
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceService
+import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val useCases: HomeUseCases,
-    private val addEditFinanceUseCases: AddEditFinanceUseCases
+    private val addEditFinanceUseCases: AddEditFinanceUseCases,
+    private val preferences: Preferences
 ) : ViewModel() {
 
     val addEditService = AddEditFinanceService(viewModelScope, addEditFinanceUseCases)
@@ -32,6 +34,7 @@ class HomeViewModel @Inject constructor(
     val rangeService = RangePickerService()
 
     init {
+        _state.value = _state.value.copy(limit = preferences.getSimpleLimit().toDouble())
         initDateRange()
         getFinances()
         getCategoryTotals()

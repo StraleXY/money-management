@@ -114,7 +114,7 @@ fun HomeScreen(
                                     .padding(horizontal = 20.dp),
                                 amount = state.quickSpendingAmount,
                                 rangeLength = vm.rangeService.rangeLength,
-                                limit = 1000.0,
+                                limit = state.limit,
                                 limitHidden = state.itemsTypeStates[2]!!.value
                             )
                             ItemsTypeSelector(

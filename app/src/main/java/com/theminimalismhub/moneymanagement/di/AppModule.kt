@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.di
 
 import android.app.Application
+import android.content.Context
 import com.theminimalismhub.moneymanagement.feature_accounts.data.repository.AccountRepoImpl
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.repository.AccountRepo
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.*
@@ -13,6 +14,8 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.
 import com.theminimalismhub.moneymanagement.feature_finances.data.repository.FinanceRepoImpl
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.*
+import com.theminimalismhub.moneymanagement.feature_settings.data.PreferencesImpl
+import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,6 +25,16 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides @Singleton
+    fun providesContext(app: Application) : Context {
+        return app.applicationContext
+    }
+
+    @Provides @Singleton
+    fun providesPreferences(context: Context) : Preferences {
+        return PreferencesImpl.getInstance(context)
+    }
 
     @Provides @Singleton
     fun providesMoneyDatabase(app: Application): MoneyDatabase {
