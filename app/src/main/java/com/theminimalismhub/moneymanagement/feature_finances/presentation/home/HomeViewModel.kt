@@ -124,11 +124,12 @@ class HomeViewModel @Inject constructor(
         }
     }
     private suspend fun getGraphData(categoryId: Int? = null) {
+        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         if(rangeService.rangeLength == 1) return
         _state.value = _state.value.copy(
             earningsPerTimePeriod = useCases.getTotalPerCategory.getPerDay(
                 range = _state.value.dateRange,
-                type = FinanceType.OUTCOME,
+                type = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME,
                 categoryId = categoryId
             )
         )
