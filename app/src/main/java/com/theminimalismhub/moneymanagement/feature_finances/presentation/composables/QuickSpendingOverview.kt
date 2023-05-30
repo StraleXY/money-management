@@ -25,7 +25,8 @@ fun QuickSpendingOverview(
     modifier: Modifier = Modifier,
     amount: Double,
     rangeLength: Int,
-    limit: Double = 0.0
+    limit: Double = 0.0,
+    limitHidden: Boolean = false
 ) {
     var width by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
@@ -48,13 +49,13 @@ fun QuickSpendingOverview(
                 modifier = Modifier
                     .weight(0.49f, true)
                     .height(125.dp),
-                title = "SPENT",
+                title = if(limitHidden) "TOTAL" else "SPENT",
                 amount = amount,
                 hint = "AVERAGE",
                 secondaryAmount = if(rangeLength == 1) 0.0 else amount / rangeLength
             )
             AnimatedVisibility(
-                visible = amount != 0.0,
+                visible = !limitHidden,
                 enter = expandHorizontally(tween(300)) { 0 } + fadeIn(tween(200, 100)),
                 exit = fadeOut(tween(200)) + shrinkHorizontally(tween(300, 100)) { 0 }
             ) {
@@ -91,8 +92,8 @@ private fun SpendingSegment(
     secondaryAmount: Double,
     currency: String = "RSD"
 ) {
-    val animatedAmount by animateIntAsState(targetValue = amount.toInt(), tween(450))
-    val animatedSecondaryAmount by animateIntAsState(targetValue = secondaryAmount.toInt(), tween(450))
+    val animatedAmount by animateIntAsState(targetValue = amount.toInt(), tween(750))
+    val animatedSecondaryAmount by animateIntAsState(targetValue = secondaryAmount.toInt(), tween(750))
 
     Column(
         modifier = modifier,

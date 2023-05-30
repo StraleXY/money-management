@@ -15,6 +15,7 @@ data class HomeState(
     val categoryBarStates: HashMap<Int, MutableState<CategoryBarState>> = HashMap(),
     val earningsPerTimePeriod: List<GraphEntry> = emptyList(),
     val maxEarnings: Double = 0.0,
+    val quickSpendingAmount: Double = 0.0,
 
     val accounts: List<Account> = emptyList(),
     val totalsPerAccount: Map<Int, List<CategoryAmount>> = HashMap(),

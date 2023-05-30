@@ -75,9 +75,17 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     results = finance
                 )
+                updateQuickSpending()
                 getGraphData(selectedCategoryId)
             }
             .launchIn(viewModelScope)
+    }
+    private fun updateQuickSpending() {
+        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
+        val types: MutableList<FinanceType> = if(idx == 2) mutableListOf(FinanceType.INCOME) else mutableListOf(FinanceType.OUTCOME)
+        _state.value = _state.value.copy(
+            quickSpendingAmount = _state.value.results.sumOf { if (types.contains(it.finance.type)) it.finance.amount else 0.0 }
+        )
     }
 
     // Overview
