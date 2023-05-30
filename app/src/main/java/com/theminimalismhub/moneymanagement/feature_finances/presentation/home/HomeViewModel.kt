@@ -55,6 +55,7 @@ class HomeViewModel @Inject constructor(
                 getFinances()
             }
             is HomeEvent.ItemTypeSelected -> {
+                selectedCategoryId = null
                 _state.value.itemsTypeStates.forEach { it -> _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
                 getFinances()
                 getCategoryTotals()
@@ -66,10 +67,12 @@ class HomeViewModel @Inject constructor(
     private var getFinancesJob: Job? = null
     private fun getFinances() {
         val types: MutableList<FinanceType>
+        val tracked: MutableList<Boolean>
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         types = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
+        tracked = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, types)
+        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, types, tracked)
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
@@ -151,4 +154,3 @@ class HomeViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 }
-

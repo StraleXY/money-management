@@ -18,12 +18,12 @@ interface FinanceDao {
     fun getAll(from: Long, to: Long, accountId : Int, types: List<FinanceType>): Flow<List<Finance>>
 
     @Transaction
-    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to AND type IN (:types) ORDER BY timestamp ASC")
-    fun getAll(from: Long, to: Long, types: List<FinanceType>): Flow<List<Finance>>
+    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to AND type IN (:types) AND trackable IN (:tracked) ORDER BY timestamp ASC")
+    fun getAll(from: Long, to: Long, types: List<FinanceType>, tracked: List<Boolean>): Flow<List<Finance>>
 
     @Transaction
-    @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type != 'TRANSACTION' ORDER BY timestamp ASC")
-    fun getAll(from: Long, to: Long, categoryId: Int): Flow<List<Finance>>
+    @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type != 'TRANSACTION' AND trackable IN (:tracked) ORDER BY timestamp ASC")
+    fun getAll(from: Long, to: Long, tracked: List<Boolean>, categoryId: Int): Flow<List<Finance>>
 
     @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
             "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
