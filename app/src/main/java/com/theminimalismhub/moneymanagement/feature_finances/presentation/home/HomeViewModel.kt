@@ -56,7 +56,7 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.ItemTypeSelected -> {
                 selectedCategoryId = null
-                _state.value.itemsTypeStates.forEach { it -> _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
+                _state.value.itemsTypeStates.forEach { _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
                 getFinances()
                 getCategoryTotals()
             }
@@ -66,11 +66,9 @@ class HomeViewModel @Inject constructor(
     // Finances
     private var getFinancesJob: Job? = null
     private fun getFinances() {
-        val types: MutableList<FinanceType>
-        val tracked: MutableList<Boolean>
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        types = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
-        tracked = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
+        val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
+        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         getFinancesJob?.cancel()
         getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, types, tracked)
             .onEach { finance ->
@@ -92,9 +90,10 @@ class HomeViewModel @Inject constructor(
     private var getPerCategoryJob: Job? = null
     private fun getCategoryTotals() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val type = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
+        val type: FinanceType = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
+        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         getPerCategoryJob?.cancel()
-        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, type)
+        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, type, tracked)
             .onEach { totals ->
                 _state.value = _state.value.copy(
                     totalPerCategory = totals.sortedBy { it.amount }.reversed()
