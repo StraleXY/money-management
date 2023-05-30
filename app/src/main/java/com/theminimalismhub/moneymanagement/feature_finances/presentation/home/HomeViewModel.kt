@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         initDateRange()
-        getFinances(null, _state.value.dateRange)
+        getFinances()
         getCategoryTotals()
         getAccounts()
     }
@@ -47,15 +47,16 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.RangeChanged -> {
                 toggleCategoryBar(selectedCategoryId)
                 _state.value = _state.value.copy(dateRange = event.range)
-                getFinances(null, event.range)
+                getFinances()
                 getCategoryTotals()
             }
             is HomeEvent.CategoryClicked -> {
                 toggleCategoryBar(event.id)
-                getFinances(selectedCategoryId, _state.value.dateRange)
+                getFinances()
             }
             is HomeEvent.ItemTypeSelected -> {
                 _state.value.itemsTypeStates.forEach { it -> _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
+                getFinances()
                 getCategoryTotals()
             }
         }
@@ -63,14 +64,17 @@ class HomeViewModel @Inject constructor(
 
     // Finances
     private var getFinancesJob: Job? = null
-    private fun getFinances(categoryId: Int?, range: Pair<Long, Long>) {
+    private fun getFinances() {
+        val types: MutableList<FinanceType>
+        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
+        types = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(range, categoryId)
+        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, types)
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
                 )
-                getGraphData(categoryId)
+                getGraphData(selectedCategoryId)
             }
             .launchIn(viewModelScope)
     }

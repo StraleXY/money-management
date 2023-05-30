@@ -9,8 +9,8 @@ class GetFinances(
     private val repo: FinanceRepo
 ) {
 
-    operator fun invoke(range: Pair<Long, Long>, categoryId: Int?) : Flow<List<Finance>> {
-        return repo.getAll(range, categoryId)
+    operator fun invoke(range: Pair<Long, Long>, categoryId: Int?, types: List<FinanceType>) : Flow<List<Finance>> {
+        return repo.getAll(range, categoryId, types)
     }
     operator fun invoke(range: Pair<Long, Long>, accountId: Int, type: FinanceType) : Flow<List<Finance>> {
         return repo.getAll(range, accountId, listOf(type))

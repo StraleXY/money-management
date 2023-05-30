@@ -250,7 +250,7 @@ private fun ItemsTypeSelector(
             horizontalArrangement = Arrangement.Center
         ) {
             ToggleChip(
-                name = "MIXED VIEW",
+                name = "MIXED OVERVIEW",
                 icon = {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_mobiledata_off_24),

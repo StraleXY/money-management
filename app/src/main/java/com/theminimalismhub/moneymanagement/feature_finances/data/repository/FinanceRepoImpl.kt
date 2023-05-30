@@ -12,8 +12,8 @@ class FinanceRepoImpl constructor(
     private val dao: FinanceDao
 ) : FinanceRepo {
 
-    override fun getAll(range: Pair<Long, Long>, categoryId: Int?): Flow<List<Finance>> {
-        if (categoryId == null) return dao.getAll(range.first, range.second)
+    override fun getAll(range: Pair<Long, Long>, categoryId: Int?, types: List<FinanceType>): Flow<List<Finance>> {
+        if (categoryId == null) return dao.getAll(range.first, range.second, types)
         return dao.getAll(range.first, range.second, categoryId)
     }
 
