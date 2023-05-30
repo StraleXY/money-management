@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
+import androidx.compose.animation.*
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -8,11 +9,14 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -23,14 +27,22 @@ fun QuickSpendingOverview(
     rangeLength: Int,
     limit: Double = 0.0
 ) {
+    var width by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .onGloballyPositioned { coordinates ->
+                width = with(density) {
+                    coordinates.size.width.toDp()
+                }
+            },
         shape = RoundedCornerShape(15.dp),
         elevation = 8.dp
     ) {
         Row(
             modifier = Modifier
-                .padding(28.dp)
+                .padding(vertical = 28.dp)
         ) {
             SpendingSegment(
                 modifier = Modifier
@@ -41,22 +53,30 @@ fun QuickSpendingOverview(
                 hint = "AVERAGE",
                 secondaryAmount = if(rangeLength == 1) 0.0 else amount / rangeLength
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            Divider(
-                modifier = Modifier
-                    .width(1.dp)
-                    .height(125.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            SpendingSegment(
-                modifier = Modifier
-                    .weight(0.49f, true)
-                    .height(125.dp),
-                title = "REMAINING",
-                amount = limit * rangeLength - amount,
-                hint = "LIMIT",
-                secondaryAmount = limit * rangeLength
-            )
+            AnimatedVisibility(
+                visible = amount != 0.0,
+                enter = expandHorizontally(tween(300)) { 0 } + fadeIn(tween(200, 100)),
+                exit = fadeOut(tween(200)) + shrinkHorizontally(tween(300, 100)) { 0 }
+            ) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Divider(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(125.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                SpendingSegment(
+                    modifier = Modifier
+//                        .weight(0.49f, true)
+                        .width(width / 2)
+                        .height(125.dp),
+                    title = "REMAINING",
+                    amount = limit * rangeLength - amount,
+                    hint = "LIMIT",
+                    secondaryAmount = limit * rangeLength
+                )
+            }
+
         }
     }
     Spacer(modifier = Modifier.height(12.dp))
