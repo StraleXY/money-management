@@ -1,10 +1,10 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import android.annotation.SuppressLint
+import android.icu.text.ListFormatter.Width
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,15 +14,9 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -36,7 +30,6 @@ import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenD
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddNewAccount
-import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.ManageAccountsEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
@@ -122,6 +115,12 @@ fun HomeScreen(
                                 amount = state.results.sumOf { finance -> if(finance.finance.type == FinanceType.OUTCOME && finance.finance.trackable) finance.finance.amount else 0.0 },
                                 rangeLength = vm.rangeService.rangeLength,
                                 limit = 1000.0
+                            )
+                            ItemsTypeSelector(
+                                modifier = Modifier
+                                    .padding(horizontal = 20.dp),
+                                itemsTypeStates = state.itemsTypeStates,
+                                itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
                             )
                             AnimatedVisibility(
                                 visible = vm.rangeService.rangeLength > 1,
@@ -228,4 +227,78 @@ private fun MainAppActions(
         }
     }
     Spacer(modifier = Modifier.width(16.dp))
+}
+
+@Composable
+private fun ItemsTypeSelector(
+    modifier: Modifier = Modifier,
+    itemsTypeStates: Map<Int, MutableState<Boolean>>,
+    itemToggled: (Int) -> Unit
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(15.dp),
+        backgroundColor = MaterialTheme.colors.surface.copy(
+            red = 0.1f, green = 0.1f, blue = 0.1f
+        ),
+        elevation = 4.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            ToggleChip(
+                name = "MIXED VIEW",
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_mobiledata_off_24),
+                        contentDescription = "MIXED VIEW"
+                    )
+                },
+                toggled = itemsTypeStates[0]!!.value,
+                onSelected = { itemToggled(0) }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ToggleChip(
+                name = "OUTCOME ITEMS",
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowUpward,
+                        contentDescription = "OUTCOME ITEMS"
+                    )
+                },
+                toggled = itemsTypeStates[1]!!.value,
+                onSelected = { itemToggled(1) }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ToggleChip(
+                name = "INCOME ITEMS",
+                icon = {
+                    Icon(
+                        modifier = Modifier.rotate(180f),
+                        imageVector = Icons.Default.ArrowUpward,
+                        contentDescription = "INCOME ITEMS"
+                    )
+                },
+                toggled = itemsTypeStates[2]!!.value,
+                onSelected = { itemToggled(2) }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ToggleChip(
+                name = "UNTRACKED ITEMS",
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.MobiledataOff,
+                        contentDescription = "UNTRACKED ITEMS"
+                    )
+                },
+                toggled = itemsTypeStates[3]!!.value,
+                onSelected = { itemToggled(3) }
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+        }
+    }
+    Spacer(modifier = Modifier.height(12.dp))
 }

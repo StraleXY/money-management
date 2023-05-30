@@ -54,6 +54,9 @@ class HomeViewModel @Inject constructor(
                 toggleCategoryBar(event.id)
                 getFinances(selectedCategoryId, _state.value.dateRange)
             }
+            is HomeEvent.ItemTypeSelected -> {
+                _state.value.itemsTypeStates.forEach { it -> _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
+            }
         }
     }
 
