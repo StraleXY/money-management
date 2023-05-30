@@ -32,12 +32,12 @@ interface FinanceDao {
     fun getPerCategory(from: Long, to: Long, type: FinanceType, tracked: List<Boolean>): Flow<List<CategoryAmount>>
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
-            "WHERE type = :type AND timestamp >= :from AND timestamp <= :to AND trackable = 1 ")
-    suspend fun getSpending(from: Long, to: Long, type: FinanceType): Double
+            "WHERE type = :type AND timestamp >= :from AND timestamp <= :to AND trackable IN (:tracked) ")
+    suspend fun getSpending(from: Long, to: Long, type: FinanceType, tracked: List<Boolean>): Double
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
-            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND trackable = 1 ")
-    suspend fun getSpending(from: Long, to: Long, categoryId: Int): Double
+            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND trackable IN (:tracked) ")
+    suspend fun getSpending(from: Long, to: Long, categoryId: Int, tracked: List<Boolean>): Double
 
     @Transaction
     @Query("SELECT * FROM finance WHERE id = :id")

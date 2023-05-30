@@ -125,12 +125,14 @@ class HomeViewModel @Inject constructor(
     }
     private suspend fun getGraphData(categoryId: Int? = null) {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
+        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         if(rangeService.rangeLength == 1) return
         _state.value = _state.value.copy(
             earningsPerTimePeriod = useCases.getTotalPerCategory.getPerDay(
                 range = _state.value.dateRange,
                 type = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME,
-                categoryId = categoryId
+                categoryId = categoryId,
+                tracked = tracked
             )
         )
         if(categoryId == null) {
