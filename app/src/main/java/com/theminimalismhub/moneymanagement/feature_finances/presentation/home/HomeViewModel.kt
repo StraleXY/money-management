@@ -56,6 +56,7 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.ItemTypeSelected -> {
                 _state.value.itemsTypeStates.forEach { it -> _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
+                getCategoryTotals()
             }
         }
     }
@@ -83,8 +84,10 @@ class HomeViewModel @Inject constructor(
 
     private var getPerCategoryJob: Job? = null
     private fun getCategoryTotals() {
+        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
+        val type = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
         getPerCategoryJob?.cancel()
-        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, FinanceType.OUTCOME)
+        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, type)
             .onEach { totals ->
                 _state.value = _state.value.copy(
                     totalPerCategory = totals.sortedBy { it.amount }.reversed()
