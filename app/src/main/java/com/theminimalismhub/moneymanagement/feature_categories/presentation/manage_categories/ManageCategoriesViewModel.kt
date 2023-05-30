@@ -3,11 +3,8 @@ package com.theminimalismhub.moneymanagement.feature_categories.presentation.man
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.stringResource
-import androidx.core.graphics.toColor
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
@@ -46,10 +43,16 @@ class ManageCategoriesViewModel @Inject constructor(
                         currentId = if(event.category == null) null else event.category.categoryId,
                         currentType = if(event.category == null) FinanceType.OUTCOME else event.category.type,
                         currentName = if(event.category == null) "" else event.category.name,
-                        currentColor = HSVColor.from(if(event.category == null) Color.White else Color(event.category.color))
+                        currentColor = HSVColor.from(if(event.category == null) Color.White else Color(event.category.color)),
+                        currentTrackable = event.category?.trackable ?: true
                     )
                 }
                 nameStore = if(event.category == null) "" else event.category.name
+            }
+            ManageCategoriesEvent.TrackableToggled -> {
+                _state.value = _state.value.copy(
+                    currentTrackable = !_state.value.currentTrackable
+                )
             }
             is ManageCategoriesEvent.ToggleType -> {
                 typeLabelJob?.let {
@@ -80,11 +83,12 @@ class ManageCategoriesViewModel @Inject constructor(
                 viewModelScope.launch {
                     useCases.add(
                         Category(
-                            categoryId = state.value.currentId,
-                            name = state.value.currentName,
-                            color = state.value.currentColor.toColor().toArgb(),
+                            categoryId = _state.value.currentId,
+                            name = _state.value.currentName,
+                            color = _state.value.currentColor.toColor().toArgb(),
                             isDeleted = false,
-                            type = state.value.currentType
+                            type = _state.value.currentType,
+                            trackable = _state.value.currentTrackable
                         )
                     )
                 }

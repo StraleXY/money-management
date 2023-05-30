@@ -7,7 +7,7 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
@@ -15,11 +15,11 @@ class GetTotalPerCategory constructor(
     private val repo: FinanceRepo,
     private val categoryRepo: CategoryRepo
 ) {
-    operator fun invoke(range: Pair<Long, Long>) : Flow<List<CategoryEarnings>> {
-        return repo.getPerCategory(range)
+    operator fun invoke(range: Pair<Long, Long>, type: FinanceType, tracked: List<Boolean>) : Flow<List<CategoryAmount>> {
+        return repo.getPerCategory(range, type, tracked)
     }
 
-    suspend fun getPerDay(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?): List<GraphEntry> {
+    suspend fun getPerDay(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, tracked: List<Boolean>): List<GraphEntry> {
         val entries: MutableList<GraphEntry> = mutableListOf()
 
         val start = Calendar.getInstance()
@@ -35,7 +35,7 @@ class GetTotalPerCategory constructor(
         while (start.timeInMillis < range.second) {
             entries.add(
                 GraphEntry(
-                    value = repo.getAmountForTimePeriod(Pair(start.timeInMillis, end.timeInMillis), category?.type ?: type, categoryId),
+                    value = repo.getAmountForTimePeriod(Pair(start.timeInMillis, end.timeInMillis), category?.type ?: type, categoryId, tracked),
                     label = start.get(Calendar.DAY_OF_MONTH).toString(),
                     color = color
                 )

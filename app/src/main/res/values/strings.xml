@@ -17,8 +17,16 @@
     <string name="cs_title">Manage Categories</string>
     <string name="cs_hint">You have two available category types - INCOME and OUTCOME, which determine how will finance item amounts affect your balance.</string>
     <string name="cs_new_category">Add new category</string>
+    <string name="track_category_action">Track Items From This Category</string>
+    <string name="track_category_hint">Non-tracked items won\'t show up in main analytics</string>
+    <string name="track_category_warning">Changing this after creation won\'t affect previously created finance items under this category.</string>
 
     <!-- Home Screen -->
     <string name="hs_new_finance">Add new finance</string>
+    <string name="track_finance_action">Track This Item</string>
+    <string name="track_finance_hint">This only affect main analytics.</string>
+
+    <!-- Manage Account -->
+    <string name="ma_confirm_transaction"> CONFIRM TRANSACTION</string>
 
 </resources>

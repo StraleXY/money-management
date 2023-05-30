@@ -13,5 +13,6 @@ data class ManageCategoriesState(
     val currentId: Int? = null,
     val currentType: FinanceType = FinanceType.OUTCOME,
     val currentName: String = "",
-    val currentColor: HSVColor = HSVColor.from(Color.White)
+    val currentColor: HSVColor = HSVColor.from(Color.White),
+    val currentTrackable: Boolean = true
 )

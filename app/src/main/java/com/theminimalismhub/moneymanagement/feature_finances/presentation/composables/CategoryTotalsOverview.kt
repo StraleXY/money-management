@@ -3,11 +3,10 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.compo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -16,11 +15,11 @@ import androidx.compose.ui.unit.dp
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBar
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBarState
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryEarnings
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 
 @Composable
 fun CategoryTotalsOverview(
-    totalPerCategory: List<CategoryEarnings>,
+    totalPerCategory: List<CategoryAmount>,
     categoryBarStates: HashMap<Int, MutableState<CategoryBarState>>,
     onClick: (Int) -> Unit
 ) {
@@ -29,7 +28,10 @@ fun CategoryTotalsOverview(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .fillMaxWidth(),
-        elevation = 1.dp
+        backgroundColor = MaterialTheme.colors.surface.copy(
+            red = 0.1f, green = 0.1f, blue = 0.1f
+        ),
+        elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
@@ -57,4 +59,5 @@ fun CategoryTotalsOverview(
 
         }
     }
+    Spacer(modifier = Modifier.height(24.dp))
 }

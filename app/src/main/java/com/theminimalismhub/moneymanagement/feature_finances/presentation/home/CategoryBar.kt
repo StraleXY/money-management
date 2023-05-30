@@ -21,8 +21,9 @@ import com.theminimalismhub.moneymanagement.core.composables.AutoResizeText
 import com.theminimalismhub.moneymanagement.core.composables.FontSizeRange
 import com.theminimalismhub.moneymanagement.ui.theme.economica
 
-data class CategoryEarnings(
+data class CategoryAmount(
     val categoryId: Int,
+    val accountId: Int,
     val name: String,
     val color: Int,
     val amount: Double
@@ -37,7 +38,7 @@ enum class CategoryBarState {
 @Composable
 fun CategoryBar(
     modifier: Modifier = Modifier,
-    categoryInfo: CategoryEarnings,
+    categoryInfo: CategoryAmount,
     maxAmount: Double,
     state: CategoryBarState = CategoryBarState.NEUTRAL,
     clicked: (Int) -> Unit = {},

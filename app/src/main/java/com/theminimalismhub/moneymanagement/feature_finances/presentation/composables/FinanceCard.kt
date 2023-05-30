@@ -14,7 +14,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
@@ -62,7 +63,7 @@ fun FinanceCard(
                     modifier = Modifier
                         .width(5.dp)
                         .height(54.dp)
-                        .background(Color(finance.category.color), RoundedCornerShape(100))
+                        .background(Color(finance.category?.color ?: Color.White.toArgb()), RoundedCornerShape(100))
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(
@@ -77,7 +78,7 @@ fun FinanceCard(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if(finance.finance.type == FinanceType.INCOME) {
+                        if(finance.finance.type == FinanceType.INCOME || finance.finance.type == FinanceType.TRANSACTION || !finance.finance.trackable) {
                             Box(
                                 modifier = Modifier
                                     .size(20.dp)
@@ -91,11 +92,17 @@ fun FinanceCard(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowDownward,
-                                    contentDescription = Icons.Default.ArrowDownward.name,
+                                    imageVector =
+                                    if(!finance.finance.trackable) Icons.Default.MobiledataOff
+                                    else when (finance.finance.type) {
+                                            FinanceType.INCOME -> Icons.Default.ArrowDownward
+                                            FinanceType.TRANSACTION -> Icons.Default.SyncAlt
+                                            else -> Icons.Default.QuestionMark
+                                        },
+                                    contentDescription = "Finance type icon",
                                     tint = MaterialTheme.colors.primary,
                                     modifier = Modifier
-                                        .size(14.dp)
+                                        .size(13.dp)
                                 )
                             }
                             Spacer(modifier = Modifier.width(6.dp))
@@ -108,6 +115,7 @@ fun FinanceCard(
                 }
             }
             Column(
+                modifier = Modifier.padding(end = 2.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

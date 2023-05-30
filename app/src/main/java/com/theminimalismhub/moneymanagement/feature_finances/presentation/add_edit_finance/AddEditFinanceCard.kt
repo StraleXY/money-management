@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,10 +31,14 @@ import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
+import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import java.util.*
 
@@ -43,11 +48,13 @@ fun AddEditFinanceCard(
     isOpen: Boolean,
     form: FormState<TextFieldState>,
     cardToggled: (Finance?) -> Unit,
+    accountSelected: (Int) -> Unit,
     typeToggled: () -> Unit,
     categorySelected: (Int) -> Unit,
     addFinance: () -> Unit,
     deleteFinance: () -> Unit,
-    dateChanged: (Long) -> Unit
+    dateChanged: (Long) -> Unit,
+    trackableToggled: () -> Unit
 
 ) {
     val focusManager = LocalFocusManager.current
@@ -56,7 +63,13 @@ fun AddEditFinanceCard(
 
     FloatingCard(
         modifier = Modifier.padding(horizontal = 16.dp),
-        visible = isOpen
+        visible = isOpen,
+        header = {
+            AccountsList(
+                accounts = state.accounts,
+                states = state.accountStates
+            ) { accountSelected(it) }
+        }
     ) {
         LazyRow(
             modifier = Modifier
@@ -129,41 +142,26 @@ fun AddEditFinanceCard(
             message = amount.errorMessage,
             hasError = amount.hasError
         )
+        Spacer(modifier = Modifier.height(12.dp))
+        ToggleTracking(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            action = stringResource(id = R.string.track_finance_action),
+            actionHint = stringResource(id = R.string.track_finance_hint),
+            toggled = state.currentTrackable
+        ) { trackableToggled() }
         Spacer(modifier = Modifier.height(24.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            HoldableActionButton(
-                modifier = Modifier,
-                text = stringResource(id = R.string.action_delete),
-                icon = Icons.Default.Delete,
-                textStyle = MaterialTheme.typography.button,
-                duration = 2500,
-                circleColor = Color.Transparent,
-                alternatedColor = MaterialTheme.colors.error,
-                iconColor = MaterialTheme.colors.onBackground,
-                onHold = {
-                    deleteFinance()
-                    cardToggled(null)
-                },
-                enabled = state.currentFinanceId != null
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            ActionChip(
-                text = stringResource(id = R.string.action_save),
-                icon = Icons.Default.Save,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 0.dp,
-                backgroundStrength = 0f,
-                modifier = Modifier,
-                onClick = {
-                    if(!form.validate()) return@ActionChip
-                    addFinance()
-                    cardToggled(null)
-                }
-            )
-        }
+        CRUDButtons(
+            onSave = {
+                if(!form.validate()) return@CRUDButtons
+                addFinance()
+                cardToggled(null)
+            },
+            deleteEnabled =  state.currentFinanceId != null,
+            onDelete = {
+                deleteFinance()
+                cardToggled(null)
+            }
+        )
         Spacer(modifier = Modifier.height(8.dp))
     }
 }

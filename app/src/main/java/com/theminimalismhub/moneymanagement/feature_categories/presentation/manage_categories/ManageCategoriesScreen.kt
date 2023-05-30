@@ -8,19 +8,15 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.theminimalismhub.moneymanagement.R
-import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -29,9 +25,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyColorPicker
@@ -40,14 +42,12 @@ import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import androidx.compose.material3.ExtendedFloatingActionButton as ExtendedFloatingActionButton3
 
 @OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Destination(style = BaseTransition::class)
 @Composable
 fun ManageCategoriesScreen(
-    navigator: DestinationsNavigator,
     vm: ManageCategoriesViewModel = hiltViewModel()
 ) {
 
@@ -62,43 +62,7 @@ fun ManageCategoriesScreen(
     }
 
     Scaffold(
-        floatingActionButton = {
-            ExtendedFloatingActionButton3(
-                onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null)) },
-                text = {
-                    Text(
-                        text = stringResource(id = R.string.action_cancel),
-                        style = MaterialTheme.typography.button,
-                        color = MaterialTheme.colors.onPrimary
-                    )
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(id = R.string.cs_new_category),
-                        tint = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier
-                            .size(26.dp)
-                            .rotate(
-                                animateFloatAsState(
-                                    targetValue = if (state.isAddEditOpen) -45f else 0f,
-                                    tween(400)
-                                ).value
-                            )
-                    )
-                },
-                modifier = Modifier
-                    .height(
-                        animateDpAsState(
-                            targetValue = if (state.isAddEditOpen) 45.dp else 56.dp,
-                            tween(350)
-                        ).value
-                    ),
-                containerColor = MaterialTheme.colors.primary,
-                shape = RoundedCornerShape(64.dp),
-                expanded = state.isAddEditOpen
-            )
-        },
+        floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen) { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null)) } },
         scaffoldState = scaffoldState,
     ) {
         Box(
@@ -124,7 +88,6 @@ fun ManageCategoriesScreen(
                     chipsHeight = chipsHeight,
                     categories = state.incomeCategories,
                     icon = Icons.Default.ArrowDownward,
-//                    label = stringResource(id = R.string.common_type_income),
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
                 Spacer(modifier = Modifier.height(if(state.incomeCategories.isNotEmpty()) 16.dp else 0.dp))
@@ -132,13 +95,39 @@ fun ManageCategoriesScreen(
                     chipsHeight = chipsHeight,
                     categories = state.outcomeCategories,
                     icon = Icons.Default.ArrowUpward,
-//                    label = stringResource(id = R.string.common_type_outcome),
                     onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
                 )
             }
             TranslucentOverlay(visible = state.isAddEditOpen)
             FloatingCard(
-                visible = state.isAddEditOpen
+                modifier = Modifier.padding(horizontal = 16.dp),
+                visible = state.isAddEditOpen,
+                header = {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp),
+                        elevation = Dp(8f),
+                        shape = RoundedCornerShape(15.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
+                        ) {
+                            ToggleTracking(
+                                action = stringResource(id = R.string.track_category_action),
+                                actionHint = stringResource(id = R.string.track_category_hint),
+                                toggled = state.currentTrackable
+                            ) { vm.onEvent(ManageCategoriesEvent.TrackableToggled) }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(id = R.string.track_category_warning),
+                                color = MaterialTheme.colors.error,
+                                style = MaterialTheme.typography.subtitle1.copy(fontSize = 16.sp, lineHeight = 19.sp),
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
+                    }
+                }
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularTypeSelector(
@@ -155,40 +144,18 @@ fun ManageCategoriesScreen(
                     )
                     Spacer(modifier = Modifier.width(36.dp))
                 }
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 HarmonyColorPicker(
                     modifier = Modifier.size(275.dp),
                     color = state.currentColor,
                     isBrightnessFixed = false
                 ) { color -> vm.onEvent(ManageCategoriesEvent.ColorChanged(color)) }
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    HoldableActionButton(
-                        modifier = Modifier,
-                        text = stringResource(id = R.string.action_delete),
-                        icon = Icons.Default.Delete,
-                        textStyle = MaterialTheme.typography.button,
-                        duration = 2500,
-                        circleColor = Color.Transparent,
-                        alternatedColor = MaterialTheme.colors.error,
-                        iconColor = MaterialTheme.colors.onBackground,
-                        onHold = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) },
-                        enabled = state.currentId != null
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    ActionChip(
-                        text = stringResource(id = R.string.action_save),
-                        icon = Icons.Default.Save,
-                        textStyle = MaterialTheme.typography.button,
-                        borderThickness = 0.dp,
-                        backgroundStrength = 0f,
-                        modifier = Modifier,
-                        onClick = { vm.onEvent(ManageCategoriesEvent.SaveCategory) }
-                    )
-                }
+                CRUDButtons(
+                    onSave = { vm.onEvent(ManageCategoriesEvent.SaveCategory) },
+                    deleteEnabled =  state.currentId != null,
+                    onDelete = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) }
+                )
             }
         }
     }
@@ -358,7 +325,11 @@ fun CircularTypeSelector(
             .size(36.dp)
             .clip(RoundedCornerShape(30.dp))
             .background(backgroundColor)
-            .border(borderStroke?.width ?: 0.dp, borderStroke?.brush ?: SolidColor(Color.Transparent), RoundedCornerShape(30.dp))
+            .border(
+                borderStroke?.width ?: 0.dp,
+                borderStroke?.brush ?: SolidColor(Color.Transparent),
+                RoundedCornerShape(30.dp)
+            )
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -379,5 +350,46 @@ fun CircularTypeSelector(
                 .size(21.dp)
                 .background(Color.Transparent)
         )
+    }
+}
+
+@Composable
+fun ToggleTracking(
+    modifier: Modifier = Modifier,
+    action: String,
+    actionHint: String,
+    toggled: Boolean = true,
+    onToggle: (Boolean) -> Unit
+) {
+    Row(
+        modifier = modifier
+            .padding(4.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onToggle(!toggled) },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = toggled,
+            onCheckedChange = onToggle,
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colors.primary,
+                uncheckedColor = MaterialTheme.colors.primary
+            )
+        )
+        Column(horizontalAlignment = Alignment.Start) {
+            Text(
+                text = action,
+                style = MaterialTheme.typography.body1
+            )
+            Text(
+                text = actionHint,
+                style = MaterialTheme.typography.subtitle2,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.65f)
+            )
+        }
     }
 }

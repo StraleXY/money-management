@@ -3,7 +3,6 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.compo
 import android.app.DatePickerDialog
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -102,7 +101,7 @@ fun RangePicker(
                             }
                         },
                     text = it,
-                    style = MaterialTheme.typography.body2.copy(fontSize = 18.sp)
+                    style = MaterialTheme.typography.body1.copy(fontSize = 19.sp)
                 )
             }
             RangeNext(
@@ -116,6 +115,7 @@ fun RangePicker(
                 update()
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

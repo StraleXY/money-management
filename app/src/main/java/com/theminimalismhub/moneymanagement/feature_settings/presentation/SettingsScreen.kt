@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dsc.form_builder.TextFieldState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -28,6 +29,7 @@ import com.theminimalismhub.moneymanagement.di.path
 import com.theminimalismhub.moneymanagement.di.query
 import com.theminimalismhub.moneymanagement.feature_settings.composables.SettingsSegment
 import com.theminimalismhub.moneymanagement.feature_settings.composables.SettingsTile
+import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -41,7 +43,6 @@ fun SettingsScreen(
     vm: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-
     val backupLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.sqlite3")) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
@@ -85,6 +86,16 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            SettingsSegment(name = "LIMITS")
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Daily Limit",
+                description = "After updating the value, please reset the app to ensure that the changes take effect.",
+                fieldState = vm.formState.getState("limit"),
+                onValChanged = { vm.onEvent(SettingsEvent.OnDailyLimitChanged(it)) }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
             SettingsSegment(name = "DATABASE")
             Spacer(modifier = Modifier.height(16.dp))
             SettingsTile(
@@ -94,10 +105,10 @@ fun SettingsScreen(
                         "App will automatically close after backup is complete.",
                 onClick = {
                     @SuppressLint("SimpleDateFormat")
-                    val dateFormat = SimpleDateFormat("yyyyMMddHHmm")
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
                     try {
-                        backupLauncher.launch("MM_DBBCK_${dateFormat.format(Date())}.db")
+                        backupLauncher.launch("MM_${dateFormat.format(Date())}.db")
                     } catch (e: ActivityNotFoundException) {
                         Log.d("DB", "Couldn't find an application to create documents")
                     }
