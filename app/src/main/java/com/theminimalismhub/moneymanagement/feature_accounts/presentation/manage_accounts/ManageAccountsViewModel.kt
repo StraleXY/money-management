@@ -11,6 +11,7 @@ import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
+import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -22,7 +23,8 @@ import javax.xml.validation.Validator
 
 @HiltViewModel
 class ManageAccountsViewModel @Inject constructor(
-    private val useCases: ManageAccountsUseCases
+    private val useCases: ManageAccountsUseCases,
+    private val preferences: Preferences
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ManageAccountsState())
@@ -59,7 +61,10 @@ class ManageAccountsViewModel @Inject constructor(
         )
     )
 
-    init { getAccounts() }
+    init {
+        getAccounts()
+        _state.value = _state.value.copy(currency = preferences.getCurrency())
+    }
 
     fun onEvent(event: ManageAccountsEvent) {
         when(event) {
@@ -172,7 +177,7 @@ class ManageAccountsViewModel @Inject constructor(
             .onEach {
                 _state.value = _state.value.copy(
                     accounts = it.toMutableList(),
-                    selectedAccount = _state.value.selectedAccount ?: it.first()
+                    selectedAccount = if(it.isEmpty()) _state.value.selectedAccount else _state.value.selectedAccount ?: it.first()
                 )
                 getTransactions(_state.value.selectedAccount?.accountId)
             }

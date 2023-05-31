@@ -24,7 +24,7 @@ class HomeViewModel @Inject constructor(
     private val preferences: Preferences
 ) : ViewModel() {
 
-    val addEditService = AddEditFinanceService(viewModelScope, addEditFinanceUseCases)
+    val addEditService = AddEditFinanceService(viewModelScope, addEditFinanceUseCases, preferences)
     fun onEvent(event: AddEditFinanceEvent) { addEditService.onEvent(event) }
 
     private val _state = mutableStateOf(HomeState())
@@ -34,7 +34,10 @@ class HomeViewModel @Inject constructor(
     val rangeService = RangePickerService()
 
     init {
-        _state.value = _state.value.copy(limit = preferences.getSimpleLimit().toDouble())
+        _state.value = _state.value.copy(
+            limit = preferences.getSimpleLimit().toDouble(),
+            currency = preferences.getCurrency()
+        )
         initDateRange()
         getFinances()
         getCategoryTotals()

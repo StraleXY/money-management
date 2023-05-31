@@ -21,6 +21,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.C
 fun CategoryTotalsOverview(
     totalPerCategory: List<CategoryAmount>,
     categoryBarStates: HashMap<Int, MutableState<CategoryBarState>>,
+    currency: String = "RSD",
     onClick: (Int) -> Unit
 ) {
     Card(
@@ -51,7 +52,8 @@ fun CategoryTotalsOverview(
                             categoryInfo = earnings,
                             maxAmount = totalPerCategory.maxOf { it.amount } + totalPerCategory.minOf { it.amount } * 0.01,
                             state = categoryBarStates[earnings.categoryId]!!.value,
-                            clicked = onClick
+                            clicked = onClick,
+                            currency = currency
                         )
                     }
                 }

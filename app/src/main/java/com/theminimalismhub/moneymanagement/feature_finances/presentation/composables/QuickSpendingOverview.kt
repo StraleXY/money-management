@@ -26,7 +26,8 @@ fun QuickSpendingOverview(
     amount: Double,
     rangeLength: Int,
     limit: Double = 0.0,
-    limitHidden: Boolean = false
+    limitHidden: Boolean = false,
+    currency: String = "RSD"
 ) {
     var width by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
@@ -52,7 +53,8 @@ fun QuickSpendingOverview(
                 title = if(limitHidden) "TOTAL" else "SPENT",
                 amount = amount,
                 hint = "AVERAGE",
-                secondaryAmount = if(rangeLength == 1) 0.0 else amount / rangeLength
+                secondaryAmount = if(rangeLength == 1) 0.0 else amount / rangeLength,
+                currency = currency
             )
             AnimatedVisibility(
                 visible = !limitHidden,
@@ -74,7 +76,8 @@ fun QuickSpendingOverview(
                     title = "REMAINING",
                     amount = limit * rangeLength - amount,
                     hint = "LIMIT",
-                    secondaryAmount = limit * rangeLength
+                    secondaryAmount = limit * rangeLength,
+                    currency = currency
                 )
             }
 

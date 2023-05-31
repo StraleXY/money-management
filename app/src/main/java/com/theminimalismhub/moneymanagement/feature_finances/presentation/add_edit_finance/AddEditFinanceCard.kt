@@ -67,7 +67,8 @@ fun AddEditFinanceCard(
         header = {
             AccountsList(
                 accounts = state.accounts,
-                states = state.accountStates
+                states = state.accountStates,
+                currency = state.currency
             ) { accountSelected(it) }
         }
     ) {

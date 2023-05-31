@@ -289,7 +289,7 @@ fun NewAccountExampleCard(
     balance: String,
     type: AccountType,
     description: String,
-    currency: String = "RSD",
+    currency: String,
     scale: Float = 1f,
     overlayStrength: Float = 0.05f
 ) {

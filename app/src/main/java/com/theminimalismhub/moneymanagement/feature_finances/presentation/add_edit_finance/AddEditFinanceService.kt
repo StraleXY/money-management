@@ -11,6 +11,7 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Accoun
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
@@ -20,7 +21,8 @@ import java.util.HashMap
 
 class AddEditFinanceService(
     private val scope: CoroutineScope,
-    private val useCases: AddEditFinanceUseCases
+    private val useCases: AddEditFinanceUseCases,
+    private val preferences: Preferences
 ) {
 
     private val _state = mutableStateOf(AddEditFinanceState())
@@ -33,6 +35,7 @@ class AddEditFinanceService(
 
     init {
         getCategories()
+        _state.value = _state.value.copy(currency = preferences.getCurrency())
     }
 
     val formState = FormState(

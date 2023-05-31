@@ -31,6 +31,7 @@ fun AddEditAccountCard(
     isOpen: Boolean,
     type: AccountType,
     form: FormState<TextFieldState>,
+    currency: String,
     accountTypeStates: HashMap<AccountType, MutableState<Boolean>>,
     onTypeChanged: (AccountType) -> Unit,
     onSave: () -> Unit,
@@ -58,6 +59,7 @@ fun AddEditAccountCard(
                     name = name.value,
                     balance = balance.value,
                     description = description.value,
+                    currency = currency,
                     type = type,
                     overlayStrength = 0.1f,
                     scale = 1.05f

@@ -105,6 +105,7 @@ fun ManageAccountsScreen(
                             modifier = Modifier.onSizeChanged { accountsPagerHeight = Dp(it.height / density) },
                             accounts = state.accounts,
                             pagerState = pagerState,
+                            currency = state.currency,
                             onAccountSelected = { if(state.accounts.size > it) vm.onEvent(ManageAccountsEvent.CardSelected(state.accounts[it])) }
                         )
                         AccountActions(
@@ -131,6 +132,7 @@ fun ManageAccountsScreen(
                     FinanceCard(
                         finance = it,
                         previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                        currency = state.currency,
                         onEdit = { }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -138,11 +140,12 @@ fun ManageAccountsScreen(
                 //TODO OPTIMIZE :)
             }
 
-            TranslucentOverlay(visible = state.isAddEditOpen || state.isTransactionOpen)
+            TranslucentOverlay(visible = state.isAddEditOpen ||state.isTransactionOpen)
             AddEditAccountCard(
                 isOpen = state.isAddEditOpen,
                 type = state.currentType,
                 form = vm.addEditFormState,
+                currency = state.currency,
                 accountTypeStates = state.accountTypeStates,
                 onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) },
                 onSave = {
@@ -155,6 +158,7 @@ fun ManageAccountsScreen(
                 isOpen = state.isTransactionOpen,
                 form = vm.transactionFormState,
                 accountFrom = state.selectedAccount,
+                currency = state.currency,
                 accounts = state.accounts.filter { account -> account.accountId != state.selectedAccount?.accountId },
                 onTransaction = {
                     if(!vm.transactionFormState.validate()) return@TransactionCard

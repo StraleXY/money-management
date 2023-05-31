@@ -81,7 +81,8 @@ fun HomeScreen(
                     AccountCardLarge(
                         account = account,
                         totalPerCategory = state.totalsPerAccount[account.accountId] ?: emptyList(),
-                        maxAmount = if(!state.totalsPerAccount.containsKey(account.accountId) || state.totalsPerAccount[account.accountId]!!.isEmpty()) 0.0 else state.totalsPerAccount[account.accountId]!!.maxOf { it.amount }
+                        maxAmount = if(!state.totalsPerAccount.containsKey(account.accountId) || state.totalsPerAccount[account.accountId]!!.isEmpty()) 0.0 else state.totalsPerAccount[account.accountId]!!.maxOf { it.amount },
+                        currency = state.currency
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
@@ -115,7 +116,8 @@ fun HomeScreen(
                                 amount = state.quickSpendingAmount,
                                 rangeLength = vm.rangeService.rangeLength,
                                 limit = state.limit,
-                                limitHidden = state.itemsTypeStates[2]!!.value
+                                limitHidden = state.itemsTypeStates[2]!!.value,
+                                currency = state.currency
                             )
                             ItemsTypeSelector(
                                 modifier = Modifier
@@ -141,13 +143,15 @@ fun HomeScreen(
                             }
                             CategoryTotalsOverview(
                                 totalPerCategory = state.totalPerCategory,
-                                categoryBarStates = state.categoryBarStates
+                                categoryBarStates = state.categoryBarStates,
+                                currency = state.currency
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                         }
                         items(state.results) {
                             FinanceCard(
                                 finance = it,
                                 previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                                currency = state.currency,
                                 onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -171,7 +175,6 @@ fun HomeScreen(
             }
         }
     )
-
 }
 
 @Composable

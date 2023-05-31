@@ -45,6 +45,7 @@ import kotlin.math.absoluteValue
 fun AccountsPager(
     modifier: Modifier = Modifier,
     accounts: List<Account>,
+    currency: String,
     pagerState: PagerState,
     minAlpha: Float = 1f,
     cardOverlayStrength: Float = 0.1f,
@@ -90,7 +91,8 @@ fun AccountsPager(
                 account = accounts[itemIdx],
                 balanceDelta = balanceDelta,
                 scale = initialCardScale,
-                overlayStrength = cardOverlayStrength
+                overlayStrength = cardOverlayStrength,
+                currency = currency
             )
         }
     }

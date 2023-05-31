@@ -33,6 +33,7 @@ fun FinanceCard(
     modifier: Modifier = Modifier,
     finance: Finance,
     previousSegmentDate: Int?,
+    currency: String = "RSD",
     onEdit: (Finance) -> Unit
 ) {
     Column(modifier = modifier) {
@@ -72,7 +73,7 @@ fun FinanceCard(
                 ) {
                     Text(
                         modifier = Modifier.alpha(0.75f),
-                        text = finance.finance.name,
+                        text = if(finance.finance.type == FinanceType.INCOME) "${finance.finance.name}" else finance.finance.name,
                         style = MaterialTheme.typography.body2
                     )
                     Row(
@@ -108,7 +109,7 @@ fun FinanceCard(
                             Spacer(modifier = Modifier.width(6.dp))
                         }
                         Text(
-                            text = "${finance.finance.amount.toInt()} RSD",
+                            text = "${finance.finance.amount.toInt()} ${currency}",
                             style = MaterialTheme.typography.h3
                         )
                     }

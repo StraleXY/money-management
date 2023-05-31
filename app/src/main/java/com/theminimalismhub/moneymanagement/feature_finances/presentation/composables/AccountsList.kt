@@ -16,6 +16,7 @@ fun AccountsList(
     accounts: List<Account>,
     states: HashMap<Int, MutableState<Boolean>>,
     contentPadding: PaddingValues = PaddingValues(horizontal = 32.dp),
+    currency: String = "RSD",
     selectionChanged: (Int) -> Unit
 ) {
     LazyRow(
@@ -27,7 +28,8 @@ fun AccountsList(
         items(accounts.filter { it.active }) { account ->
             AccountCardMini(
                 account = account,
-                selected = states[account.accountId]!!.value
+                selected = states[account.accountId]!!.value,
+                currency = currency
             ) { selectionChanged(account.accountId!!) }
             Spacer(modifier = Modifier.width(16.dp))
         }
