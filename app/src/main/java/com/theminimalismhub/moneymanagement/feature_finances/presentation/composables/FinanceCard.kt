@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 
 @Composable
@@ -109,7 +110,7 @@ fun FinanceCard(
                             Spacer(modifier = Modifier.width(6.dp))
                         }
                         Text(
-                            text = "${finance.finance.amount.toInt()} ${currency}",
+                            text = "${Currencier.formatAmount(finance.finance.amount)} $currency",
                             style = MaterialTheme.typography.h3
                         )
                     }

@@ -39,6 +39,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColor
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import com.theminimalismhub.moneymanagement.ui.theme.credit_card
@@ -81,7 +82,7 @@ fun AccountCardMini(
                     style = MaterialTheme.typography.body2
                 )
                 Text(
-                    text = "${balance.toInt()} $currency",
+                    text = "${Currencier.formatAmount(balance)} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontSize = 24.sp,
                         lineHeight = 24.sp
@@ -256,7 +257,7 @@ fun AccountCardLarge(
                     style = MaterialTheme.typography.body1
                 )
                 Text(
-                    text = "${(account.balance + balanceDelta).toInt()} $currency",
+                    text = "${Currencier.formatAmount(account.balance + balanceDelta)} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontFamily = economica,
                         fontSize = 40.sp

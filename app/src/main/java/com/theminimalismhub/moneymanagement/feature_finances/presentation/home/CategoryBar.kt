@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theminimalismhub.moneymanagement.core.composables.AutoResizeText
 import com.theminimalismhub.moneymanagement.core.composables.FontSizeRange
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.ui.theme.economica
 
 data class CategoryAmount(
@@ -102,7 +103,7 @@ fun CategoryBar(
                 style = MaterialTheme.typography.body1,
             )
             Text(
-                text = "${categoryInfo.amount.toInt()} $currency",
+                text = "${Currencier.formatAmount(categoryInfo.amount)} $currency",
                 color = Color(categoryInfo.color),
                 style = MaterialTheme.typography.body1.copy(
                     fontFamily = economica,

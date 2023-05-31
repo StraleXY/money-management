@@ -38,7 +38,7 @@ class ManageAccountsViewModel @Inject constructor(
             ),
             TextFieldState(
                 name = "balance",
-                validators = listOf(Validators.MinValue(0, "Amount must be higher than 0"), Validators.Required()),
+                validators = listOf(Validators.Required()), //Validators.MinValue(0, "Amount must be higher than 0"),
             ),
             TextFieldState(
                 name = "description",
@@ -51,7 +51,7 @@ class ManageAccountsViewModel @Inject constructor(
             TextFieldState(
                 name = "amount",
                 validators = listOf(
-                    Validators.MinValue(0, "Amount must be higher than 0"),
+//                    Validators.MinValue(0, "Amount must be higher than 0"),
                     Validators.Required(),
                     Validators.Custom("You can't transfer more than you have.")
                         { value -> try { value.toString().toDouble() } catch (ex: java.lang.NumberFormatException) { 0.0 } <= (_state.value.selectedAccount?.balance ?: 0.0) }

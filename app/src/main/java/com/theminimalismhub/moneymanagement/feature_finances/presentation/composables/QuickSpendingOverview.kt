@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 
 @Composable
 fun QuickSpendingOverview(
@@ -95,8 +97,13 @@ private fun SpendingSegment(
     secondaryAmount: Double,
     currency: String = "RSD"
 ) {
-    val animatedAmount by animateIntAsState(targetValue = amount.toInt(), tween(750))
-    val animatedSecondaryAmount by animateIntAsState(targetValue = secondaryAmount.toInt(), tween(750))
+    val animatedAmount by
+        if(Currencier.isDecimal(amount)) animateFloatAsState(targetValue = amount.toFloat(), tween(750))
+        else animateIntAsState(targetValue = amount.toInt(), tween(750))
+
+    val animatedSecondaryAmount by
+        if(Currencier.isDecimal(secondaryAmount)) animateFloatAsState(targetValue = secondaryAmount.toFloat(), tween(750))
+        else animateIntAsState(targetValue = secondaryAmount.toInt(), tween(750))
 
     Column(
         modifier = modifier,
@@ -109,7 +116,7 @@ private fun SpendingSegment(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "$animatedAmount $currency",
+            text = "${Currencier.formatAmount(animatedAmount.toFloat())} $currency ",
             style = MaterialTheme.typography.h3.copy(
                 fontSize = 48.sp
             ),
@@ -119,7 +126,7 @@ private fun SpendingSegment(
         Text(
             modifier = Modifier
                 .alpha(0.65f),
-            text = "$hint: ${if(secondaryAmount == 0.0) "--" else animatedSecondaryAmount } $currency",
+            text = "$hint: ${if(secondaryAmount == 0.0) "--" else Currencier.formatAmount(animatedSecondaryAmount.toFloat()) } $currency",
             style = MaterialTheme.typography.h3.copy(
                 fontSize = 16.sp
             )

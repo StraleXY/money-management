@@ -7,6 +7,7 @@ import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
@@ -46,7 +47,7 @@ class AddEditFinanceService(
             ),
             TextFieldState(
                 name = "amount",
-                validators = listOf(Validators.MinValue(0, "Amount must be higher than 0"), Validators.Required()),
+                validators = listOf(Validators.Required()), //Validators.MinValue(0, "Amount must be higher than 0"),
             )
         )
     )
@@ -77,7 +78,7 @@ class AddEditFinanceService(
                         currentTrackable = event.finance.finance.trackable
                     )
                     formState.fields[0].change(event.finance.finance.name)
-                    formState.fields[1].change(event.finance.finance.amount.toInt().toString())
+                    formState.fields[1].change(Currencier.formatAmount(event.finance.finance.amount))
                     onEvent(AddEditFinanceEvent.AccountSelected(event.finance.finance.financeAccountId))
                     initialAccountId = event.finance.finance.financeAccountId
                     initialAmount = event.finance.finance.amount
