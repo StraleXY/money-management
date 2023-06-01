@@ -46,8 +46,17 @@ interface FinanceDao {
     suspend fun getSpending(from: Long, to: Long, type: FinanceType, tracked: List<Boolean>): Double
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
-            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND trackable IN (:tracked) ")
-    suspend fun getSpending(from: Long, to: Long, categoryId: Int, tracked: List<Boolean>): Double
+            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type = :type AND trackable IN (:tracked) ")
+    suspend fun getSpendingByCategory(from: Long, to: Long, categoryId: Int, type: FinanceType, tracked: List<Boolean>): Double
+
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
+            "WHERE financeAccountId = :accountId AND timestamp >= :from AND timestamp <= :to AND type = :type AND trackable IN (:tracked) ")
+    suspend fun getSpendingByAccount(from: Long, to: Long, accountId: Int, type: FinanceType, tracked: List<Boolean>): Double
+
+
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
+            "WHERE financeCategoryId = :categoryId AND financeAccountId = :accountId AND timestamp >= :from AND timestamp <= :to AND type = :type AND trackable IN (:tracked) ")
+    suspend fun getSpending(from: Long, to: Long, categoryId: Int, accountId: Int, type: FinanceType, tracked: List<Boolean>): Double
 
     @Transaction
     @Query("SELECT * FROM finance WHERE id = :id")

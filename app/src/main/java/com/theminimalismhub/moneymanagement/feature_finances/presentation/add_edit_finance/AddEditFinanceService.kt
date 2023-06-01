@@ -15,6 +15,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.Ad
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -68,8 +69,8 @@ class AddEditFinanceService(
                     initialAccountId = null
                     initialAmount = 0.0
                 } else {
-                    selectCategoryType(_state.value.currentType)
-                    onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId!!))
+                    selectCategoryType(event.finance.category!!.type)
+                    event.finance.finance.financeCategoryId?.let { onEvent(AddEditFinanceEvent.CategorySelected(it)) }
                     _state.value = _state.value.copy(
                         currentFinanceId = event.finance.finance.id,
                         currentType = event.finance.finance.type,

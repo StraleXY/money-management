@@ -96,7 +96,7 @@ class HomeViewModel @Inject constructor(
                     results = finance
                 )
                 updateQuickSpendingsJob = viewModelScope.launch { updateQuickSpending() }
-                getGraphJob = viewModelScope.launch { getGraphData(selectedCategoryId) }
+                getGraphJob = viewModelScope.launch { getGraphData() }
             }
             .launchIn(viewModelScope)
     }
@@ -151,7 +151,7 @@ class HomeViewModel @Inject constructor(
             selectedCategoryId = categoryId
         }
     }
-    private suspend fun getGraphData(categoryId: Int? = null) {
+    private suspend fun getGraphData() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         if(rangeService.rangeLength == 1) return
@@ -159,11 +159,12 @@ class HomeViewModel @Inject constructor(
             earningsPerTimePeriod = useCases.getTotalPerCategory.getPerDay(
                 range = _state.value.dateRange,
                 type = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME,
-                categoryId = categoryId,
+                categoryId = selectedCategoryId,
+                accountId = selectedAccountId,
                 tracked = tracked
             )
         )
-        if(categoryId == null) {
+        if(selectedCategoryId == null) {
             _state.value = _state.value.copy(
                 maxEarnings = _state.value.earningsPerTimePeriod.maxOf { it.value }
             )

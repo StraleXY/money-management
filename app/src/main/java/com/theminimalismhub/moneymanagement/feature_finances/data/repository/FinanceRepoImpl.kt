@@ -30,9 +30,11 @@ class FinanceRepoImpl constructor(
         return dao.getPerCategory(range.first, range.second, type, accountId, tracked)
     }
 
-    override suspend fun getAmountForTimePeriod(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, tracked: List<Boolean>): Double {
-        if (categoryId == null) return dao.getSpending(range.first, range.second, type, tracked)
-        else return dao.getSpending(range.first, range.second, categoryId, tracked)
+    override suspend fun getAmountForTimePeriod(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, accountId: Int?, tracked: List<Boolean>): Double {
+        return if (categoryId == null && accountId == null) dao.getSpending(range.first, range.second, type, tracked)
+        else if(categoryId != null && accountId == null) dao.getSpendingByCategory(range.first, range.second, categoryId, type, tracked)
+        else if (categoryId == null && accountId != null) dao.getSpendingByAccount(range.first, range.second, accountId, type, tracked)
+        else dao.getSpending(range.first, range.second, categoryId!!, accountId!!, type, tracked)
     }
 
     override suspend fun getById(id: Int): Finance? {

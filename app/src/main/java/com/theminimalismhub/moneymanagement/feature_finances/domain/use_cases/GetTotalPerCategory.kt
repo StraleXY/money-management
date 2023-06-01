@@ -19,7 +19,7 @@ class GetTotalPerCategory constructor(
         return repo.getPerCategory(range, type, accountId, tracked)
     }
 
-    suspend fun getPerDay(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, tracked: List<Boolean>): List<GraphEntry> {
+    suspend fun getPerDay(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, accountId: Int?, tracked: List<Boolean>): List<GraphEntry> {
         val entries: MutableList<GraphEntry> = mutableListOf()
 
         val start = Calendar.getInstance()
@@ -35,7 +35,7 @@ class GetTotalPerCategory constructor(
         while (start.timeInMillis < range.second) {
             entries.add(
                 GraphEntry(
-                    value = repo.getAmountForTimePeriod(Pair(start.timeInMillis, end.timeInMillis), category?.type ?: type, categoryId, tracked),
+                    value = repo.getAmountForTimePeriod(Pair(start.timeInMillis, end.timeInMillis), category?.type ?: type, categoryId, accountId, tracked),
                     label = start.get(Calendar.DAY_OF_MONTH).toString(),
                     color = color
                 )
