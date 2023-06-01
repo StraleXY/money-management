@@ -16,13 +16,18 @@ class FinanceRepoImpl constructor(
         if (categoryId == null) return dao.getAll(range.first, range.second, types, tracked)
         return dao.getAll(range.first, range.second, tracked, categoryId)
     }
+    override fun getAll(range: Pair<Long, Long>, categoryId: Int?, accountId: Int, types: List<FinanceType>, tracked: List<Boolean>): Flow<List<Finance>> {
+        if (categoryId == null) return dao.getAll(range.first, range.second, accountId, types)
+        return dao.getAll(range.first, range.second, tracked, categoryId, accountId)
+    }
 
     override fun getAll(range: Pair<Long, Long>, accountId: Int, types: List<FinanceType>): Flow<List<Finance>> {
         return dao.getAll(range.first, range.second, accountId, types)
     }
 
-    override fun getPerCategory(range: Pair<Long, Long>, type: FinanceType, tracked: List<Boolean>): Flow<List<CategoryAmount>> {
-        return dao.getPerCategory(range.first, range.second, type, tracked)
+    override fun getPerCategory(range: Pair<Long, Long>, type: FinanceType, accountId: Int?, tracked: List<Boolean>): Flow<List<CategoryAmount>> {
+        if(accountId == null) return dao.getPerCategory(range.first, range.second, type, tracked)
+        return dao.getPerCategory(range.first, range.second, type, accountId, tracked)
     }
 
     override suspend fun getAmountForTimePeriod(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, tracked: List<Boolean>): Double {

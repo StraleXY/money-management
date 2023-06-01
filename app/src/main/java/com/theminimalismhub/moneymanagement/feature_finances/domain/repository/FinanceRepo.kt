@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface FinanceRepo {
     fun getAll(range: Pair<Long, Long>, categoryId: Int?, types: List<FinanceType>, tracked: List<Boolean>): Flow<List<Finance>>
+    fun getAll(range: Pair<Long, Long>, categoryId: Int?, accountId: Int, types: List<FinanceType>, tracked: List<Boolean>): Flow<List<Finance>>
     fun getAll(range: Pair<Long, Long>, accountId: Int, types: List<FinanceType>): Flow<List<Finance>>
-    fun getPerCategory(range: Pair<Long, Long>, type: FinanceType, tracked: List<Boolean>): Flow<List<CategoryAmount>>
+    fun getPerCategory(range: Pair<Long, Long>, type: FinanceType, accountId: Int?, tracked: List<Boolean>): Flow<List<CategoryAmount>>
     suspend fun getAmountForTimePeriod(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, tracked: List<Boolean>): Double
     suspend fun getById(id: Int): Finance?
     suspend fun insert(item: FinanceItem): Long

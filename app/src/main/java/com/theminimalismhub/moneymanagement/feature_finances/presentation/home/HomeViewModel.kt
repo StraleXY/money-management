@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,30 +65,38 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.ItemTypeSelected -> {
                 selectedCategoryId = null
+                selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
                 _state.value.itemsTypeStates.forEach { _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
                 getFinances()
                 getCategoryTotals()
             }
             is HomeEvent.AccountClicked -> {
+                selectedCategoryId = null
                 toggleAccountPreview(event.id)
+                getFinances()
+                getCategoryTotals()
             }
         }
     }
 
     // Finances
     private var getFinancesJob: Job? = null
+    private var getGraphJob: Job? = null
+    private var updateQuickSpendingsJob: Job? = null
     private fun getFinances() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
         val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
+        getGraphJob?.cancel()
+        updateQuickSpendingsJob?.cancel()
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, types, tracked)
+        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, selectedAccountId, types, tracked)
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
                 )
-                updateQuickSpending()
-                getGraphData(selectedCategoryId)
+                updateQuickSpendingsJob = viewModelScope.launch { updateQuickSpending() }
+                getGraphJob = viewModelScope.launch { getGraphData(selectedCategoryId) }
             }
             .launchIn(viewModelScope)
     }
@@ -112,7 +121,7 @@ class HomeViewModel @Inject constructor(
         val type: FinanceType = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
         val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         getPerCategoryJob?.cancel()
-        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, type, tracked)
+        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, type, selectedAccountId, tracked)
             .onEach { totals ->
                 _state.value = _state.value.copy(
                     totalPerCategory = totals.sortedBy { it.amount }.reversed()
