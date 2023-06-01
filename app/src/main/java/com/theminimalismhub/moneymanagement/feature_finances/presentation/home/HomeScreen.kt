@@ -18,6 +18,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -30,12 +32,13 @@ import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenD
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddNewAccount
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
 import java.util.*
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
 @Destination(style = BaseTransition::class)
@@ -125,6 +128,24 @@ fun HomeScreen(
                                 itemsTypeStates = state.itemsTypeStates,
                                 itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
                             )
+                            AnimatedVisibility(
+                                visible = state.itemsTypeStates[2]!!.value,
+                                enter = expandVertically(tween(400))
+                                        + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
+                                        + fadeIn(tween(300, 450)),
+                                exit = scaleOut(targetScale = 0.9f, animationSpec = tween(300))
+                                        + fadeOut(tween(300))
+                                        + shrinkVertically(tween(450, 250))
+                            ) {
+                                AccountsList(
+                                    modifier = Modifier.padding(bottom = 8.dp),
+                                    spacing = 8.dp,
+                                    contentPadding = PaddingValues(horizontal = 20.dp),
+                                    accounts = state.accounts,
+                                    states = state.accountStates,
+                                    currency = state.currency
+                                ) { vm.onEvent(HomeEvent.AccountClicked(it)) }
+                            }
                             AnimatedVisibility(
                                 visible = vm.rangeService.rangeLength > 1,
                                 enter = expandVertically(tween(400))
@@ -304,5 +325,5 @@ private fun ItemsTypeSelector(
             Spacer(modifier = Modifier.width(4.dp))
         }
     }
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 }

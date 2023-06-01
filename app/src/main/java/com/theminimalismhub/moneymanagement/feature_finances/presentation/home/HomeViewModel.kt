@@ -33,6 +33,8 @@ class HomeViewModel @Inject constructor(
     private var selectedCategoryId: Int? = null
     val rangeService = RangePickerService()
 
+    private var selectedAccountId: Int? = null
+
     init {
         _state.value = _state.value.copy(
             limit = preferences.getSimpleLimit().toDouble(),
@@ -65,6 +67,9 @@ class HomeViewModel @Inject constructor(
                 _state.value.itemsTypeStates.forEach { _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
                 getFinances()
                 getCategoryTotals()
+            }
+            is HomeEvent.AccountClicked -> {
+                toggleAccountPreview(event.id)
             }
         }
     }
@@ -166,7 +171,19 @@ class HomeViewModel @Inject constructor(
                     accounts = it
                 )
                 addEditService.setAccounts(it)
+                _state.value.accounts.forEach { account ->
+                    account.accountId?.let { id -> _state.value.accountStates[id] = mutableStateOf(true) }
+                }
             }
             .launchIn(viewModelScope)
+    }
+    private fun toggleAccountPreview(accountId: Int) {
+        if(selectedAccountId == accountId) {
+            _state.value.accountStates.forEach { (_, state) -> state.value = true }
+            selectedAccountId = null
+        } else {
+            _state.value.accountStates.forEach { (id, state) -> state.value = id == accountId }
+            selectedAccountId = accountId
+        }
     }
 }

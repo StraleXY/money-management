@@ -21,6 +21,7 @@ data class HomeState(
     val currency: String = "",
 
     val accounts: List<Account> = emptyList(),
+    val accountStates: HashMap<Int, MutableState<Boolean>> = HashMap(),
     val totalsPerAccount: Map<Int, List<CategoryAmount>> = HashMap(),
 
     val itemsTypeStates: Map<Int, MutableState<Boolean>> = mapOf(

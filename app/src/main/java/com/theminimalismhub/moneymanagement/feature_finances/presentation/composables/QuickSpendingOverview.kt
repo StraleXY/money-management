@@ -46,7 +46,7 @@ fun QuickSpendingOverview(
     ) {
         Row(
             modifier = Modifier
-                .padding(vertical = 28.dp)
+                .padding(vertical = 18.dp)
         ) {
             SpendingSegment(
                 modifier = Modifier
@@ -85,7 +85,7 @@ fun QuickSpendingOverview(
 
         }
     }
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable
@@ -118,7 +118,7 @@ private fun SpendingSegment(
         Text(
             text = "${Currencier.formatAmount(animatedAmount.toFloat())} $currency ",
             style = MaterialTheme.typography.h3.copy(
-                fontSize = 48.sp
+                fontSize = 45.sp
             ),
             color = if(amount < 0.0) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
         )
@@ -128,7 +128,7 @@ private fun SpendingSegment(
                 .alpha(0.65f),
             text = "$hint: ${if(secondaryAmount == 0.0) "--" else Currencier.formatAmount(animatedSecondaryAmount.toFloat()) } $currency",
             style = MaterialTheme.typography.h3.copy(
-                fontSize = 16.sp
+                fontSize = 15.sp
             )
         )
     }
