@@ -198,7 +198,7 @@ class ManageAccountsViewModel @Inject constructor(
     private fun getTransactions(accountId: Int?) {
         if(accountId == null) return
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getTransactions(Pair(-1L, Long.MAX_VALUE), accountId, listOf(FinanceType.TRANSACTION, FinanceType.INCOME))
+        getFinancesJob = useCases.getTransactions(Pair(-1L, Long.MAX_VALUE), accountId, listOf(FinanceType.TRANSACTION))
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance
