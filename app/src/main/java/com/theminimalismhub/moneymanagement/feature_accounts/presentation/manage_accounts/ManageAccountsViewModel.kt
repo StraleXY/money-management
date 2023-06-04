@@ -177,7 +177,14 @@ class ManageAccountsViewModel @Inject constructor(
             .onEach {
                 _state.value = _state.value.copy(
                     accounts = it.toMutableList(),
-                    selectedAccount = if(it.isEmpty()) _state.value.selectedAccount else _state.value.selectedAccount ?: it.first()
+                    selectedAccount = if(it.isEmpty()) _state.value.selectedAccount ?: Account(
+                        name = "",
+                        balance = 0.0,
+                        active = true,
+                        deleted = false,
+                        primary = true,
+                        type = AccountType.CARD
+                    ) else _state.value.selectedAccount ?: it.first()
                 )
                 getTransactions(_state.value.selectedAccount?.accountId)
             }
