@@ -45,8 +45,7 @@ fun Graph(
     fun normalize(x: Double) : Double {
         if(x == 0.0) return 0.0
         return Math.max(Math.min(Math.log(x * 1.16 + 0.53) * 1 + 0.6, 1.0), 0.07)
-//        return Math.max(Math.min(Math.log(x * 1.82 + 0.33) * 0.8 + 0.73, 1.0), 0.0)
-
+        //  return Math.max(Math.min(Math.log(x * 1.82 + 0.33) * 0.8 + 0.73, 1.0), 0.0)
     }
 
     val topPadding = 75.dp
