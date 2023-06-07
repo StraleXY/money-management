@@ -159,7 +159,8 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .padding(horizontal = 20.dp),
                                     earningsPerTimePeriod = state.earningsPerTimePeriod,
-                                    maxEarnings = state.maxEarnings
+                                    maxEarnings = state.maxEarnings,
+                                    limit = state.limit
                                 )
                             }
                             CategoryTotalsOverview(

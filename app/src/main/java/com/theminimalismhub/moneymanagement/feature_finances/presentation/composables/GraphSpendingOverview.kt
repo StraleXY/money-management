@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.dp
 fun GraphSpendingOverview(
     modifier: Modifier = Modifier,
     earningsPerTimePeriod: List<GraphEntry>,
-    maxEarnings: Double
+    maxEarnings: Double,
+    limit: Double
 ) {
     Card(
         shape = RoundedCornerShape(15.dp),
@@ -29,7 +30,9 @@ fun GraphSpendingOverview(
             Graph(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
                 totalHeight = 160.dp,
-                earnings = earningsPerTimePeriod
+                earnings = earningsPerTimePeriod,
+                maxEarnings = maxEarnings,
+                limit = limit
             )
         }
     }

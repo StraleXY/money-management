@@ -5,6 +5,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -37,7 +38,9 @@ data class GraphEntry(
 fun Graph(
     modifier: Modifier = Modifier,
     totalHeight: Dp = 190.dp,
-    earnings: List<GraphEntry>
+    earnings: List<GraphEntry>,
+    limit: Double,
+    maxEarnings: Double = earnings.maxOf { it.value }
 ) {
     fun normalize(x: Double) : Double {
         return Math.max(Math.min(Math.log(x + 0.58) + 0.54, 1.0), 0.0)
@@ -54,6 +57,7 @@ fun Graph(
 
     var graphEntries by remember { mutableStateOf(earnings) }
     var maxVal by remember { mutableStateOf(earnings.maxOf { it.value }) }
+    val limitReachedColor = MaterialTheme.colors.error.toArgb()
     var renderJob: Job? = null
 
     LaunchedEffect(earnings) {
@@ -64,7 +68,7 @@ fun Graph(
                 animationSpec = tween(100),
             )
             delay(10)
-            maxVal = earnings.maxOf { it.value }
+            maxVal = maxEarnings
             graphEntries = earnings
             animatedHeight.animateTo(
                 graphHeight.value,
@@ -106,6 +110,7 @@ fun Graph(
                         center = prev,
                         radius = 3.dp.toPx()
                     )
+                    // First n-1 numbers
                     rotate(degrees = -90f, center) {
                         drawIntoCanvas { canvas ->
                             canvas.nativeCanvas.drawText(
@@ -113,7 +118,7 @@ fun Graph(
                                 (width - totalHeight.toPx()) / 2 + totalHeight.toPx(),
                                 (totalHeight.toPx() - width + 14.sp.toPx()/2) / 2 + prev.x,
                                 Paint().apply {
-                                    color = prevEarning!!.color
+                                    color = if(prevEarning!!.value > limit) limitReachedColor else prevEarning!!.color
                                     textSize = 14.sp.toPx()
                                     textAlign = Paint.Align.RIGHT
                                     typeface = ResourcesCompat.getFont(context, R.font.economica)
@@ -142,6 +147,7 @@ fun Graph(
                 center = prev,
                 radius = 3.dp.toPx()
             )
+            // Last numbers
             rotate(degrees = -90f, center) {
                 drawIntoCanvas { canvas ->
                     canvas.nativeCanvas.drawText(
@@ -149,7 +155,7 @@ fun Graph(
                         (width - totalHeight.toPx()) / 2 + totalHeight.toPx(),
                         (totalHeight.toPx() - width + 14.sp.toPx()/2) / 2 + prev.x,
                         Paint().apply {
-                            color = prevEarning!!.color
+                            color = if(prevEarning!!.value > limit) limitReachedColor else prevEarning!!.color
                             textSize = 14.sp.toPx()
                             textAlign = Paint.Align.RIGHT
                             typeface = ResourcesCompat.getFont(context, R.font.economica)
@@ -170,7 +176,7 @@ fun Graph(
                 }
             }
         }
-
+        // Fill
         prev = Offset(0f, 0f)
         first = true
         val pathFill = Path().apply {

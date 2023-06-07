@@ -1,5 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases
 
+import android.content.Context
+import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.theminimalismhub.jobmanagerv2.utils.Dater
@@ -33,9 +35,10 @@ class GetTotalPerCategory constructor(
         val category = categoryId?.let { categoryRepo.getById(categoryId) }
         val color = category?.color ?: Color.White.toArgb()
         while (start.timeInMillis < range.second) {
+            val value = repo.getAmountForTimePeriod(Pair(start.timeInMillis, end.timeInMillis), category?.type ?: type, categoryId, accountId, tracked)
             entries.add(
                 GraphEntry(
-                    value = repo.getAmountForTimePeriod(Pair(start.timeInMillis, end.timeInMillis), category?.type ?: type, categoryId, accountId, tracked),
+                    value = value,
                     label = start.get(Calendar.DAY_OF_MONTH).toString(),
                     color = color
                 )
