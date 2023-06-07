@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +23,8 @@ fun GraphSpendingOverview(
         shape = RoundedCornerShape(15.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp),
+            .padding(bottom = 8.dp)
+            .animateContentSize(),
         backgroundColor = MaterialTheme.colors.surface.copy(
             red = 0.1f, green = 0.1f, blue = 0.1f
         ),

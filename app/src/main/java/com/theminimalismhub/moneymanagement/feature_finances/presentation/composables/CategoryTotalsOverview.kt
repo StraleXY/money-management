@@ -27,14 +27,13 @@ fun CategoryTotalsOverview(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .fillMaxWidth(),
-        backgroundColor = MaterialTheme.colors.surface.copy(
-            red = 0.1f, green = 0.1f, blue = 0.1f
-        ),
+        backgroundColor = MaterialTheme.colors.surface.copy(red = 0.1f, green = 0.1f, blue = 0.1f),
         elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
-                .padding(20.dp),
+                .padding(20.dp)
+                .animateContentSize(),
             horizontalAlignment = Alignment.Start
         ) {
             if(totalPerCategory.isEmpty()) ErrorNoData()
