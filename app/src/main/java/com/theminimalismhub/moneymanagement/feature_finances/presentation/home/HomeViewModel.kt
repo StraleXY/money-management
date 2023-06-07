@@ -1,29 +1,22 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
-import androidx.annotation.experimental.Experimental
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.theminimalismhub.jobmanagerv2.utils.Dater
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
-import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
-import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.GetTotalPerCategory
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceService
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,7 +44,6 @@ class HomeViewModel @Inject constructor(
         )
         initDateRange()
         getFinances()
-        getCategoryTotals()
         getAccounts()
     }
     fun onEvent(event: HomeEvent) {
@@ -65,7 +57,6 @@ class HomeViewModel @Inject constructor(
                 toggleCategoryBar(selectedCategoryId)
                 _state.value = _state.value.copy(dateRange = event.range)
                 getFinances()
-                getCategoryTotals()
             }
             is HomeEvent.CategoryClicked -> {
                 toggleCategoryBar(event.id)
@@ -76,20 +67,17 @@ class HomeViewModel @Inject constructor(
                 selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
                 _state.value.itemsTypeStates.forEach { _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
                 getFinances()
-                getCategoryTotals()
             }
             is HomeEvent.AccountClicked -> {
                 selectedCategoryId = null
                 toggleAccountPreview(event.id)
                 getFinances()
-                getCategoryTotals()
             }
         }
     }
 
     // Finances
     private var getFinancesJob: Job? = null
-    private var updateQuickSpendingsJob: Job? = null
     private fun getFinances() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
@@ -98,8 +86,9 @@ class HomeViewModel @Inject constructor(
         getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, selectedAccountId, types, tracked)
             .onEach { finance ->
                 _state.value = _state.value.copy(results = finance)
-                getGraphData()
+                if(selectedCategoryId == null) getCategoryTotals()
                 updateQuickSpending()
+                getGraphData()
             }
             .launchIn(viewModelScope)
     }
@@ -117,33 +106,32 @@ class HomeViewModel @Inject constructor(
             dateRange = Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp())
         )
     }
-
-    private var getPerCategoryJob: Job? = null
     private fun getCategoryTotals() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         val type: FinanceType = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
-        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
-        getPerCategoryJob?.cancel()
-        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, type, selectedAccountId, tracked)
-            .onEach { totals ->
-                _state.value = _state.value.copy(
-                    totalPerCategory = totals.sortedBy { it.amount }.reversed()
+        val bars: MutableList<CategoryAmount> = mutableListOf()
+        _state.value.results.filter{ it.finance.type == type }.groupBy { it.category!!.categoryId }.forEach {
+            bars.add(
+                CategoryAmount(
+                    categoryId = it.key!!,
+                    accountId = it.value[0].account.accountId!!,
+                    name = it.value[0].category!!.name,
+                    color = it.value[0].category!!.color,
+                    amount = it.value.sumOf { it.finance.amount }
                 )
-                _state.value = _state.value.copy(
-                    totalsPerAccount = totals.groupBy { it.accountId }
-                )
-
-                totals.forEach {
-                    _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
-                        when (selectedCategoryId) {
-                            null -> CategoryBarState.NEUTRAL
-                            it.categoryId -> CategoryBarState.SELECTED
-                            else -> CategoryBarState.DESELECTED
-                        }
-                    )
+            )
+        }
+        _state.value = _state.value.copy(totalPerCategory = bars.sortedBy { it.amount }.reversed())
+        _state.value = _state.value.copy(totalsPerAccount = bars.groupBy { it.accountId })
+        bars.forEach {
+            _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
+                when (selectedCategoryId) {
+                    null -> CategoryBarState.NEUTRAL
+                    it.categoryId -> CategoryBarState.SELECTED
+                    else -> CategoryBarState.DESELECTED
                 }
-            }
-            .launchIn(viewModelScope)
+            )
+        }
     }
     private fun toggleCategoryBar(categoryId: Int?) {
         if(selectedCategoryId == categoryId) {
@@ -157,7 +145,7 @@ class HomeViewModel @Inject constructor(
     private fun getGraphData() {
         if(rangeService.rangeLength == 1) return
         _state.value = _state.value.copy(
-            earningsPerTimePeriod = useCases.getTotalPerCategory.getPerDay(
+            earningsPerTimePeriod = useCases.getTotalPerDay(
                 range = _state.value.dateRange,
                 type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
                 items = _state.value.results,

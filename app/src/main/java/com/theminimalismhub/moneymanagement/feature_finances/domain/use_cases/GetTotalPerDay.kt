@@ -1,7 +1,5 @@
 package com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases
 
-import android.content.Context
-import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.theminimalismhub.jobmanagerv2.utils.Dater
@@ -14,15 +12,11 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.C
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
-class GetTotalPerCategory constructor(
+class GetTotalPerDay constructor(
     private val repo: FinanceRepo,
     private val categoryRepo: CategoryRepo
 ) {
-    operator fun invoke(range: Pair<Long, Long>, type: FinanceType, accountId: Int?, tracked: List<Boolean>) : Flow<List<CategoryAmount>> {
-        return repo.getPerCategory(range, type, accountId, tracked)
-    }
-
-    fun getPerDay(range: Pair<Long, Long>, type: FinanceType, items: List<Finance>, color: Int): List<GraphEntry> {
+    operator fun invoke(range: Pair<Long, Long>, type: FinanceType, items: List<Finance>, color: Int) : List<GraphEntry> {
         val entries: MutableList<GraphEntry> = mutableListOf()
 
         val start = Calendar.getInstance()
