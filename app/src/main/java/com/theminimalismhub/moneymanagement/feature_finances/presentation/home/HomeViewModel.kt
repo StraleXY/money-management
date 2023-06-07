@@ -40,7 +40,6 @@ class HomeViewModel @Inject constructor(
     val state: State<HomeState> = _state
 
     private var selectedCategoryId: Int? = null
-    private var selectedCategoryColor: Int = Color.White.toArgb()
     val rangeService = RangePickerService()
 
     private var selectedAccountId: Int? = null
@@ -150,11 +149,9 @@ class HomeViewModel @Inject constructor(
         if(selectedCategoryId == categoryId) {
             _state.value.categoryBarStates.forEach { (_, state) -> state.value = CategoryBarState.NEUTRAL }
             selectedCategoryId = null
-            selectedCategoryColor = Color.White.toArgb()
         } else {
             _state.value.categoryBarStates.forEach { (id, state) -> state.value = if(id == categoryId) CategoryBarState.SELECTED else CategoryBarState.DESELECTED }
             selectedCategoryId = categoryId
-            selectedCategoryColor = _state.value.totalPerCategory.first{ it.categoryId == selectedCategoryId }.color
         }
     }
     private fun getGraphData() {
@@ -164,7 +161,7 @@ class HomeViewModel @Inject constructor(
                 range = _state.value.dateRange,
                 type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
                 items = _state.value.results,
-                color = selectedCategoryColor
+                color = if(selectedCategoryId == null) Color.White.toArgb() else _state.value.totalPerCategory.first{ it.categoryId == selectedCategoryId }.color
             )
         )
         if(selectedCategoryId == null) {
