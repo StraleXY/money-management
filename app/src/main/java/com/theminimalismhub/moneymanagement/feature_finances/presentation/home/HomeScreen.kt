@@ -103,7 +103,7 @@ fun HomeScreen(
                 // HOME CONTENT
                 Box(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
-                        contentPadding = PaddingValues(bottom = 20.dp),
+                        contentPadding = PaddingValues(bottom = 84.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
                     ) {

@@ -1,21 +1,29 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import androidx.annotation.experimental.Experimental
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.theminimalismhub.jobmanagerv2.utils.Dater
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.GetTotalPerCategory
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceService
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,6 +40,7 @@ class HomeViewModel @Inject constructor(
     val state: State<HomeState> = _state
 
     private var selectedCategoryId: Int? = null
+    private var selectedCategoryColor: Int = Color.White.toArgb()
     val rangeService = RangePickerService()
 
     private var selectedAccountId: Int? = null
@@ -81,22 +90,17 @@ class HomeViewModel @Inject constructor(
 
     // Finances
     private var getFinancesJob: Job? = null
-    private var getGraphJob: Job? = null
     private var updateQuickSpendingsJob: Job? = null
     private fun getFinances() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
         val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
-        getGraphJob?.cancel()
-        updateQuickSpendingsJob?.cancel()
         getFinancesJob?.cancel()
         getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, selectedAccountId, types, tracked)
             .onEach { finance ->
-                _state.value = _state.value.copy(
-                    results = finance
-                )
-                updateQuickSpendingsJob = viewModelScope.launch { updateQuickSpending() }
-                getGraphJob = viewModelScope.launch { getGraphData() }
+                _state.value = _state.value.copy(results = finance)
+                getGraphData()
+                updateQuickSpending()
             }
             .launchIn(viewModelScope)
     }
@@ -146,22 +150,21 @@ class HomeViewModel @Inject constructor(
         if(selectedCategoryId == categoryId) {
             _state.value.categoryBarStates.forEach { (_, state) -> state.value = CategoryBarState.NEUTRAL }
             selectedCategoryId = null
+            selectedCategoryColor = Color.White.toArgb()
         } else {
             _state.value.categoryBarStates.forEach { (id, state) -> state.value = if(id == categoryId) CategoryBarState.SELECTED else CategoryBarState.DESELECTED }
             selectedCategoryId = categoryId
+            selectedCategoryColor = _state.value.totalPerCategory.first{ it.categoryId == selectedCategoryId }.color
         }
     }
-    private suspend fun getGraphData() {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
+    private fun getGraphData() {
         if(rangeService.rangeLength == 1) return
         _state.value = _state.value.copy(
             earningsPerTimePeriod = useCases.getTotalPerCategory.getPerDay(
                 range = _state.value.dateRange,
-                type = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME,
-                categoryId = selectedCategoryId,
-                accountId = selectedAccountId,
-                tracked = tracked
+                type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
+                items = _state.value.results,
+                color = selectedCategoryColor
             )
         )
         if(selectedCategoryId == null) {
