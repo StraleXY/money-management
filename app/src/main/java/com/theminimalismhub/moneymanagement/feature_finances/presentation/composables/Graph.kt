@@ -39,8 +39,14 @@ fun Graph(
     limit: Double,
     maxEarnings: Double = earnings.maxOf { it.value }
 ) {
+    var graphEntries by remember { mutableStateOf(earnings) }
+    var maxVal by remember { mutableStateOf(earnings.maxOf { it.value }) }
+
     fun normalize(x: Double) : Double {
-        return Math.max(Math.min(Math.log(x + 0.58) + 0.54, 1.0), 0.0)
+        if(x == 0.0) return 0.0
+        return Math.max(Math.min(Math.log(x * 1.16 + 0.53) * 1 + 0.6, 1.0), 0.07)
+//        return Math.max(Math.min(Math.log(x * 1.82 + 0.33) * 0.8 + 0.73, 1.0), 0.0)
+
     }
 
     val topPadding = 75.dp
@@ -52,8 +58,6 @@ fun Graph(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    var graphEntries by remember { mutableStateOf(earnings) }
-    var maxVal by remember { mutableStateOf(earnings.maxOf { it.value }) }
     val limitReachedColor = MaterialTheme.colors.error.toArgb()
     var renderJob: Job? = null
 
