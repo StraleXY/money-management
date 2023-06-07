@@ -1,15 +1,11 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
 import android.graphics.Paint
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -26,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.R
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class GraphEntry(
@@ -39,8 +37,7 @@ data class GraphEntry(
 fun Graph(
     modifier: Modifier = Modifier,
     totalHeight: Dp = 190.dp,
-    earnings: List<GraphEntry>,
-    maxVal: Double = earnings.maxOf { it.value }
+    earnings: List<GraphEntry>
 ) {
     fun normalize(x: Double) : Double {
         return Math.max(Math.min(Math.log(x + 0.58) + 0.54, 1.0), 0.0)
@@ -55,12 +52,23 @@ fun Graph(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    var graphEntries by remember { mutableStateOf(earnings) }
+    var maxVal by remember { mutableStateOf(earnings.maxOf { it.value }) }
+    var renderJob: Job? = null
+
     LaunchedEffect(earnings) {
-        coroutineScope.launch {
-            animatedHeight.snapTo(0f)
+        renderJob?.cancel()
+        renderJob = coroutineScope.launch {
+            animatedHeight.animateTo(
+                0f,
+                animationSpec = tween(100),
+            )
+            delay(10)
+            maxVal = earnings.maxOf { it.value }
+            graphEntries = earnings
             animatedHeight.animateTo(
                 graphHeight.value,
-                animationSpec = tween(750),
+                animationSpec = tween(450, easing = EaseOutCubic),
             )
         }
     }
@@ -73,14 +81,14 @@ fun Graph(
         val width = size.width
         val height = Dp(animatedHeight.value).toPx()
 
-        val offset = width / (earnings.size - 1)
+        val offset = width / (graphEntries.size - 1)
 
         var prev = Offset(0f, topPadding.value)
         var prevEarning: GraphEntry? = null
         var first = true
 
         val path = Path().apply {
-            earnings.forEach { earning ->
+            graphEntries.forEach { earning ->
                 val current = Offset(prev.x + if(first) 0f else offset,
                     (graphHeight.toPx() - (normalize(earning.value / maxVal) * height) + topPadding.toPx()).toFloat()
                 )
@@ -166,7 +174,7 @@ fun Graph(
         prev = Offset(0f, 0f)
         first = true
         val pathFill = Path().apply {
-            earnings.forEach { earning ->
+            graphEntries.forEach { earning ->
                 val current = Offset(prev.x + if(first) 0f else offset,
                     (graphHeight.toPx() - (normalize(earning.value / maxVal) * height) + topPadding.toPx()).toFloat()
                 )
@@ -189,11 +197,11 @@ fun Graph(
 
         drawPath(
             path = pathFill,
-            color = Color(ColorUtils.setAlphaComponent(earnings.first().color, 40))
+            color = Color(ColorUtils.setAlphaComponent(graphEntries.first().color, 40))
         )
         drawPath(
             path = path,
-            color = Color(earnings.first().color),
+            color = Color(graphEntries.first().color),
             style = Stroke(1.5.dp.toPx()),
         )
     }

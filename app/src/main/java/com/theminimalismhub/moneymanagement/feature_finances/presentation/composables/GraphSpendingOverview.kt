@@ -1,8 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -31,8 +29,7 @@ fun GraphSpendingOverview(
             Graph(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
                 totalHeight = 160.dp,
-                earnings = earningsPerTimePeriod,
-                maxVal = maxEarnings
+                earnings = earningsPerTimePeriod
             )
         }
     }
