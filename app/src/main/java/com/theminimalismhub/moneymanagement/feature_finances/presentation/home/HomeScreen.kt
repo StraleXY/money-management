@@ -16,8 +16,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
@@ -140,7 +143,7 @@ fun HomeScreen(
                                         + shrinkVertically(tween(450, 250))
                             ) {
                                 AccountsList(
-                                    modifier = Modifier.padding(bottom = 8.dp),
+                                    modifier = Modifier.padding(bottom = 12.dp),
                                     spacing = 8.dp,
                                     contentPadding = PaddingValues(horizontal = 20.dp),
                                     accounts = state.accounts,
@@ -268,9 +271,7 @@ private fun ItemsTypeSelector(
         modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
-        backgroundColor = MaterialTheme.colors.surface.copy(
-            red = 0.1f, green = 0.1f, blue = 0.1f
-        ),
+        backgroundColor = Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f)),
         elevation = 4.dp
     ) {
         Row(
@@ -329,5 +330,5 @@ private fun ItemsTypeSelector(
             Spacer(modifier = Modifier.width(4.dp))
         }
     }
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 }

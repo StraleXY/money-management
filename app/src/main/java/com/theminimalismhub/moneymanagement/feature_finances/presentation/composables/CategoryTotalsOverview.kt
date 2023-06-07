@@ -10,7 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBar
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBarState
@@ -28,7 +31,7 @@ fun CategoryTotalsOverview(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .fillMaxWidth(),
-        backgroundColor = MaterialTheme.colors.surface.copy(red = 0.1f, green = 0.1f, blue = 0.1f),
+        backgroundColor = Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f)),
         elevation = 4.dp
     ) {
         Box(

@@ -34,7 +34,7 @@ fun ActionChip(
         .padding(5.dp),
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.body1,
-    textColor: Color = Color.White,
+    textColor: Color = MaterialTheme.colors.onBackground,
     accentColor: Color = textColor,
     backgroundColor: Color = accentColor,
     borderColor: Color = accentColor,
