@@ -171,12 +171,19 @@ fun HomeScreen(
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                         }
                         items(state.results) {
-                            FinanceCard(
-                                finance = it,
-                                previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
-                                currency = state.currency,
-                                onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
-                            )
+                            AnimatedVisibility(
+                                visible = state.results.isNotEmpty(),
+                                enter = fadeIn(tween(2500)),
+                                exit = fadeOut(tween(2500))
+                            ) {
+                                FinanceCard(
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                    finance = it,
+                                    previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                                    currency = state.currency,
+                                    onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
+                                )
+                            }
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }

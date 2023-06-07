@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -30,17 +31,21 @@ fun CategoryTotalsOverview(
         backgroundColor = MaterialTheme.colors.surface.copy(red = 0.1f, green = 0.1f, blue = 0.1f),
         elevation = 4.dp
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .padding(20.dp)
-                .animateContentSize(),
-            horizontalAlignment = Alignment.Start
+                .animateContentSize()
         ) {
-            if(totalPerCategory.isEmpty()) ErrorNoData()
+            AnimatedVisibility(
+                visible = totalPerCategory.isEmpty(),
+                enter = fadeIn(tween(100, 150)),
+                exit = fadeOut(tween(100))
+            ) { ErrorNoData() }
+
             AnimatedVisibility(
                 visible = totalPerCategory.isNotEmpty(),
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = fadeIn(tween(250)),
+                exit = fadeOut(tween(250))
             ) {
                 Column(horizontalAlignment = Alignment.Start) {
                     totalPerCategory.forEach { earnings ->

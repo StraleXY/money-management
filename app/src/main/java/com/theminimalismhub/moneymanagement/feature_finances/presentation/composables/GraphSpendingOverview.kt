@@ -1,6 +1,11 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,21 +28,36 @@ fun GraphSpendingOverview(
         shape = RoundedCornerShape(15.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp)
-            .animateContentSize(),
+            .padding(bottom = 8.dp),
         backgroundColor = MaterialTheme.colors.surface.copy(
             red = 0.1f, green = 0.1f, blue = 0.1f
         ),
         elevation = 4.dp
     ) {
-        if(earningsPerTimePeriod.sumOf { it.value } > 0) {
-            Graph(
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                totalHeight = 160.dp,
-                earnings = earningsPerTimePeriod,
-                maxEarnings = maxEarnings,
-                limit = limit
-            )
-        } else ErrorNoData(modifier = Modifier.padding(vertical = 20.dp))
+        Box (
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize()
+        ) {
+            AnimatedVisibility(
+                visible = earningsPerTimePeriod.sumOf { it.value } == 0.0,
+                enter = fadeIn(tween(100, 150)),
+                exit = fadeOut(tween(100))
+            ) { ErrorNoData(modifier = Modifier.padding(vertical = 20.dp)) }
+
+            AnimatedVisibility(
+                visible = earningsPerTimePeriod.sumOf { it.value } > 0,
+                enter = fadeIn(tween(250)),
+                exit = fadeOut(tween(250))
+            ) {
+                Graph(
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                    totalHeight = 160.dp,
+                    earnings = earningsPerTimePeriod,
+                    maxEarnings = maxEarnings,
+                    limit = limit
+                )
+            }
+        }
     }
 }
