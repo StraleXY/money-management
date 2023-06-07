@@ -1,8 +1,10 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -16,6 +18,7 @@ fun AccountsList(
     modifier: Modifier = Modifier,
     accounts: List<Account>,
     states: HashMap<Int, MutableState<Boolean>>,
+    listState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 32.dp),
     currency: String = "RSD",
     spacing: Dp = 16.dp,
@@ -25,7 +28,8 @@ fun AccountsList(
         modifier = modifier
             .fillMaxWidth(),
         contentPadding = contentPadding,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
+        state = listState
     ) {
         items(accounts.filter { it.active }) { account ->
             AccountCardMini(

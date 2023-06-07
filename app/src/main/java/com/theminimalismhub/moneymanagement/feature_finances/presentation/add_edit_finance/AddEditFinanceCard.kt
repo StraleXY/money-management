@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -40,6 +41,7 @@ import com.theminimalismhub.moneymanagement.feature_categories.presentation.mana
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import kotlinx.coroutines.delay
 import java.util.*
 
 @Composable
@@ -60,6 +62,17 @@ fun AddEditFinanceCard(
     val focusManager = LocalFocusManager.current
     val name: TextFieldState = form.getState("name")
     val amount: TextFieldState = form.getState("amount")
+    val categoryListState = rememberLazyListState()
+    val accountListState = rememberLazyListState()
+
+    LaunchedEffect(state.selectedCategoryId) {
+        if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
+        categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
+    }
+    LaunchedEffect(state.selectedAccountId) {
+        if(state.selectedAccountId == null || state.accounts.isEmpty()) return@LaunchedEffect
+        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+    }
 
     FloatingCard(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -68,7 +81,8 @@ fun AddEditFinanceCard(
             AccountsList(
                 accounts = state.accounts,
                 states = state.accountStates,
-                currency = state.currency
+                currency = state.currency,
+                listState = accountListState
             ) { accountSelected(it) }
         }
     ) {
@@ -76,7 +90,8 @@ fun AddEditFinanceCard(
             modifier = Modifier
                 .fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 34.dp),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
+            state = categoryListState
         ) {
             item {
                 CircularTypeSelector(
