@@ -112,7 +112,8 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(36.dp))
                             RangePicker(
                                 rangeService = vm.rangeService,
-                                rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
+                                isToday = state.isToday,
+                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
                             )
                             QuickSpendingOverview(
                                 modifier = Modifier
@@ -171,19 +172,13 @@ fun HomeScreen(
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                         }
                         items(state.results) {
-                            AnimatedVisibility(
-                                visible = state.results.isNotEmpty(),
-                                enter = fadeIn(tween(2500)),
-                                exit = fadeOut(tween(2500))
-                            ) {
-                                FinanceCard(
-                                    modifier = Modifier.padding(horizontal = 4.dp),
-                                    finance = it,
-                                    previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
-                                    currency = state.currency,
-                                    onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
-                                )
-                            }
+                            FinanceCard(
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                finance = it,
+                                previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                                currency = state.currency,
+                                onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }

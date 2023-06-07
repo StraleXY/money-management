@@ -55,7 +55,10 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.RangeChanged -> {
                 toggleCategoryBar(selectedCategoryId)
-                _state.value = _state.value.copy(dateRange = event.range)
+                _state.value = _state.value.copy(
+                    dateRange = event.range,
+                    isToday = event.isToday
+                )
                 getFinances()
             }
             is HomeEvent.CategoryClicked -> {

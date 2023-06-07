@@ -12,6 +12,7 @@ data class HomeState(
     val results: List<Finance> = emptyList(),
 
     val dateRange: Pair<Long, Long> = Pair(System.currentTimeMillis(), System.currentTimeMillis()),
+    val isToday: Boolean = true,
     val totalPerCategory: List<CategoryAmount> = emptyList(),
     val categoryBarStates: HashMap<Int, MutableState<CategoryBarState>> = HashMap(),
     val earningsPerTimePeriod: List<GraphEntry> = emptyList(),
