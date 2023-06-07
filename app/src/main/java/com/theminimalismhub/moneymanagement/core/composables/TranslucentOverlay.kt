@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.core.graphics.ColorUtils
 
@@ -24,7 +25,6 @@ fun TranslucentOverlay(
     visible: Boolean
 ) {
     val focusManager = LocalFocusManager.current
-
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -33,7 +33,10 @@ fun TranslucentOverlay(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colors.surface.copy(0.95f,0.05f,0.05f, 0.05f))
+                .background(
+                    if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (0.95f * 255L).toInt()))
+                    else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (0.95f * 255L).toInt()))
+                )
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null

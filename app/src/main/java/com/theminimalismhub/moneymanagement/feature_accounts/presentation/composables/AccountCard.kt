@@ -64,15 +64,16 @@ fun AccountCardMini(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { onClick() }
-            .alpha(animateFloatAsState(targetValue = if (selected) 1f else 0.5f).value),
+            ) { onClick() },
         shape = RoundedCornerShape(15.dp),
-        elevation = 8.dp
+        elevation = 8.dp,
+        backgroundColor = Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), if(selected) 0f else 0.1f))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 18.dp, horizontal = 26.dp),
+                .padding(vertical = 18.dp, horizontal = 26.dp)
+                .alpha(animateFloatAsState(targetValue = if (selected) 1f else 0.5f).value),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

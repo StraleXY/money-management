@@ -1,8 +1,10 @@
 package com.theminimalismhub.moneymanagement.core.composables
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
@@ -30,14 +32,14 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ActionChip(
-    modifier: Modifier = Modifier
-        .padding(5.dp),
+    modifier: Modifier = Modifier.padding(5.dp),
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.body1,
     textColor: Color = MaterialTheme.colors.onBackground,
     accentColor: Color = textColor,
     backgroundColor: Color = accentColor,
     borderColor: Color = accentColor,
+    backgroundTint: Color = MaterialTheme.colors.secondaryVariant,
     borderThickness: Dp = 1.dp,
     backgroundStrength: Float = 0.15f,
     borderStrength: Float = 0.8f,
@@ -45,28 +47,23 @@ fun ActionChip(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    val animatedAlpha = animateFloatAsState(targetValue = if(enabled) 1f else 0.5f)
+    val animatedAlpha = animateFloatAsState(targetValue = if(enabled) 1f else 0.5f, tween(100))
     Card(
         modifier = modifier
             .height(38.dp)
             .alpha(animatedAlpha.value),
-        elevation = Dp(if(backgroundStrength == 0f) 0f else 8f),
         shape = RoundedCornerShape(30.dp),
         border = if(borderThickness == 0.dp) null else BorderStroke(borderThickness, Color(ColorUtils.blendARGB(Color.Black.toArgb(), borderColor.toArgb(), borderStrength))),
-        backgroundColor = if(backgroundStrength == 0f) Color.Transparent else Color(ColorUtils.setAlphaComponent(backgroundColor.toArgb(),
-            (backgroundStrength * 255L).roundToInt()
-        ))
-
+        elevation = Dp(if(backgroundStrength == 0f) 0f else 6f),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
+                .background(if(backgroundStrength == 0f) Color.Transparent else Color(ColorUtils.blendARGB(backgroundTint.toArgb(), backgroundColor.toArgb(), backgroundStrength)))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = if(enabled) LocalIndication.current else null
-                ) {
-                    if(enabled) onClick()
-                }
+                ) { if(enabled) onClick() }
         ) {
             if (icon != null) {
                 Icon(

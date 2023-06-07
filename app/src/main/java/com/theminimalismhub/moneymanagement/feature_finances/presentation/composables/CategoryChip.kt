@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.compo
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,9 +18,8 @@ fun CategoryChip(
     onToggled: (Boolean) -> Unit = {},
     isToggled: Boolean = false
 ) {
-    val backgroundStrength = animateFloatAsState(targetValue = if(isToggled) 1f else 0.13f, tween(durationMillis = 300))
-    val backgroundColor = animateColorAsState(targetValue = if(isToggled) color else Color.White, tween(durationMillis = 250))
-    val textColor = animateColorAsState(targetValue = if(isToggled) Color.Black else Color.White, tween(durationMillis = 250))
+    val backgroundColor = animateColorAsState(targetValue = if(isToggled) color else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
+    val textColor = animateColorAsState(targetValue = if(isToggled) Color.Black else MaterialTheme.colors.onSurface, tween(durationMillis = 250))
 
     ActionChip(
         modifier = modifier,
@@ -27,9 +27,7 @@ fun CategoryChip(
         textColor = textColor.value,
         backgroundColor = backgroundColor.value,
         borderThickness = 0.dp,
-        onClick = {
-            onToggled(!isToggled)
-        },
-        backgroundStrength = backgroundStrength.value
+        onClick = { onToggled(!isToggled) },
+        backgroundStrength = 1f
     )
 }

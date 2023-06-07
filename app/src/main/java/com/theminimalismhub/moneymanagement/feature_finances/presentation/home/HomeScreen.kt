@@ -64,9 +64,9 @@ fun HomeScreen(
         scaffoldState = backdropScaffoldState,
         peekHeight = 0.dp,
         backLayerBackgroundColor = MaterialTheme.colors.background,
-        frontLayerScrimColor = MaterialTheme.colors.surface.copy(
-            0.8f,0.05f,0.05f, 0.05f
-        ),
+        frontLayerScrimColor =
+            if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (0.95f * 255L).toInt()))
+            else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (0.95f * 255L).toInt())),
         frontLayerElevation = 2.dp,
         gesturesEnabled = !state.isAddEditOpen,
         appBar = {

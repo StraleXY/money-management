@@ -206,6 +206,7 @@ private fun CategoryContainer(
                 text = category.name,
                 textColor = Color(category.color),
                 backgroundStrength = 0.15f,
+                backgroundTint = MaterialTheme.colors.surface,
                 borderThickness = 0.dp,
                 onClick = { onClick(category) }
             )

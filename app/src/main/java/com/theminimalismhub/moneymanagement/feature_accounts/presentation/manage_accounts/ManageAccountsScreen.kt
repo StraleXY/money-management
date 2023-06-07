@@ -215,7 +215,7 @@ fun SlidingCard(
                         .clip(RoundedCornerShape(15.dp))
                         .shadow(8.dp)
                         .heightIn(screenHeight - accountsPagerHeight + 160.dp)
-                        .background(Color(0XFF212121))
+                        .background(MaterialTheme.colors.surface)
                 ) {
                     content()
                     Spacer(modifier = Modifier.height(160.dp))
