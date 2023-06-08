@@ -35,6 +35,7 @@ import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
@@ -105,7 +106,7 @@ fun AddEditFinanceCard(
                 state.categoryStates[category.categoryId!!]?.let {
                     CategoryChip(
                         text = category.name,
-                        color = Color(category.color),
+                        color = Colorer.getAdjustedDarkColor(category.color),
                         isToggled = it.value,
                         onToggled = { categorySelected(category.categoryId) }
                     )

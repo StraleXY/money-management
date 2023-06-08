@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.AutoResizeText
 import com.theminimalismhub.moneymanagement.core.composables.FontSizeRange
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.ui.theme.economica
 import kotlin.math.abs
@@ -58,22 +59,10 @@ fun CategoryBar(
         val fraction = normalize((x / maxAmount.coerceAtLeast(1.0)))
         return (fraction * 0.7f).toFloat().coerceAtLeast(0.05f)
     }
-    @Composable
-    fun getColor() : Color {
-        if(MaterialTheme.colors.isLight) {
-            val hsl: FloatArray = FloatArray(3)
-            ColorUtils.colorToHSL(categoryInfo.color, hsl)
-            hsl[2] -= 0.15f.coerceAtMost(hsl[2])
-            hsl[1] -= 0.25f.coerceAtMost(hsl[1])
-            return Color(ColorUtils.HSLToColor(hsl))
-            //return Color(ColorUtils.blendARGB(categoryInfo.color, Color.Black.toArgb(), 0.2f))
-        }
-        return Color(categoryInfo.color)
-    }
     // val animatedScale = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.95f else 1f)
     val animatedWidth = remember { Animatable(0.045f) }
     val animatedAlpha = animateFloatAsState(targetValue = if(animatedWidth.value == 0.045f) 0f else if(state == CategoryBarState.DESELECTED) 0.5f else 1f, tween(250))
-    val animatedColor by animateColorAsState(targetValue = getColor(), tween(200))
+    val animatedColor by animateColorAsState(targetValue = Colorer.getAdjustedDarkColor(categoryInfo.color), tween(200))
 
     LaunchedEffect(categoryInfo) {
         val width = calc(categoryInfo.amount)

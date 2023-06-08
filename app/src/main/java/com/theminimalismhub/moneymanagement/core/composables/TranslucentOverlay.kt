@@ -35,7 +35,7 @@ fun TranslucentOverlay(
                 .fillMaxSize()
                 .background(
                     if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (0.95f * 255L).toInt()))
-                    else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (0.95f * 255L).toInt()))
+                    else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.background.toArgb(), (0.95f * 255L).toInt()))
                 )
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },

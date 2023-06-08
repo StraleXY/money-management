@@ -36,8 +36,16 @@ fun HarmonyColorPicker(
     harmonyMode: ColorHarmonyMode = ColorHarmonyMode.NONE,
     color: HSVColor,
     isBrightnessFixed: Boolean = true,
+    value: Float = 1f,
     onColorChanged: (HSVColor) -> Unit
 ) {
+    val updatedColor by rememberUpdatedState(color)
+    val updatedOnValueChanged by rememberUpdatedState(onColorChanged)
+
+    LaunchedEffect(value) {
+        updatedOnValueChanged(updatedColor.copy(value = value))
+    }
+
     BoxWithConstraints(modifier) {
         Column(
             Modifier
@@ -45,17 +53,13 @@ fun HarmonyColorPicker(
                 .fillMaxHeight()
                 .fillMaxWidth()
         ) {
-            val updatedColor by rememberUpdatedState(color)
-            val updatedOnValueChanged by rememberUpdatedState(onColorChanged)
 
             HarmonyColorPickerWithMagnifiers(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.8f),
                 hsvColor = updatedColor,
-                onColorChanged = {
-                    updatedOnValueChanged(it)
-                },
+                onColorChanged = { updatedOnValueChanged(it) },
                 harmonyMode = harmonyMode
             )
             if (isBrightnessFixed) {
@@ -65,9 +69,7 @@ fun HarmonyColorPicker(
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth()
                         .weight(0.2f),
-                    onValueChange = { value ->
-                        updatedOnValueChanged(updatedColor.copy(value = value))
-                    },
+                    onValueChange = { value -> updatedOnValueChanged(updatedColor.copy(value = value)) },
                     currentColor = updatedColor
                 )
             }

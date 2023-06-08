@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 
 @Composable
 fun CategoryChip(
@@ -18,8 +19,15 @@ fun CategoryChip(
     onToggled: (Boolean) -> Unit = {},
     isToggled: Boolean = false
 ) {
+
+    @Composable
+    fun getTextColor() : Color {
+        return if(MaterialTheme.colors.isLight) Color.White
+        else Color.Black
+    }
+
     val backgroundColor = animateColorAsState(targetValue = if(isToggled) color else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
-    val textColor = animateColorAsState(targetValue = if(isToggled) Color.Black else MaterialTheme.colors.onSurface, tween(durationMillis = 250))
+    val textColor = animateColorAsState(targetValue = if(isToggled) getTextColor() else MaterialTheme.colors.onSurface, tween(durationMillis = 250))
 
     ActionChip(
         modifier = modifier,
