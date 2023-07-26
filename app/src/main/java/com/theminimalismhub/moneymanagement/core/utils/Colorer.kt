@@ -12,14 +12,13 @@ class Colorer {
 
         @Composable
         fun getAdjustedDarkColor(color: Int) : Color {
-            if(MaterialTheme.colors.isLight) {
-                // Option 2 - Simple Black Overlay
-                 return Color(ColorUtils.blendARGB(color, Color(0.05f, 0.05f, 0.05f).toArgb(), color.luminance/2.5f))
+            return if (MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(color, Color(0.05f, 0.05f, 0.05f).toArgb(), color.luminance/2.5f))
+            else Color(color)
+        }
 
-                // Option 3 - Something else
-//                return darkenColor(Color(color), 0.25f)
-            }
-            return Color(color)
+        fun getAdjustedDarkColor(color: Int, isLight: Boolean) : Color {
+            return if (isLight) Color(ColorUtils.blendARGB(color, Color(0.05f, 0.05f, 0.05f).toArgb(), color.luminance/2.5f))
+            else Color(color)
         }
 
         fun darkenColor(color: Color, fraction: Float): Color {

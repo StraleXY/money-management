@@ -1,5 +1,8 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import androidx.compose.material.Colors
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -7,6 +10,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
@@ -27,14 +31,13 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val addEditService = AddEditFinanceService(viewModelScope, addEditFinanceUseCases, preferences)
+    lateinit var colors: Colors
     fun onEvent(event: AddEditFinanceEvent) { addEditService.onEvent(event) }
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
-
     private var selectedCategoryId: Int? = null
     val rangeService = RangePickerService()
-
     private var selectedAccountId: Int? = null
 
     init {
@@ -48,6 +51,9 @@ class HomeViewModel @Inject constructor(
     }
     fun onEvent(event: HomeEvent) {
         when(event) {
+            is HomeEvent.Init -> {
+                colors = event.colors
+            }
             is HomeEvent.ToggleAddEditCard -> {
                 _state.value = _state.value.copy(isAddEditOpen = !_state.value.isAddEditOpen)
                 if(!_state.value.isAddEditOpen) return
@@ -152,7 +158,9 @@ class HomeViewModel @Inject constructor(
                 range = _state.value.dateRange,
                 type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
                 items = _state.value.results,
-                color = if(selectedCategoryId == null) Color.White.toArgb() else _state.value.totalPerCategory.first{ it.categoryId == selectedCategoryId }.color
+                color =
+                    if(selectedCategoryId == null) colors.onSurface.toArgb()
+                    else Colorer.getAdjustedDarkColor(_state.value.totalPerCategory.first{ it.categoryId == selectedCategoryId }.color, colors.isLight).toArgb()
             )
         )
         if(selectedCategoryId == null) {

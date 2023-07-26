@@ -58,6 +58,7 @@ fun Graph(
     val context = LocalContext.current
 
     val limitReachedColor = MaterialTheme.colors.error.toArgb()
+    val basedColor = MaterialTheme.colors.onSurface.toArgb()
     var renderJob: Job? = null
 
     LaunchedEffect(earnings) {
@@ -130,7 +131,7 @@ fun Graph(
                                 (totalHeight.toPx() - width + 13.sp.toPx()/2) / 2 + prev.x,
                                 Paint().apply {
                                     color = if(prevEarning!!.value == 0.0) ColorUtils.setAlphaComponent(
-                                        Color.White.toArgb(), 150) else prevEarning!!.color
+                                        basedColor, 150) else prevEarning!!.color
                                     textSize = 13.sp.toPx()
                                     textAlign = Paint.Align.RIGHT
                                     typeface = if(prevEarning!!.value == 0.0) ResourcesCompat.getFont(context, R.font.tw_extra_light) else ResourcesCompat.getFont(context, R.font.tw_regular)
@@ -167,7 +168,7 @@ fun Graph(
                         (totalHeight.toPx() - width + 13.sp.toPx()/2) / 2 + prev.x,
                         Paint().apply {
                             color = if(prevEarning!!.value == 0.0) ColorUtils.setAlphaComponent(
-                                Color.White.toArgb(), 115) else prevEarning!!.color
+                                basedColor, 115) else prevEarning!!.color
                             textSize = 13.sp.toPx()
                             textAlign = Paint.Align.RIGHT
                             typeface = if(prevEarning!!.value == 0.0) ResourcesCompat.getFont(context, R.font.tw_extra_light) else ResourcesCompat.getFont(context, R.font.tw_regular)

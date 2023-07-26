@@ -54,6 +54,7 @@ fun HomeScreen(
 
     val state = vm.state.value
     val scaffoldState = rememberScaffoldState()
+    vm.colors = MaterialTheme.colors
 
     BackHandler(enabled = state.isAddEditOpen) {
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
