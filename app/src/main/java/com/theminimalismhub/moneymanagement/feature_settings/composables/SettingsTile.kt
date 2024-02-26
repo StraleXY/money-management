@@ -89,6 +89,7 @@ fun SettingsTile(
     descriptionColor: Color = MaterialTheme.colors.primaryVariant,
     enabled: Boolean = true,
     fieldState: TextFieldState,
+    inputType: KeyboardType,
     onValChanged: (String) -> Unit
 ) {
 
@@ -131,7 +132,7 @@ fun SettingsTile(
             textStyle = MaterialTheme.typography.body1.copy(fontSize = 19.sp, textAlign = TextAlign.Center),
 //            label = { Text(text = "Amount") },
             isError = false,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions(keyboardType = inputType, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 unfocusedBorderColor = MaterialTheme.colors.secondaryVariant,

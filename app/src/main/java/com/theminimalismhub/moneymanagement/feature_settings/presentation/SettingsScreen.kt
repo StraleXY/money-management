@@ -16,6 +16,7 @@ import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dsc.form_builder.TextFieldState
@@ -86,12 +87,24 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            SettingsSegment(name = "GENERAL")
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Currency",
+                description = "Change the display currency trough-out the app; Please reset the app to ensure that the changes take effect.",
+                fieldState = vm.formState.getState("currency"),
+                inputType = KeyboardType.Text,
+                onValChanged = { vm.onEvent(SettingsEvent.OnCurrencyChanged(it)) }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
             SettingsSegment(name = "LIMITS")
             Spacer(modifier = Modifier.height(16.dp))
             SettingsTile(
                 title = "Daily Limit",
                 description = "After updating the value, please reset the app to ensure that the changes take effect.",
                 fieldState = vm.formState.getState("limit"),
+                inputType = KeyboardType.Number,
                 onValChanged = { vm.onEvent(SettingsEvent.OnDailyLimitChanged(it)) }
             )
             Spacer(modifier = Modifier.height(24.dp))

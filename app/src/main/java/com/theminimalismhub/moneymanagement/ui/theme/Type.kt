@@ -59,7 +59,7 @@ val Typography = Typography(
     body1 = TextStyle(
         fontFamily = titilium,
         fontWeight = FontWeight.Normal,
-        fontSize = 17.sp
+        fontSize = 16.sp
     ),
     body2 = TextStyle(
         fontFamily = titilium,

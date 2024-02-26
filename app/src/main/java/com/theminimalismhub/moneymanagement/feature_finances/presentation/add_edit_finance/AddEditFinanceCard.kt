@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -34,12 +35,14 @@ import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import kotlinx.coroutines.delay
 import java.util.*
 
 @Composable
@@ -60,6 +63,17 @@ fun AddEditFinanceCard(
     val focusManager = LocalFocusManager.current
     val name: TextFieldState = form.getState("name")
     val amount: TextFieldState = form.getState("amount")
+    val categoryListState = rememberLazyListState()
+    val accountListState = rememberLazyListState()
+
+    LaunchedEffect(state.selectedCategoryId) {
+        if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
+        categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
+    }
+    LaunchedEffect(state.selectedAccountId) {
+        if(state.selectedAccountId == null || state.accounts.isEmpty()) return@LaunchedEffect
+        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+    }
 
     FloatingCard(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -67,7 +81,9 @@ fun AddEditFinanceCard(
         header = {
             AccountsList(
                 accounts = state.accounts,
-                states = state.accountStates
+                states = state.accountStates,
+                currency = state.currency,
+                listState = accountListState
             ) { accountSelected(it) }
         }
     ) {
@@ -75,7 +91,8 @@ fun AddEditFinanceCard(
             modifier = Modifier
                 .fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 34.dp),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
+            state = categoryListState
         ) {
             item {
                 CircularTypeSelector(
@@ -89,7 +106,7 @@ fun AddEditFinanceCard(
                 state.categoryStates[category.categoryId!!]?.let {
                     CategoryChip(
                         text = category.name,
-                        color = Color(category.color),
+                        color = Colorer.getAdjustedDarkColor(category.color),
                         isToggled = it.value,
                         onToggled = { categorySelected(category.categoryId) }
                     )

@@ -36,6 +36,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_ed
 @Composable
 fun TransactionCard(
     isOpen: Boolean,
+    currency: String,
     form: FormState<TextFieldState>,
     accountFrom: Account?,
     accounts: List<Account>,
@@ -62,6 +63,7 @@ fun TransactionCard(
                     AccountCardLarge(
                         modifier = Modifier.scale(1.075f),
                         account = accountFrom,
+                        currency = currency,
                         balanceDelta = try { -amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
                         scale = 1.025f,
                         overlayStrength = 0.1f
@@ -71,6 +73,7 @@ fun TransactionCard(
                 Icon(imageVector = Icons.Default.South, contentDescription = Icons.Default.South.name)
                 AccountsPager(
                     accounts = accounts,
+                    currency = currency,
                     balanceDelta = try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
                     pagerState = rememberPagerState(
                         pageCount = accounts.size,

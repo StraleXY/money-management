@@ -1,5 +1,8 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import android.util.Log
+import android.view.animation.OvershootInterpolator
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,12 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.AutoResizeText
 import com.theminimalismhub.moneymanagement.core.composables.FontSizeRange
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.ui.theme.economica
+import kotlin.math.abs
 
 data class CategoryAmount(
     val categoryId: Int,
@@ -51,17 +59,21 @@ fun CategoryBar(
         val fraction = normalize((x / maxAmount.coerceAtLeast(1.0)))
         return (fraction * 0.7f).toFloat().coerceAtLeast(0.05f)
     }
-    val animatedScale = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.95f else 1f)
-    val animatedAlpha = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.5f else 1f)
-    val animatedWidth = remember { Animatable(calc(categoryInfo.amount)) }
+    // val animatedScale = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.95f else 1f)
+    val animatedWidth = remember { Animatable(0.045f) }
+    val animatedAlpha = animateFloatAsState(targetValue = if(animatedWidth.value == 0.045f) 0f else if(state == CategoryBarState.DESELECTED) 0.5f else 1f, tween(250))
+    val animatedColor by animateColorAsState(targetValue = Colorer.getAdjustedDarkColor(categoryInfo.color), tween(200))
 
     LaunchedEffect(categoryInfo) {
+        val width = calc(categoryInfo.amount)
+        val prevWidth = animatedWidth.value
+        val duration: Int = (abs(width - animatedWidth.value) * 1400).toInt().coerceAtLeast(400).coerceAtMost(1200)
         animatedWidth.animateTo(
             targetValue = calc(categoryInfo.amount),
             animationSpec = keyframes {
-                durationMillis = 1000
-                0.05f at 0 with FastOutSlowInEasing
-                calc(categoryInfo.amount) at 1000
+                durationMillis = duration
+                prevWidth at 0 with Easing { OvershootInterpolator(1f).getInterpolation(it) }
+                width at duration with Easing { OvershootInterpolator(1f).getInterpolation(it) }
             }
         )
     }
@@ -84,7 +96,7 @@ fun CategoryBar(
                 .fillMaxWidth(animatedWidth.value)
                 .height(42.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color(categoryInfo.color)),
+                .background(animatedColor),
             content = {}
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -102,8 +114,8 @@ fun CategoryBar(
                 style = MaterialTheme.typography.body1,
             )
             Text(
-                text = "${categoryInfo.amount.toInt()} $currency",
-                color = Color(categoryInfo.color),
+                text = "${Currencier.formatAmount(categoryInfo.amount)} $currency",
+                color = animatedColor,
                 style = MaterialTheme.typography.body1.copy(
                     fontFamily = economica,
                     fontSize = 20.sp

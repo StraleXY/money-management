@@ -20,13 +20,19 @@ class PreferencesImpl constructor(
 
     private object KEYS {
         const val SIMPLE_LIMIT_KEY: String = "simple_limit_key"
+        const val CURRENCY_KEY: String = "currency_key"
     }
 
     override fun getSimpleLimit(): Float {
         return LocalStorage.getFloat(context, PREFERENCES_NAME, KEYS.SIMPLE_LIMIT_KEY, 1000f)
     }
-
     override fun setSimpleLimit(value: Float) {
         LocalStorage.putFloat(context, PREFERENCES_NAME, KEYS.SIMPLE_LIMIT_KEY, value)
+    }
+    override fun getCurrency(): String {
+        return LocalStorage.getString(context, PREFERENCES_NAME, KEYS.CURRENCY_KEY)
+    }
+    override fun setCurrency(value: String) {
+        LocalStorage.putString(context, PREFERENCES_NAME, KEYS.CURRENCY_KEY, value)
     }
 }

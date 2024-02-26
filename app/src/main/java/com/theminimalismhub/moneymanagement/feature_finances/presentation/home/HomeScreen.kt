@@ -5,6 +5,7 @@ import android.icu.text.ListFormatter.Width
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,9 +16,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -30,12 +36,13 @@ import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenD
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddNewAccount
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
 import java.util.*
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RootNavGraph(start = true)
 @Destination(style = BaseTransition::class)
@@ -47,6 +54,7 @@ fun HomeScreen(
 
     val state = vm.state.value
     val scaffoldState = rememberScaffoldState()
+    vm.colors = MaterialTheme.colors
 
     BackHandler(enabled = state.isAddEditOpen) {
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
@@ -57,9 +65,9 @@ fun HomeScreen(
         scaffoldState = backdropScaffoldState,
         peekHeight = 0.dp,
         backLayerBackgroundColor = MaterialTheme.colors.background,
-        frontLayerScrimColor = MaterialTheme.colors.surface.copy(
-            0.8f,0.05f,0.05f, 0.05f
-        ),
+        frontLayerScrimColor =
+            if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (0.95f * 255L).toInt()))
+            else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (0.95f * 255L).toInt())),
         frontLayerElevation = 2.dp,
         gesturesEnabled = !state.isAddEditOpen,
         appBar = {
@@ -81,7 +89,8 @@ fun HomeScreen(
                     AccountCardLarge(
                         account = account,
                         totalPerCategory = state.totalsPerAccount[account.accountId] ?: emptyList(),
-                        maxAmount = if(!state.totalsPerAccount.containsKey(account.accountId) || state.totalsPerAccount[account.accountId]!!.isEmpty()) 0.0 else state.totalsPerAccount[account.accountId]!!.maxOf { it.amount }
+                        maxAmount = if(!state.totalsPerAccount.containsKey(account.accountId) || state.totalsPerAccount[account.accountId]!!.isEmpty()) 0.0 else state.totalsPerAccount[account.accountId]!!.maxOf { it.amount },
+                        currency = state.currency
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
@@ -99,7 +108,7 @@ fun HomeScreen(
                 // HOME CONTENT
                 Box(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
-                        contentPadding = PaddingValues(bottom = 20.dp),
+                        contentPadding = PaddingValues(bottom = 84.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -107,7 +116,8 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(36.dp))
                             RangePicker(
                                 rangeService = vm.rangeService,
-                                rangePicked = { vm.onEvent(HomeEvent.RangeChanged(it)) }
+                                isToday = state.isToday,
+                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
                             )
                             QuickSpendingOverview(
                                 modifier = Modifier
@@ -115,7 +125,8 @@ fun HomeScreen(
                                 amount = state.quickSpendingAmount,
                                 rangeLength = vm.rangeService.rangeLength,
                                 limit = state.limit,
-                                limitHidden = state.itemsTypeStates[2]!!.value
+                                limitHidden = state.itemsTypeStates[2]!!.value,
+                                currency = state.currency
                             )
                             ItemsTypeSelector(
                                 modifier = Modifier
@@ -123,6 +134,24 @@ fun HomeScreen(
                                 itemsTypeStates = state.itemsTypeStates,
                                 itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
                             )
+                            AnimatedVisibility(
+                                visible = state.itemsTypeStates[2]!!.value,
+                                enter = expandVertically(tween(400))
+                                        + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
+                                        + fadeIn(tween(300, 450)),
+                                exit = scaleOut(targetScale = 0.9f, animationSpec = tween(300))
+                                        + fadeOut(tween(300))
+                                        + shrinkVertically(tween(450, 250))
+                            ) {
+                                AccountsList(
+                                    modifier = Modifier.padding(bottom = 12.dp),
+                                    spacing = 8.dp,
+                                    contentPadding = PaddingValues(horizontal = 20.dp),
+                                    accounts = state.accounts,
+                                    states = state.accountStates,
+                                    currency = state.currency
+                                ) { vm.onEvent(HomeEvent.AccountClicked(it)) }
+                            }
                             AnimatedVisibility(
                                 visible = vm.rangeService.rangeLength > 1,
                                 enter = expandVertically(tween(400))
@@ -136,18 +165,22 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .padding(horizontal = 20.dp),
                                     earningsPerTimePeriod = state.earningsPerTimePeriod,
-                                    maxEarnings = state.maxEarnings
+                                    maxEarnings = state.maxEarnings,
+                                    limit = state.limit
                                 )
                             }
                             CategoryTotalsOverview(
                                 totalPerCategory = state.totalPerCategory,
-                                categoryBarStates = state.categoryBarStates
+                                categoryBarStates = state.categoryBarStates,
+                                currency = state.currency
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                         }
                         items(state.results) {
                             FinanceCard(
+                                modifier = Modifier.padding(horizontal = 4.dp),
                                 finance = it,
                                 previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                                currency = state.currency,
                                 onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -171,7 +204,6 @@ fun HomeScreen(
             }
         }
     )
-
 }
 
 @Composable
@@ -240,9 +272,9 @@ private fun ItemsTypeSelector(
         modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
-        backgroundColor = MaterialTheme.colors.surface.copy(
-            red = 0.1f, green = 0.1f, blue = 0.1f
-        ),
+        backgroundColor =
+            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
+            else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
         elevation = 4.dp
     ) {
         Row(

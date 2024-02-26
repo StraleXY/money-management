@@ -16,18 +16,25 @@ class FinanceRepoImpl constructor(
         if (categoryId == null) return dao.getAll(range.first, range.second, types, tracked)
         return dao.getAll(range.first, range.second, tracked, categoryId)
     }
+    override fun getAll(range: Pair<Long, Long>, categoryId: Int?, accountId: Int, types: List<FinanceType>, tracked: List<Boolean>): Flow<List<Finance>> {
+        if (categoryId == null) return dao.getAll(range.first, range.second, accountId, types)
+        return dao.getAll(range.first, range.second, tracked, categoryId, accountId)
+    }
 
     override fun getAll(range: Pair<Long, Long>, accountId: Int, types: List<FinanceType>): Flow<List<Finance>> {
         return dao.getAll(range.first, range.second, accountId, types)
     }
 
-    override fun getPerCategory(range: Pair<Long, Long>, type: FinanceType, tracked: List<Boolean>): Flow<List<CategoryAmount>> {
-        return dao.getPerCategory(range.first, range.second, type, tracked)
+    override fun getPerCategory(range: Pair<Long, Long>, type: FinanceType, accountId: Int?, tracked: List<Boolean>): Flow<List<CategoryAmount>> {
+        if(accountId == null) return dao.getPerCategory(range.first, range.second, type, tracked)
+        return dao.getPerCategory(range.first, range.second, type, accountId, tracked)
     }
 
-    override suspend fun getAmountForTimePeriod(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, tracked: List<Boolean>): Double {
-        if (categoryId == null) return dao.getSpending(range.first, range.second, type, tracked)
-        else return dao.getSpending(range.first, range.second, categoryId, tracked)
+    override suspend fun getAmountForTimePeriod(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, accountId: Int?, tracked: List<Boolean>): Double {
+        return if (categoryId == null && accountId == null) dao.getSpending(range.first, range.second, type, tracked)
+        else if(categoryId != null && accountId == null) dao.getSpendingByCategory(range.first, range.second, categoryId, type, tracked)
+        else if (categoryId == null && accountId != null) dao.getSpendingByAccount(range.first, range.second, accountId, type, tracked)
+        else dao.getSpending(range.first, range.second, categoryId!!, accountId!!, type, tracked)
     }
 
     override suspend fun getById(id: Int): Finance? {

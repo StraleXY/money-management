@@ -4,6 +4,6 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.Ge
 
 data class HomeUseCases(
     val getFinances: GetFinances,
-    val getTotalPerCategory: GetTotalPerCategory,
+    val getTotalPerDay: GetTotalPerDay,
     val getAccounts: GetAccounts
 )

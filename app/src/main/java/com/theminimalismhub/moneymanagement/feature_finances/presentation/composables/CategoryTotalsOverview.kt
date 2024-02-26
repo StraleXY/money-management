@@ -1,8 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -11,7 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBar
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBarState
@@ -21,6 +23,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.C
 fun CategoryTotalsOverview(
     totalPerCategory: List<CategoryAmount>,
     categoryBarStates: HashMap<Int, MutableState<CategoryBarState>>,
+    currency: String = "RSD",
     onClick: (Int) -> Unit
 ) {
     Card(
@@ -28,21 +31,26 @@ fun CategoryTotalsOverview(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .fillMaxWidth(),
-        backgroundColor = MaterialTheme.colors.surface.copy(
-            red = 0.1f, green = 0.1f, blue = 0.1f
-        ),
+        backgroundColor =
+            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
+            else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
         elevation = 4.dp
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .padding(20.dp),
-            horizontalAlignment = Alignment.Start
+                .padding(20.dp)
+                .animateContentSize()
         ) {
-            if(totalPerCategory.isEmpty()) ErrorNoData()
+            AnimatedVisibility(
+                visible = totalPerCategory.isEmpty(),
+                enter = fadeIn(tween(100, 150)),
+                exit = fadeOut(tween(100))
+            ) { ErrorNoData() }
+
             AnimatedVisibility(
                 visible = totalPerCategory.isNotEmpty(),
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = fadeIn(tween(250)),
+                exit = fadeOut(tween(250))
             ) {
                 Column(horizontalAlignment = Alignment.Start) {
                     totalPerCategory.forEach { earnings ->
@@ -51,12 +59,12 @@ fun CategoryTotalsOverview(
                             categoryInfo = earnings,
                             maxAmount = totalPerCategory.maxOf { it.amount } + totalPerCategory.minOf { it.amount } * 0.01,
                             state = categoryBarStates[earnings.categoryId]!!.value,
-                            clicked = onClick
+                            clicked = onClick,
+                            currency = currency
                         )
                     }
                 }
             }
-
         }
     }
     Spacer(modifier = Modifier.height(24.dp))

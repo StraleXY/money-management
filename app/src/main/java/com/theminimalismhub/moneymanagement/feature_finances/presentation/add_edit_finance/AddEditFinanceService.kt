@@ -7,12 +7,15 @@ import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -20,7 +23,8 @@ import java.util.HashMap
 
 class AddEditFinanceService(
     private val scope: CoroutineScope,
-    private val useCases: AddEditFinanceUseCases
+    private val useCases: AddEditFinanceUseCases,
+    private val preferences: Preferences
 ) {
 
     private val _state = mutableStateOf(AddEditFinanceState())
@@ -33,6 +37,7 @@ class AddEditFinanceService(
 
     init {
         getCategories()
+        _state.value = _state.value.copy(currency = preferences.getCurrency())
     }
 
     val formState = FormState(
@@ -43,7 +48,7 @@ class AddEditFinanceService(
             ),
             TextFieldState(
                 name = "amount",
-                validators = listOf(Validators.MinValue(0, "Amount must be higher than 0"), Validators.Required()),
+                validators = listOf(Validators.Required()), //Validators.MinValue(0, "Amount must be higher than 0"),
             )
         )
     )
@@ -64,8 +69,8 @@ class AddEditFinanceService(
                     initialAccountId = null
                     initialAmount = 0.0
                 } else {
-                    selectCategoryType(_state.value.currentType)
-                    onEvent(AddEditFinanceEvent.CategorySelected(event.finance.finance.financeCategoryId!!))
+                    selectCategoryType(event.finance.category!!.type)
+                    event.finance.finance.financeCategoryId?.let { onEvent(AddEditFinanceEvent.CategorySelected(it)) }
                     _state.value = _state.value.copy(
                         currentFinanceId = event.finance.finance.id,
                         currentType = event.finance.finance.type,
@@ -74,7 +79,7 @@ class AddEditFinanceService(
                         currentTrackable = event.finance.finance.trackable
                     )
                     formState.fields[0].change(event.finance.finance.name)
-                    formState.fields[1].change(event.finance.finance.amount.toInt().toString())
+                    formState.fields[1].change(Currencier.formatAmount(event.finance.finance.amount))
                     onEvent(AddEditFinanceEvent.AccountSelected(event.finance.finance.financeAccountId))
                     initialAccountId = event.finance.finance.financeAccountId
                     initialAmount = event.finance.finance.amount

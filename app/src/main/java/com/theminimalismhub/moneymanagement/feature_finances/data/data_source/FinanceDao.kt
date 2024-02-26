@@ -25,19 +25,38 @@ interface FinanceDao {
     @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type != 'TRANSACTION' AND trackable IN (:tracked) ORDER BY timestamp ASC")
     fun getAll(from: Long, to: Long, tracked: List<Boolean>, categoryId: Int): Flow<List<Finance>>
 
+    @Transaction
+    @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type != 'TRANSACTION' AND trackable IN (:tracked) AND financeAccountId = :accountId ORDER BY timestamp ASC")
+    fun getAll(from: Long, to: Long, tracked: List<Boolean>, categoryId: Int, accountId: Int): Flow<List<Finance>>
+
     @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
             "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
             "WHERE timestamp >= :from AND timestamp <= :to AND Finance.type = :type AND Finance.trackable IN (:tracked) " +
             "GROUP BY financeCategoryId")
     fun getPerCategory(from: Long, to: Long, type: FinanceType, tracked: List<Boolean>): Flow<List<CategoryAmount>>
 
+    @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
+            "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
+            "WHERE timestamp >= :from AND timestamp <= :to AND Finance.type = :type AND Finance.trackable IN (:tracked) AND Finance.financeAccountId = :accountId " +
+            "GROUP BY financeCategoryId")
+    fun getPerCategory(from: Long, to: Long, type: FinanceType, accountId: Int, tracked: List<Boolean>): Flow<List<CategoryAmount>>
+
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
             "WHERE type = :type AND timestamp >= :from AND timestamp <= :to AND trackable IN (:tracked) ")
     suspend fun getSpending(from: Long, to: Long, type: FinanceType, tracked: List<Boolean>): Double
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
-            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND trackable IN (:tracked) ")
-    suspend fun getSpending(from: Long, to: Long, categoryId: Int, tracked: List<Boolean>): Double
+            "WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type = :type AND trackable IN (:tracked) ")
+    suspend fun getSpendingByCategory(from: Long, to: Long, categoryId: Int, type: FinanceType, tracked: List<Boolean>): Double
+
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
+            "WHERE financeAccountId = :accountId AND timestamp >= :from AND timestamp <= :to AND type = :type AND trackable IN (:tracked) ")
+    suspend fun getSpendingByAccount(from: Long, to: Long, accountId: Int, type: FinanceType, tracked: List<Boolean>): Double
+
+
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM Finance " +
+            "WHERE financeCategoryId = :categoryId AND financeAccountId = :accountId AND timestamp >= :from AND timestamp <= :to AND type = :type AND trackable IN (:tracked) ")
+    suspend fun getSpending(from: Long, to: Long, categoryId: Int, accountId: Int, type: FinanceType, tracked: List<Boolean>): Double
 
     @Transaction
     @Query("SELECT * FROM finance WHERE id = :id")

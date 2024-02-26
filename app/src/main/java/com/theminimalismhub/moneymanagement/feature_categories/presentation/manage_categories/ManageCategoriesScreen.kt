@@ -39,6 +39,7 @@ import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HarmonyColorPicker
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -148,7 +149,8 @@ fun ManageCategoriesScreen(
                 HarmonyColorPicker(
                     modifier = Modifier.size(275.dp),
                     color = state.currentColor,
-                    isBrightnessFixed = false
+                    isBrightnessFixed = false,
+                    value = if(MaterialTheme.colors.isLight) 0.82f else 1f
                 ) { color -> vm.onEvent(ManageCategoriesEvent.ColorChanged(color)) }
                 Spacer(modifier = Modifier.height(16.dp))
                 CRUDButtons(
@@ -204,8 +206,9 @@ private fun CategoryContainer(
             ActionChip(
                 modifier = Modifier.padding(3.dp),
                 text = category.name,
-                textColor = Color(category.color),
+                textColor = Colorer.getAdjustedDarkColor(category.color),
                 backgroundStrength = 0.15f,
+                backgroundTint = MaterialTheme.colors.surface,
                 borderThickness = 0.dp,
                 onClick = { onClick(category) }
             )
@@ -246,18 +249,10 @@ private fun InputCategoryChip(
         modifier = modifier
             .padding(5.dp)
             .height(38.dp)
-            .graphicsLayer {
-                rotationY = currentRotation
-            },
-        elevation = Dp(8f),
+            .graphicsLayer { rotationY = currentRotation },
+        elevation = Dp(6f),
         shape = RoundedCornerShape(30.dp),
-        backgroundColor = Color(
-            ColorUtils.setAlphaComponent(
-                color.toColor().toArgb(),
-                (0.1f * 255L).roundToInt()
-            )
-        )
-
+        backgroundColor =  Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), color.toColor().toArgb(), 0.12f))
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -286,7 +281,7 @@ private fun InputCategoryChip(
                     ) {
                         FramelessInputField(
                             text = if(!exclusions.contains(name)) name else text,
-                            textColor = color.toColor(),
+                            textColor = Colorer.getAdjustedDarkColor(color.toColor().toArgb()),
                             characterLimit = 30,
                             hint = stringResource(id = R.string.label_name),
                             enabled = enabled,
