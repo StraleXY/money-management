@@ -6,8 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,8 +30,14 @@ fun CategoryTotalsOverview(
     totalPerCategory: List<CategoryAmount>,
     categoryBarStates: HashMap<Int, MutableState<CategoryBarState>>,
     currency: String = "RSD",
+    collapsable: Boolean = false,
+    showCount: Boolean = false,
     onClick: (Int) -> Unit
 ) {
+    var showAmount by remember { mutableStateOf(5) }
+    fun toggleShowAmount() {
+        showAmount = if(showAmount < totalPerCategory.size) totalPerCategory.size else 5
+    }
     Card(
         shape = RoundedCornerShape(15.dp),
         modifier = Modifier
@@ -53,19 +65,34 @@ fun CategoryTotalsOverview(
                 exit = fadeOut(tween(250))
             ) {
                 Column(horizontalAlignment = Alignment.Start) {
-                    totalPerCategory.forEach { earnings ->
+                    totalPerCategory.take(if(collapsable) showAmount else totalPerCategory.size).forEach { earnings ->
                         CategoryBar(
                             modifier = Modifier.padding(vertical = 3.dp),
                             categoryInfo = earnings,
                             maxAmount = totalPerCategory.maxOf { it.amount } + totalPerCategory.minOf { it.amount } * 0.01,
                             state = categoryBarStates[earnings.categoryId]!!.value,
                             clicked = onClick,
-                            currency = currency
+                            currency = currency,
+                            showCount = showCount
                         )
                     }
                 }
             }
         }
     }
-    Spacer(modifier = Modifier.height(24.dp))
+    if (collapsable) Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        TextButton(
+            modifier = Modifier.padding(end = 24.dp),
+            onClick = { toggleShowAmount() }
+        ) {
+            Text(
+                text = if(showAmount < totalPerCategory.size) "SHOW ALL" else "COLLAPSE",
+                style = MaterialTheme.typography.button
+            )
+        }
+    }
+    else Spacer(modifier = Modifier.height(24.dp))
 }

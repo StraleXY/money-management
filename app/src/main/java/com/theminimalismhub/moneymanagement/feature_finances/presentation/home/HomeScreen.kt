@@ -33,6 +33,7 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
+import com.theminimalismhub.moneymanagement.destinations.ReportScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddNewAccount
@@ -217,20 +218,6 @@ private fun MainAppActions(
     ) {
         item {
             ActionChip(
-                text = "CATEGORIES",
-                icon = Icons.Default.Category,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageCategoriesScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
                 text = "ACCOUNTS",
                 icon = Icons.Default.AccountBalance,
                 textStyle = MaterialTheme.typography.button,
@@ -241,6 +228,34 @@ private fun MainAppActions(
                     .padding(bottom = 12.dp),
                 onClick = {
                     navigator.navigate(ManageAccountsScreenDestination())
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ActionChip(
+                text = "YEARLY REPORT",
+                icon = Icons.Default.BarChart,
+                textStyle = MaterialTheme.typography.button,
+                borderThickness = 1.dp,
+                accentColor = MaterialTheme.colors.primaryVariant,
+                backgroundStrength = 0f,
+                modifier = Modifier
+                    .padding(bottom = 12.dp),
+                onClick = {
+                    navigator.navigate(ReportScreenDestination())
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ActionChip(
+                text = "CATEGORIES",
+                icon = Icons.Default.Category,
+                textStyle = MaterialTheme.typography.button,
+                borderThickness = 1.dp,
+                accentColor = MaterialTheme.colors.primaryVariant,
+                backgroundStrength = 0f,
+                modifier = Modifier
+                    .padding(bottom = 12.dp),
+                onClick = {
+                    navigator.navigate(ManageCategoriesScreenDestination())
                 }
             )
             Spacer(modifier = Modifier.width(8.dp))
