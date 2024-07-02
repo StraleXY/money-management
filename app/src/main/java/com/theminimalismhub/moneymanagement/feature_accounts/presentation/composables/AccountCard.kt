@@ -39,6 +39,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColor
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import com.theminimalismhub.moneymanagement.ui.theme.credit_card
@@ -63,15 +64,16 @@ fun AccountCardMini(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { onClick() }
-            .alpha(animateFloatAsState(targetValue = if (selected) 1f else 0.5f).value),
+            ) { onClick() },
         shape = RoundedCornerShape(15.dp),
-        elevation = 8.dp
+        elevation = 8.dp,
+        backgroundColor = Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), if(selected) 0f else 0.1f))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 18.dp, horizontal = 26.dp),
+                .padding(vertical = 18.dp, horizontal = 26.dp)
+                .alpha(animateFloatAsState(targetValue = if (selected) 1f else 0.5f).value),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -81,7 +83,7 @@ fun AccountCardMini(
                     style = MaterialTheme.typography.body2
                 )
                 Text(
-                    text = "${balance.toInt()} $currency",
+                    text = "${Currencier.formatAmount(balance)} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontSize = 24.sp,
                         lineHeight = 24.sp
@@ -256,7 +258,7 @@ fun AccountCardLarge(
                     style = MaterialTheme.typography.body1
                 )
                 Text(
-                    text = "${(account.balance + balanceDelta).toInt()} $currency",
+                    text = "${Currencier.formatAmount(account.balance + balanceDelta)} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontFamily = economica,
                         fontSize = 40.sp
@@ -289,7 +291,7 @@ fun NewAccountExampleCard(
     balance: String,
     type: AccountType,
     description: String,
-    currency: String = "RSD",
+    currency: String,
     scale: Float = 1f,
     overlayStrength: Float = 0.05f
 ) {

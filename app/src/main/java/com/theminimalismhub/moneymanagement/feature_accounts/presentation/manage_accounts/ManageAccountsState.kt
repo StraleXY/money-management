@@ -7,6 +7,7 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Accoun
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 
 data class ManageAccountsState(
+    val currency: String = "RSD",
     val isAddEditOpen: Boolean = false,
     val isTransactionOpen: Boolean = false,
     val accounts: MutableList<Account> = mutableListOf(),

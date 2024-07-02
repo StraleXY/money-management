@@ -26,16 +26,16 @@ import java.util.*
 fun RangePicker(
     modifier: Modifier = Modifier,
     rangeService: RangePickerService,
-    rangePicked: (Pair<Long, Long>) -> Unit
+    rangePicked: (Pair<Long, Long>, Boolean) -> Unit,
+    isToday: Boolean = true
 ) {
 
     var rangePreview by remember { mutableStateOf(rangeService.formattedDate()) }
-    var isToday by remember { mutableStateOf(true) }
+//    var isToday by remember { mutableStateOf(today) }
 
     fun update() {
         rangePreview = rangeService.formattedDate()
-        isToday = rangeService.isToday()
-        rangePicked(Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp()))
+        rangePicked(Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp()), rangeService.isToday())
     }
 
     val picker = datePickerDialog(
@@ -115,7 +115,7 @@ fun RangePicker(
                 update()
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 

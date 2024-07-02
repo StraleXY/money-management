@@ -79,7 +79,7 @@ object AppModule {
     fun providesHomeUseCases(financeRepo: FinanceRepo, categoryRepo: CategoryRepo, accountRepo: AccountRepo): HomeUseCases {
         return HomeUseCases(
             getFinances = GetFinances(financeRepo),
-            getTotalPerCategory = GetTotalPerCategory(financeRepo, categoryRepo),
+            getTotalPerDay = GetTotalPerDay(financeRepo, categoryRepo),
             getAccounts = GetAccounts(accountRepo)
         )
     }

@@ -18,12 +18,17 @@ class SettingsViewModel @Inject constructor(
             TextFieldState(
                 name = "limit",
                 validators = listOf(Validators.Required()),
+            ),
+            TextFieldState(
+                name = "currency",
+                validators = listOf(Validators.Required()),
             )
         )
     )
 
     init {
         formState.fields[0].change(preferences.getSimpleLimit().toInt().toString())
+        formState.fields[1].change(preferences.getCurrency())
     }
 
     fun onEvent(event: SettingsEvent) {
@@ -31,6 +36,9 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.OnDailyLimitChanged -> {
                 if(event.value.isNotEmpty()) preferences.setSimpleLimit(event.value.toFloat())
                 else preferences.setSimpleLimit(1000f)
+            }
+            is SettingsEvent.OnCurrencyChanged -> {
+                preferences.setCurrency(event.value)
             }
         }
     }

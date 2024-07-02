@@ -11,6 +11,7 @@ import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.ManageAccountsUseCases
+import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -22,7 +23,8 @@ import javax.xml.validation.Validator
 
 @HiltViewModel
 class ManageAccountsViewModel @Inject constructor(
-    private val useCases: ManageAccountsUseCases
+    private val useCases: ManageAccountsUseCases,
+    private val preferences: Preferences
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ManageAccountsState())
@@ -36,7 +38,7 @@ class ManageAccountsViewModel @Inject constructor(
             ),
             TextFieldState(
                 name = "balance",
-                validators = listOf(Validators.MinValue(0, "Amount must be higher than 0"), Validators.Required()),
+                validators = listOf(Validators.Required()), //Validators.MinValue(0, "Amount must be higher than 0"),
             ),
             TextFieldState(
                 name = "description",
@@ -49,7 +51,7 @@ class ManageAccountsViewModel @Inject constructor(
             TextFieldState(
                 name = "amount",
                 validators = listOf(
-                    Validators.MinValue(0, "Amount must be higher than 0"),
+//                    Validators.MinValue(0, "Amount must be higher than 0"),
                     Validators.Required(),
                     Validators.Custom("You can't transfer more than you have.")
                         { value -> try { value.toString().toDouble() } catch (ex: java.lang.NumberFormatException) { 0.0 } <= (_state.value.selectedAccount?.balance ?: 0.0) }
@@ -59,7 +61,10 @@ class ManageAccountsViewModel @Inject constructor(
         )
     )
 
-    init { getAccounts() }
+    init {
+        getAccounts()
+        _state.value = _state.value.copy(currency = preferences.getCurrency())
+    }
 
     fun onEvent(event: ManageAccountsEvent) {
         when(event) {
@@ -172,7 +177,14 @@ class ManageAccountsViewModel @Inject constructor(
             .onEach {
                 _state.value = _state.value.copy(
                     accounts = it.toMutableList(),
-                    selectedAccount = _state.value.selectedAccount ?: it.first()
+                    selectedAccount = if(it.isEmpty()) _state.value.selectedAccount ?: Account(
+                        name = "",
+                        balance = 0.0,
+                        active = true,
+                        deleted = false,
+                        primary = true,
+                        type = AccountType.CARD
+                    ) else _state.value.selectedAccount ?: it.first()
                 )
                 getTransactions(_state.value.selectedAccount?.accountId)
             }
@@ -193,7 +205,7 @@ class ManageAccountsViewModel @Inject constructor(
     private fun getTransactions(accountId: Int?) {
         if(accountId == null) return
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getTransactions(Pair(-1L, Long.MAX_VALUE), accountId, listOf(FinanceType.TRANSACTION, FinanceType.INCOME))
+        getFinancesJob = useCases.getTransactions(Pair(-1L, Long.MAX_VALUE), accountId, listOf(FinanceType.TRANSACTION))
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance

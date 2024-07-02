@@ -6,6 +6,7 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Accoun
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 
 data class AddEditFinanceState(
+    val currency: String = "",
     val categories: List<Category> = emptyList(),
     val currentFinanceId: Int? = null,
 

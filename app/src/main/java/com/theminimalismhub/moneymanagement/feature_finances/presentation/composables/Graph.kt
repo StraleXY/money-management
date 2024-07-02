@@ -1,24 +1,18 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
 import android.graphics.Paint
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.R
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class GraphEntry(
@@ -40,10 +36,16 @@ fun Graph(
     modifier: Modifier = Modifier,
     totalHeight: Dp = 190.dp,
     earnings: List<GraphEntry>,
-    maxVal: Double = earnings.maxOf { it.value }
+    limit: Double,
+    maxEarnings: Double = earnings.maxOf { it.value }
 ) {
+    var graphEntries by remember { mutableStateOf(earnings) }
+    var maxVal by remember { mutableStateOf(earnings.maxOf { it.value }) }
+
     fun normalize(x: Double) : Double {
-        return Math.max(Math.min(Math.log(x + 0.58) + 0.54, 1.0), 0.0)
+        if(x == 0.0) return 0.0
+        return Math.max(Math.min(Math.log(x * 1.16 + 0.53) * 1 + 0.6, 1.0), 0.07)
+        //  return Math.max(Math.min(Math.log(x * 1.82 + 0.33) * 0.8 + 0.73, 1.0), 0.0)
     }
 
     val topPadding = 75.dp
@@ -55,12 +57,23 @@ fun Graph(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val limitReachedColor = MaterialTheme.colors.error.toArgb()
+    val basedColor = MaterialTheme.colors.onSurface.toArgb()
+    var renderJob: Job? = null
+
     LaunchedEffect(earnings) {
-        coroutineScope.launch {
-            animatedHeight.snapTo(0f)
+        renderJob?.cancel()
+        renderJob = coroutineScope.launch {
+            animatedHeight.animateTo(
+                0f,
+                animationSpec = tween(100),
+            )
+            delay(10)
+            maxVal = maxEarnings
+            graphEntries = earnings
             animatedHeight.animateTo(
                 graphHeight.value,
-                animationSpec = tween(750),
+                animationSpec = tween(450, easing = EaseOutCubic),
             )
         }
     }
@@ -73,14 +86,14 @@ fun Graph(
         val width = size.width
         val height = Dp(animatedHeight.value).toPx()
 
-        val offset = width / (earnings.size - 1)
+        val offset = width / (graphEntries.size - 1)
 
         var prev = Offset(0f, topPadding.value)
         var prevEarning: GraphEntry? = null
         var first = true
 
         val path = Path().apply {
-            earnings.forEach { earning ->
+            graphEntries.forEach { earning ->
                 val current = Offset(prev.x + if(first) 0f else offset,
                     (graphHeight.toPx() - (normalize(earning.value / maxVal) * height) + topPadding.toPx()).toFloat()
                 )
@@ -98,6 +111,7 @@ fun Graph(
                         center = prev,
                         radius = 3.dp.toPx()
                     )
+                    // First n-1 numbers
                     rotate(degrees = -90f, center) {
                         drawIntoCanvas { canvas ->
                             canvas.nativeCanvas.drawText(
@@ -105,7 +119,7 @@ fun Graph(
                                 (width - totalHeight.toPx()) / 2 + totalHeight.toPx(),
                                 (totalHeight.toPx() - width + 14.sp.toPx()/2) / 2 + prev.x,
                                 Paint().apply {
-                                    color = prevEarning!!.color
+                                    color = if(prevEarning!!.value > limit) limitReachedColor else prevEarning!!.color
                                     textSize = 14.sp.toPx()
                                     textAlign = Paint.Align.RIGHT
                                     typeface = ResourcesCompat.getFont(context, R.font.economica)
@@ -117,7 +131,7 @@ fun Graph(
                                 (totalHeight.toPx() - width + 13.sp.toPx()/2) / 2 + prev.x,
                                 Paint().apply {
                                     color = if(prevEarning!!.value == 0.0) ColorUtils.setAlphaComponent(
-                                        Color.White.toArgb(), 150) else prevEarning!!.color
+                                        basedColor, 150) else prevEarning!!.color
                                     textSize = 13.sp.toPx()
                                     textAlign = Paint.Align.RIGHT
                                     typeface = if(prevEarning!!.value == 0.0) ResourcesCompat.getFont(context, R.font.tw_extra_light) else ResourcesCompat.getFont(context, R.font.tw_regular)
@@ -134,6 +148,7 @@ fun Graph(
                 center = prev,
                 radius = 3.dp.toPx()
             )
+            // Last numbers
             rotate(degrees = -90f, center) {
                 drawIntoCanvas { canvas ->
                     canvas.nativeCanvas.drawText(
@@ -141,7 +156,7 @@ fun Graph(
                         (width - totalHeight.toPx()) / 2 + totalHeight.toPx(),
                         (totalHeight.toPx() - width + 14.sp.toPx()/2) / 2 + prev.x,
                         Paint().apply {
-                            color = prevEarning!!.color
+                            color = if(prevEarning!!.value > limit) limitReachedColor else prevEarning!!.color
                             textSize = 14.sp.toPx()
                             textAlign = Paint.Align.RIGHT
                             typeface = ResourcesCompat.getFont(context, R.font.economica)
@@ -153,7 +168,7 @@ fun Graph(
                         (totalHeight.toPx() - width + 13.sp.toPx()/2) / 2 + prev.x,
                         Paint().apply {
                             color = if(prevEarning!!.value == 0.0) ColorUtils.setAlphaComponent(
-                                Color.White.toArgb(), 115) else prevEarning!!.color
+                                basedColor, 115) else prevEarning!!.color
                             textSize = 13.sp.toPx()
                             textAlign = Paint.Align.RIGHT
                             typeface = if(prevEarning!!.value == 0.0) ResourcesCompat.getFont(context, R.font.tw_extra_light) else ResourcesCompat.getFont(context, R.font.tw_regular)
@@ -162,11 +177,11 @@ fun Graph(
                 }
             }
         }
-
+        // Fill
         prev = Offset(0f, 0f)
         first = true
         val pathFill = Path().apply {
-            earnings.forEach { earning ->
+            graphEntries.forEach { earning ->
                 val current = Offset(prev.x + if(first) 0f else offset,
                     (graphHeight.toPx() - (normalize(earning.value / maxVal) * height) + topPadding.toPx()).toFloat()
                 )
@@ -189,12 +204,12 @@ fun Graph(
 
         drawPath(
             path = pathFill,
-            color = Color(ColorUtils.setAlphaComponent(earnings.first().color, 40))
+            color = Color(ColorUtils.setAlphaComponent(graphEntries.first().color, 40))
         )
         drawPath(
             path = path,
-            color = Color(earnings.first().color),
-            style = Stroke(1.5.dp.toPx()),
+            color = Color(graphEntries.first().color),
+            style = Stroke(2.dp.toPx(), join = StrokeJoin.Round, pathEffect = PathEffect.cornerPathEffect(radius = 5f)),
         )
     }
 }

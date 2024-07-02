@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
+import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 
 @Composable
@@ -33,6 +35,7 @@ fun FinanceCard(
     modifier: Modifier = Modifier,
     finance: Finance,
     previousSegmentDate: Int?,
+    currency: String = "RSD",
     onEdit: (Finance) -> Unit
 ) {
     Column(modifier = modifier) {
@@ -63,7 +66,7 @@ fun FinanceCard(
                     modifier = Modifier
                         .width(5.dp)
                         .height(54.dp)
-                        .background(Color(finance.category?.color ?: Color.White.toArgb()), RoundedCornerShape(100))
+                        .background(if(finance.category?.color != null) Colorer.getAdjustedDarkColor(finance.category.color) else MaterialTheme.colors.onSurface, RoundedCornerShape(100))
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(
@@ -108,7 +111,7 @@ fun FinanceCard(
                             Spacer(modifier = Modifier.width(6.dp))
                         }
                         Text(
-                            text = "${finance.finance.amount.toInt()} RSD",
+                            text = "${Currencier.formatAmount(finance.finance.amount)} $currency",
                             style = MaterialTheme.typography.h3
                         )
                     }

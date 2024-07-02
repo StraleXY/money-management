@@ -1,10 +1,16 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import androidx.compose.material.Colors
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
@@ -24,24 +30,30 @@ class HomeViewModel @Inject constructor(
     private val preferences: Preferences
 ) : ViewModel() {
 
-    val addEditService = AddEditFinanceService(viewModelScope, addEditFinanceUseCases)
+    val addEditService = AddEditFinanceService(viewModelScope, addEditFinanceUseCases, preferences)
+    lateinit var colors: Colors
     fun onEvent(event: AddEditFinanceEvent) { addEditService.onEvent(event) }
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
-
     private var selectedCategoryId: Int? = null
     val rangeService = RangePickerService()
+    private var selectedAccountId: Int? = null
 
     init {
-        _state.value = _state.value.copy(limit = preferences.getSimpleLimit().toDouble())
+        _state.value = _state.value.copy(
+            limit = preferences.getSimpleLimit().toDouble(),
+            currency = preferences.getCurrency()
+        )
         initDateRange()
         getFinances()
-        getCategoryTotals()
         getAccounts()
     }
     fun onEvent(event: HomeEvent) {
         when(event) {
+            is HomeEvent.Init -> {
+                colors = event.colors
+            }
             is HomeEvent.ToggleAddEditCard -> {
                 _state.value = _state.value.copy(isAddEditOpen = !_state.value.isAddEditOpen)
                 if(!_state.value.isAddEditOpen) return
@@ -49,9 +61,11 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.RangeChanged -> {
                 toggleCategoryBar(selectedCategoryId)
-                _state.value = _state.value.copy(dateRange = event.range)
+                _state.value = _state.value.copy(
+                    dateRange = event.range,
+                    isToday = event.isToday
+                )
                 getFinances()
-                getCategoryTotals()
             }
             is HomeEvent.CategoryClicked -> {
                 toggleCategoryBar(event.id)
@@ -59,9 +73,14 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.ItemTypeSelected -> {
                 selectedCategoryId = null
+                selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
                 _state.value.itemsTypeStates.forEach { _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
                 getFinances()
-                getCategoryTotals()
+            }
+            is HomeEvent.AccountClicked -> {
+                selectedCategoryId = null
+                toggleAccountPreview(event.id)
+                getFinances()
             }
         }
     }
@@ -73,13 +92,12 @@ class HomeViewModel @Inject constructor(
         val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
         val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, types, tracked)
+        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, selectedAccountId, types, tracked)
             .onEach { finance ->
-                _state.value = _state.value.copy(
-                    results = finance
-                )
+                _state.value = _state.value.copy(results = finance)
+                if(selectedCategoryId == null) getCategoryTotals()
                 updateQuickSpending()
-                getGraphData(selectedCategoryId)
+                getGraphData()
             }
             .launchIn(viewModelScope)
     }
@@ -97,33 +115,32 @@ class HomeViewModel @Inject constructor(
             dateRange = Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp())
         )
     }
-
-    private var getPerCategoryJob: Job? = null
     private fun getCategoryTotals() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         val type: FinanceType = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
-        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
-        getPerCategoryJob?.cancel()
-        getPerCategoryJob = useCases.getTotalPerCategory(_state.value.dateRange, type, tracked)
-            .onEach { totals ->
-                _state.value = _state.value.copy(
-                    totalPerCategory = totals.sortedBy { it.amount }.reversed()
+        val bars: MutableList<CategoryAmount> = mutableListOf()
+        _state.value.results.filter{ it.finance.type == type }.groupBy { it.category!!.categoryId }.forEach {
+            bars.add(
+                CategoryAmount(
+                    categoryId = it.key!!,
+                    accountId = it.value[0].account.accountId!!,
+                    name = it.value[0].category!!.name,
+                    color = it.value[0].category!!.color,
+                    amount = it.value.sumOf { it.finance.amount }
                 )
-                _state.value = _state.value.copy(
-                    totalsPerAccount = totals.groupBy { it.accountId }
-                )
-
-                totals.forEach {
-                    _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
-                        when (selectedCategoryId) {
-                            null -> CategoryBarState.NEUTRAL
-                            it.categoryId -> CategoryBarState.SELECTED
-                            else -> CategoryBarState.DESELECTED
-                        }
-                    )
+            )
+        }
+        _state.value = _state.value.copy(totalPerCategory = bars.sortedBy { it.amount }.reversed())
+        _state.value = _state.value.copy(totalsPerAccount = bars.groupBy { it.accountId })
+        bars.forEach {
+            _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
+                when (selectedCategoryId) {
+                    null -> CategoryBarState.NEUTRAL
+                    it.categoryId -> CategoryBarState.SELECTED
+                    else -> CategoryBarState.DESELECTED
                 }
-            }
-            .launchIn(viewModelScope)
+            )
+        }
     }
     private fun toggleCategoryBar(categoryId: Int?) {
         if(selectedCategoryId == categoryId) {
@@ -134,19 +151,19 @@ class HomeViewModel @Inject constructor(
             selectedCategoryId = categoryId
         }
     }
-    private suspend fun getGraphData(categoryId: Int? = null) {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
+    private fun getGraphData() {
         if(rangeService.rangeLength == 1) return
         _state.value = _state.value.copy(
-            earningsPerTimePeriod = useCases.getTotalPerCategory.getPerDay(
+            earningsPerTimePeriod = useCases.getTotalPerDay(
                 range = _state.value.dateRange,
-                type = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME,
-                categoryId = categoryId,
-                tracked = tracked
+                type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
+                items = _state.value.results,
+                color =
+                    if(selectedCategoryId == null) colors.onSurface.toArgb()
+                    else Colorer.getAdjustedDarkColor(_state.value.totalPerCategory.first{ it.categoryId == selectedCategoryId }.color, colors.isLight).toArgb()
             )
         )
-        if(categoryId == null) {
+        if(selectedCategoryId == null) {
             _state.value = _state.value.copy(
                 maxEarnings = _state.value.earningsPerTimePeriod.maxOf { it.value }
             )
@@ -163,7 +180,19 @@ class HomeViewModel @Inject constructor(
                     accounts = it
                 )
                 addEditService.setAccounts(it)
+                _state.value.accounts.forEach { account ->
+                    account.accountId?.let { id -> _state.value.accountStates[id] = mutableStateOf(true) }
+                }
             }
             .launchIn(viewModelScope)
+    }
+    private fun toggleAccountPreview(accountId: Int) {
+        if(selectedAccountId == accountId) {
+            _state.value.accountStates.forEach { (_, state) -> state.value = true }
+            selectedAccountId = null
+        } else {
+            _state.value.accountStates.forEach { (id, state) -> state.value = id == accountId }
+            selectedAccountId = accountId
+        }
     }
 }
