@@ -32,7 +32,8 @@ class ReportVM @Inject constructor(
     init {
         _state.value = _state.value.copy(
             limit = preferences.getSimpleLimit().toDouble(),
-            currency = preferences.getCurrency()
+            currency = preferences.getCurrency(),
+            year = LocalDateTime.now().year
         )
         setRange(_state.value.year)
         getFinances()
@@ -79,6 +80,16 @@ class ReportVM @Inject constructor(
         _state.value = _state.value.copy(totalPerCategory = bars.sortedBy { it.amount }.reversed())
         bars.forEach {
             _state.value.categoryBarStates[it.categoryId] = mutableStateOf(CategoryBarState.NEUTRAL)
+        }
+    }
+
+    fun onEvent(event: ReportEvent) {
+        when(event) {
+            is ReportEvent.SwitchYear -> {
+                _state.value = _state.value.copy(year = _state.value.year + event.direction)
+                setRange(_state.value.year)
+                getFinances()
+            }
         }
     }
 

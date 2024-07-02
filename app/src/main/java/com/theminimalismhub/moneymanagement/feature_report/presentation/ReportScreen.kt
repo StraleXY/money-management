@@ -1,6 +1,8 @@
 package com.theminimalismhub.moneymanagement.feature_report.presentation
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,8 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,23 +46,39 @@ fun ReportScreen(vm: ReportVM = hiltViewModel()) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-
-            Text(
-                text = "${Currencier.formatAmount(state.total)} ${state.currency}",
-                style = MaterialTheme.typography.h1,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 26.dp)
-                    .padding(top = 64.dp, bottom = 2.dp)
-            )
-            Text(
-                text = "Total spent in ${state.year}.",
-                style = MaterialTheme.typography.h5,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(0.65f)
-                    .padding(horizontal = 27.dp)
-            )
+                    .padding(top = 64.dp, bottom = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "${Currencier.formatAmount(state.total)} ${state.currency}",
+                        style = MaterialTheme.typography.h1
+                    )
+                    Text(
+                        text = "Total spent in ${state.year}.",
+                        style = MaterialTheme.typography.h5
+                    )
+                }
+                Row {
+                    IconButton(onClick = { vm.onEvent(ReportEvent.SwitchYear(-1)) }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = Icons.Default.ArrowBackIosNew.name
+                        )
+                    }
+                    IconButton(onClick = { vm.onEvent(ReportEvent.SwitchYear(1)) }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowForwardIos,
+                            contentDescription = Icons.Default.ArrowForwardIos.name
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             CategoryTotalsOverview(
@@ -90,6 +114,7 @@ fun ReportScreen(vm: ReportVM = hiltViewModel()) {
         }
 
         item {
+
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
