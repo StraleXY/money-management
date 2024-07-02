@@ -36,11 +36,12 @@ fun FinanceCard(
     finance: Finance,
     previousSegmentDate: Int?,
     currency: String = "RSD",
+    showSeparator: Boolean = true,
     onEdit: (Finance) -> Unit
 ) {
     Column(modifier = modifier) {
         previousSegmentDate?.let {
-            if(previousSegmentDate != finance.getDay())
+            if(showSeparator && previousSegmentDate != finance.getDay())
                 Divider(
                     modifier = Modifier
                         .padding(horizontal = 34.dp)
