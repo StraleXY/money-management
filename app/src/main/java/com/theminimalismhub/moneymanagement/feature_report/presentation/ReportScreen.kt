@@ -1,8 +1,16 @@
 package com.theminimalismhub.moneymanagement.feature_report.presentation
 
+import android.provider.SyncStateContract.Helpers.update
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,10 +39,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryTotalsOverview
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.ToggleButton
 
 @Destination(style = BaseTransition::class)
 @Composable
@@ -57,8 +68,23 @@ fun ReportScreen(vm: ReportVM = hiltViewModel()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 26.dp)
-                    .padding(top = 64.dp, bottom = 8.dp),
+                    .padding(top = 48.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                ToggleButton(
+                    text = "OUTCOME",
+                    isToggled = state.selectedType == FinanceType.OUTCOME
+                ) { vm.onEvent(ReportEvent.ChangeFinanceType(FinanceType.OUTCOME)) }
+                ToggleButton(
+                    text = "INCOME",
+                    isToggled = state.selectedType == FinanceType.INCOME
+                ) { vm.onEvent(ReportEvent.ChangeFinanceType(FinanceType.INCOME)) }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 26.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
@@ -86,58 +112,74 @@ fun ReportScreen(vm: ReportVM = hiltViewModel()) {
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             CategoryTotalsOverview(
                 totalPerCategory = state.totalPerCategory,
                 categoryBarStates = state.categoryBarStates,
                 currency = state.currency,
-                collapsable = true,
+                collapsable = state.totalPerCategory.size > 5,
                 showCount = true
             ) { }
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "10 Biggest Purchases",
-                style = MaterialTheme.typography.h2,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(0.65f)
-                    .padding(horizontal = 27.dp)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Box(modifier = Modifier.animateContentSize()) {
-                Column(modifier = Modifier.animateContentSize()) {
-                    state.results.take(showTopPurchasesAmount).forEach { //.filter { it.category?.categoryId == 2 }
-                        FinanceCard(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            finance = it,
-                            previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
-                            currency = state.currency,
-                            showSeparator = false,
-                            onEdit = { }
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(
-                    modifier = Modifier.padding(end = 24.dp),
-                    onClick = { toggleShowAmount() }
-                ) {
+            AnimatedVerticalVisibility(visible = state.selectedType == FinanceType.OUTCOME) {
+                Column {
                     Text(
-                        text = if(showTopPurchasesAmount < TOP_PURCSHASES_COUNT) "SHOW ALL" else "COLLAPSE",
-                        style = MaterialTheme.typography.button
+                        text = "10 Biggest Purchases",
+                        style = MaterialTheme.typography.h2,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(0.65f)
+                            .padding(horizontal = 27.dp)
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Box(modifier = Modifier.animateContentSize()) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            state.results.take(showTopPurchasesAmount).forEach { //.filter { it.category?.categoryId == 2 }
+                                FinanceCard(
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                    finance = it,
+                                    previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                                    currency = state.currency,
+                                    showSeparator = false,
+                                    onEdit = { }
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            modifier = Modifier.padding(end = 24.dp),
+                            onClick = { toggleShowAmount() }
+                        ) {
+                            Text(
+                                text = if(showTopPurchasesAmount < TOP_PURCSHASES_COUNT) "SHOW ALL" else "COLLAPSE",
+                                style = MaterialTheme.typography.button
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
+
+@Composable
+private fun AnimatedVerticalVisibility(
+    visible: Boolean,
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + expandVertically { 0 },
+        exit = fadeOut() + shrinkVertically { 0 }
+    ) { content() }
 }

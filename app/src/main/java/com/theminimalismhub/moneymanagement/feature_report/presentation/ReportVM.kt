@@ -53,7 +53,7 @@ class ReportVM @Inject constructor(
     private var getFinancesJob: Job? = null
     private fun getFinances() {
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(_state.value.dateRange, categoryId = null, accountId = null, mutableListOf(FinanceType.OUTCOME), mutableListOf(true, false))
+        getFinancesJob = useCases.getFinances(_state.value.dateRange, categoryId = null, accountId = null, mutableListOf(_state.value.selectedType), mutableListOf(true, false))
             .onEach { finance ->
                 _state.value = _state.value.copy(
                     results = finance.sortedBy { it.finance.amount }.reversed(),
@@ -65,7 +65,7 @@ class ReportVM @Inject constructor(
     }
     private fun getCategoryTotals() {
         val bars: MutableList<CategoryAmount> = mutableListOf()
-        _state.value.results.filter{ it.finance.type == FinanceType.OUTCOME }.groupBy { it.category!!.categoryId }.forEach {
+        _state.value.results.groupBy { it.category!!.categoryId }.forEach {
             bars.add(
                 CategoryAmount(
                     categoryId = it.key!!,
@@ -88,6 +88,10 @@ class ReportVM @Inject constructor(
             is ReportEvent.SwitchYear -> {
                 _state.value = _state.value.copy(year = _state.value.year + event.direction)
                 setRange(_state.value.year)
+                getFinances()
+            }
+            is ReportEvent.ChangeFinanceType -> {
+                _state.value = _state.value.copy(selectedType = event.type)
                 getFinances()
             }
         }

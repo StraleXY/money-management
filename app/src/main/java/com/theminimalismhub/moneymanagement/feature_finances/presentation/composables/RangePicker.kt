@@ -169,7 +169,7 @@ private fun RangeNext(
 }
 
 @Composable
-private fun ToggleButton(
+fun ToggleButton(
     text: String,
     isToggled: Boolean,
     onClick: () -> Unit
