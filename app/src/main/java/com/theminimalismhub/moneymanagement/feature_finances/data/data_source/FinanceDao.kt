@@ -29,13 +29,13 @@ interface FinanceDao {
     @Query("SELECT * FROM finance WHERE financeCategoryId = :categoryId AND timestamp >= :from AND timestamp <= :to AND type != 'TRANSACTION' AND trackable IN (:tracked) AND financeAccountId = :accountId ORDER BY timestamp ASC")
     fun getAll(from: Long, to: Long, tracked: List<Boolean>, categoryId: Int, accountId: Int): Flow<List<Finance>>
 
-    @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
+    @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount, -1 AS count " +
             "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
             "WHERE timestamp >= :from AND timestamp <= :to AND Finance.type = :type AND Finance.trackable IN (:tracked) " +
             "GROUP BY financeCategoryId")
     fun getPerCategory(from: Long, to: Long, type: FinanceType, tracked: List<Boolean>): Flow<List<CategoryAmount>>
 
-    @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount " +
+    @Query("SELECT Finance.financeCategoryId as categoryId, Finance.financeAccountId as accountId, Category.name as name, Category.color as color, SUM(amount) AS amount, -1 AS count " +
             "FROM Finance INNER JOIN Category ON Finance.financeCategoryId = Category.categoryId " +
             "WHERE timestamp >= :from AND timestamp <= :to AND Finance.type = :type AND Finance.trackable IN (:tracked) AND Finance.financeAccountId = :accountId " +
             "GROUP BY financeCategoryId")

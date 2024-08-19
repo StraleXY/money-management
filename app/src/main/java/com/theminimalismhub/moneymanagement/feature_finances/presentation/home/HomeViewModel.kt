@@ -126,7 +126,8 @@ class HomeViewModel @Inject constructor(
                     accountId = it.value[0].account.accountId!!,
                     name = it.value[0].category!!.name,
                     color = it.value[0].category!!.color,
-                    amount = it.value.sumOf { it.finance.amount }
+                    amount = it.value.sumOf { it.finance.amount },
+                    count = it.value.count()
                 )
             )
         }

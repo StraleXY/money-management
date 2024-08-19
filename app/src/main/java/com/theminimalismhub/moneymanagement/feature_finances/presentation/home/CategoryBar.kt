@@ -34,7 +34,8 @@ data class CategoryAmount(
     val accountId: Int,
     val name: String,
     val color: Int,
-    val amount: Double
+    val amount: Double,
+    val count: Int
 )
 
 enum class CategoryBarState {
@@ -50,7 +51,8 @@ fun CategoryBar(
     maxAmount: Double,
     state: CategoryBarState = CategoryBarState.NEUTRAL,
     clicked: (Int) -> Unit = {},
-    currency: String = "RSD"
+    currency: String = "RSD",
+    showCount: Boolean
 ) {
     fun normalize(x: Double) : Double {
         return Math.max(Math.min(Math.log(x + 0.65) + 0.5, 1.0), 0.0)
@@ -102,7 +104,7 @@ fun CategoryBar(
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             AutoResizeText(
-                text = categoryInfo.name,
+                text = categoryInfo.name + if(showCount) " [${categoryInfo.count}]" else "",
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth(),
