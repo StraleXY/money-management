@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import android.util.Log
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
@@ -65,6 +67,8 @@ class HomeViewModel @Inject constructor(
                     dateRange = event.range,
                     isToday = event.isToday
                 )
+                if(rangeService.type == RangeType.DAILY) addEditService.onEvent(AddEditFinanceEvent.DateChanged(event.range.first))
+                else addEditService.onEvent(AddEditFinanceEvent.DateChanged(System.currentTimeMillis()))
                 getFinances()
             }
             is HomeEvent.CategoryClicked -> {

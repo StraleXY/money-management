@@ -38,7 +38,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColor
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
+import com.theminimalismhub.moneymanagement.core.consts.Strings
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
@@ -83,7 +85,7 @@ fun AccountCardMini(
                     style = MaterialTheme.typography.body2
                 )
                 Text(
-                    text = "${Currencier.formatAmount(balance)} $currency",
+                    text = if(account.type == AccountType.CRYPTO) "${Strings.CRYPTO_BALANCE} $currency" else "${Currencier.formatAmount(balance)} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontSize = 24.sp,
                         lineHeight = 24.sp
@@ -258,12 +260,12 @@ fun AccountCardLarge(
                     style = MaterialTheme.typography.body1
                 )
                 Text(
-                    text = "${Currencier.formatAmount(account.balance + balanceDelta)} $currency",
+                    text = if(account.type == AccountType.CRYPTO) "${Strings.CRYPTO_BALANCE} $currency" else "${Currencier.formatAmount(account.balance + balanceDelta)} $currency",
                     style = MaterialTheme.typography.body1.copy(
                         fontFamily = economica,
                         fontSize = 40.sp
                     ),
-                    color = if((account.balance + balanceDelta).toInt() < 0) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
+                    color = if(account.type != AccountType.CRYPTO && (account.balance + balanceDelta).toInt() < 0) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
                 )
             }
             if(account.type == AccountType.CARD) {
@@ -515,6 +517,7 @@ private fun AccountIcon(
             AccountType.SAVINGS -> Icons.Default.Savings
             AccountType.HELP -> Icons.Default.SupervisorAccount
             AccountType.INSURANCE -> Icons.Default.MonitorHeart
+            AccountType.CRYPTO -> Icons.Default.CurrencyBitcoin
         },
         contentDescription = Icons.Default.CreditCard.name,
         tint = color

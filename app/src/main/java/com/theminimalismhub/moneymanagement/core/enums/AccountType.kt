@@ -5,7 +5,8 @@ enum class AccountType(val value: Int, val title: String) {
     CASH(1, "Cash"),
     SAVINGS(2, "Savings"),
     HELP(3, "Help"),
-    INSURANCE(4, "Insurance");
+    INSURANCE(4, "Insurance"),
+    CRYPTO(5, "Crypto");
 
     companion object {
         private val mapping = FinanceType.values().associateBy(FinanceType::value)
