@@ -17,7 +17,8 @@ data class ManageAccountsState(
     val accountTypeStates: HashMap<AccountType, MutableState<Boolean>> = hashMapOf(
         AccountType.CASH to mutableStateOf(true),
         AccountType.CARD to mutableStateOf(false),
-        AccountType.SAVINGS to mutableStateOf(false)
+        AccountType.SAVINGS to mutableStateOf(false),
+        AccountType.CRYPTO to mutableStateOf(false)
     ),
     val results: List<Finance> = emptyList()
 )

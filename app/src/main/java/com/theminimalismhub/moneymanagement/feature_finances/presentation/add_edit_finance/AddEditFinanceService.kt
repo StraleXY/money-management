@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.dsc.form_builder.FormState
@@ -59,8 +60,7 @@ class AddEditFinanceService(
                 if(event.finance == null) {
                     _state.value = _state.value.copy(
                         currentType = FinanceType.OUTCOME,
-                        currentFinanceId = null,
-                        timestamp = System.currentTimeMillis()
+                        currentFinanceId = null
                     )
                     selectCategoryType(_state.value.currentType)
                     formState.fields[0].change("")

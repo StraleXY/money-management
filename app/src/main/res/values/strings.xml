@@ -33,4 +33,7 @@
     <string name="rs_title">Yearly Report</string>
     <string name="rs_hint">You can see your last year spending\'s per category, most expensive items and categories with most entries as well some averages.</string>
 
+    <!-- Crypto -->
+    <string name="crypto_balance_mask">#5%l.&amp;</string>
+
 </resources>

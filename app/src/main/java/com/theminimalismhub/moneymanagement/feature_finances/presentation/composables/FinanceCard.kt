@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
@@ -103,6 +104,29 @@ fun FinanceCard(
                                             FinanceType.TRANSACTION -> Icons.Default.SyncAlt
                                             else -> Icons.Default.QuestionMark
                                         },
+                                    contentDescription = "Finance type icon",
+                                    tint = MaterialTheme.colors.primary,
+                                    modifier = Modifier
+                                        .size(13.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                        }
+                        if(finance.account.type == AccountType.CRYPTO && finance.finance.type != FinanceType.TRANSACTION) {
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .alpha(0.85f)
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colors.primary,
+                                        RoundedCornerShape(19.dp)
+                                    )
+                                    .background(Color.Transparent),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CurrencyBitcoin,
                                     contentDescription = "Finance type icon",
                                     tint = MaterialTheme.colors.primary,
                                     modifier = Modifier
