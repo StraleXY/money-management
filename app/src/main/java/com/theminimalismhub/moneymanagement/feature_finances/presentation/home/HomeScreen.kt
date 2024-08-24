@@ -32,6 +32,7 @@ import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
+import com.theminimalismhub.moneymanagement.destinations.ManageBillsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ReportScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
@@ -228,6 +229,20 @@ private fun MainAppActions(
                     .padding(bottom = 12.dp),
                 onClick = {
                     navigator.navigate(ManageAccountsScreenDestination())
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            ActionChip(
+                text = "BILLS",
+                icon = Icons.Default.Receipt,
+                textStyle = MaterialTheme.typography.button,
+                borderThickness = 1.dp,
+                accentColor = MaterialTheme.colors.primaryVariant,
+                backgroundStrength = 0f,
+                modifier = Modifier
+                    .padding(bottom = 12.dp),
+                onClick = {
+                    navigator.navigate(ManageBillsScreenDestination())
                 }
             )
             Spacer(modifier = Modifier.width(8.dp))
