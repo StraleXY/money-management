@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import com.theminimalismhub.moneymanagement.feature_bills.domain.model.RecurringType
 import java.io.Serializable
 
-@Entity
+@Entity(tableName = "Bill")
 data class BillItem (
     val name: String,
     val amount: Double,
@@ -15,5 +15,5 @@ data class BillItem (
     val billCategoryId: Int,
     val billAccountId: Int,
     val isLastMonthPaid: Boolean,
-    @PrimaryKey val accountId: Int? = null
+    @PrimaryKey val billId: Int? = null
 ) : Serializable

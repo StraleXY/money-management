@@ -20,8 +20,8 @@ data class ManageBillsState(
                 due = 1725800442000,
                 billCategoryId = 0,
                 billAccountId = 0,
-                accountId = 0,
                 isLastMonthPaid = false,
+                billId = 0
             ),
             account = Account(
                 name = "VISA",

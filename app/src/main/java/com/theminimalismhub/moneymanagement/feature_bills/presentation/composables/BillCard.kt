@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_bills.presentation.composab
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,10 +40,13 @@ import java.util.Date
 fun BillCard(
     bill: Bill,
     currency: String = "RSD",
+    onEdit: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onEdit() }
+            .alpha(if(bill.bill.isLastMonthPaid) 0.5f else 1f)
             .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -86,6 +90,7 @@ fun BillCard(
             Spacer(modifier = Modifier.width(12.dp))
             FilledTonalIconButton(
                 onClick = { /*TODO*/ },
+                enabled = !bill.bill.isLastMonthPaid,
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = MaterialTheme.colors.secondaryVariant,
                     contentColor = MaterialTheme.colors.onSurface
