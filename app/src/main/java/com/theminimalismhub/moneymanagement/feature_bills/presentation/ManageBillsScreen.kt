@@ -51,6 +51,7 @@ import com.theminimalismhub.moneymanagement.feature_bills.presentation.composabl
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
+import com.theminimalismhub.moneymanagement.feature_settings.composables.SettingsSegment
 
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -93,7 +94,22 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
                         hint = stringResource(id = R.string.b_hint)
                     )
                 }
-                items(state.bills) {
+                items(state.bills.filter { !it.bill.isLastMonthPaid }) {
+                    BillCard(
+                        bill = it,
+                        onEdit = { vm.onEvent(ManageBillsEvent.ToggleAddEdit(it)) },
+                        onPay = { vm.onEvent(ManageBillsEvent.TogglePayBill(it)) }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    if(state.bills.any { it.bill.isLastMonthPaid }) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        SettingsSegment(name = "DUE NEXT MONTH")
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+                items(state.bills.filter { it.bill.isLastMonthPaid }) {
                     BillCard(
                         bill = it,
                         onEdit = { vm.onEvent(ManageBillsEvent.ToggleAddEdit(it)) },

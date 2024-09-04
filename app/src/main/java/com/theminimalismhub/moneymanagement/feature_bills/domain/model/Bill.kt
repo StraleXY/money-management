@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.util.Calendar
 
 data class Bill(
-    @Embedded val bill: BillItem,
+    @Embedded var bill: BillItem,
     @Relation(
         parentColumn = "billCategoryId",
         entityColumn = "categoryId"
@@ -53,5 +53,11 @@ data class Bill(
             isLastMonthPaid = isPaid,
             billId = bill.billId
         )
+    }
+
+    fun checkIfCanBePayed() : Boolean {
+        val due = Calendar.getInstance()
+        due.timeInMillis = bill.due
+        return due.get(Calendar.MONTH) + 1 == LocalDate.now().month.value
     }
 }

@@ -102,8 +102,14 @@ class ManageBillsViewModel @Inject constructor(
     fun getBills() {
         getJob?.cancel()
         getJob = useCases.get()
-            .onEach {
-                _state.value = _state.value.copy(bills = it)
+            .onEach { bills ->
+                bills.forEach {
+                    if(it.checkIfCanBePayed() && it.bill.isLastMonthPaid) {
+                        it.bill = it.bill.copy(isLastMonthPaid = false)
+                        useCases.add(it.bill)
+                    }
+                }
+                _state.value = _state.value.copy(bills = bills)
             }
             .launchIn(viewModelScope)
     }
