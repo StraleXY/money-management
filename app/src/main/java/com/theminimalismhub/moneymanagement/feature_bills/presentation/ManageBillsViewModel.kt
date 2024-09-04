@@ -4,6 +4,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dsc.form_builder.FormState
+import com.dsc.form_builder.TextFieldState
+import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.AddEditBillUseCases
 import com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_bill.AddEditBillService
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
@@ -18,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ManageBillsViewModel @Inject constructor(
     private val addEditUseCases: AddEditBillUseCases,
-    private val preferences: Preferences
+    preferences: Preferences
 ) : ViewModel() {
 
     val addEditBillVM: AddEditBillService = AddEditBillService(viewModelScope, addEditUseCases, preferences) {
@@ -29,8 +32,19 @@ class ManageBillsViewModel @Inject constructor(
     private val _state = mutableStateOf(ManageBillsState())
     val state: State<ManageBillsState> = _state
 
+    val paymentFormState = FormState(
+        fields = listOf(
+            TextFieldState(
+                name = "amount",
+                validators = listOf(Validators.Required()),
+            )
+        )
+    )
+
     init {
+        _state.value = _state.value.copy(currency = preferences.getCurrency())
         getBills()
+        getAccounts()
     }
 
     fun onEvent(event: ManageBillsEvent) {
@@ -45,6 +59,24 @@ class ManageBillsViewModel @Inject constructor(
                 }
                 else addEditBillVM.initBill(event.bill)
             }
+            is ManageBillsEvent.TogglePayBill -> {
+                _state.value = _state.value.copy(billToPay = event.bill)
+                event.bill?.let {
+                    paymentFormState.fields[0].change(it.bill.amount.toInt().toString())
+                    onEvent(ManageBillsEvent.PaymentAccountSelected(it.bill.billAccountId))
+                }
+            }
+            is ManageBillsEvent.PayBill -> {
+                _state.value.billToPay?.let {
+                    onEvent(ManageBillsEvent.TogglePayBill(null))
+                }
+            }
+            is ManageBillsEvent.PaymentAccountSelected -> {
+                _state.value.accountStates.forEach { (id, _) ->
+                    _state.value.accountStates[id]?.value = id == event.accountId
+                }
+                _state.value = _state.value.copy(paymentAccountId = event.accountId)
+            }
         }
     }
 
@@ -54,6 +86,22 @@ class ManageBillsViewModel @Inject constructor(
         getJob = addEditUseCases.get()
             .onEach {
                 _state.value = _state.value.copy(bills = it)
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private var getAccountsJob: Job? = null
+    private fun getAccounts() {
+        getAccountsJob?.cancel()
+        getAccountsJob = addEditUseCases.getAccounts()
+            .onEach { accounts ->
+                _state.value = _state.value.copy(
+                    accounts = accounts,
+                    paymentAccountId = accounts.find { it.primary }?.accountId
+                )
+                accounts.forEach { account ->
+                    account.accountId?.let { id -> _state.value.accountStates[id] = mutableStateOf(account.accountId == _state.value.paymentAccountId) }
+                }
             }
             .launchIn(viewModelScope)
     }

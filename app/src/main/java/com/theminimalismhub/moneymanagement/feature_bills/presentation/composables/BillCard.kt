@@ -18,7 +18,9 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -40,7 +42,8 @@ import java.util.Date
 fun BillCard(
     bill: Bill,
     currency: String = "RSD",
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onPay: (Bill) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -89,14 +92,14 @@ fun BillCard(
             }
             Spacer(modifier = Modifier.width(12.dp))
             FilledTonalIconButton(
-                onClick = { /*TODO*/ },
+                onClick = { onPay(bill) },
                 enabled = !bill.bill.isLastMonthPaid,
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = MaterialTheme.colors.secondaryVariant,
                     contentColor = MaterialTheme.colors.onSurface
                 )
             ) {
-                Icon(imageVector = Icons.Default.Check, contentDescription = "Pay")
+                Icon(imageVector = if(!bill.bill.isLastMonthPaid) Icons.Default.AttachMoney else Icons.Default.Check, contentDescription = "Pay")
             }
         }
     }
