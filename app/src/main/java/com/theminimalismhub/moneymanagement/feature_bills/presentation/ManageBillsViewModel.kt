@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_bills.presentation
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,8 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.feature_bills.data.model.BillItem
 import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.AddEditBillUseCases
 import com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_bill.AddEditBillService
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -16,15 +20,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class ManageBillsViewModel @Inject constructor(
-    private val addEditUseCases: AddEditBillUseCases,
+    private val useCases: AddEditBillUseCases,
     preferences: Preferences
 ) : ViewModel() {
 
-    val addEditBillVM: AddEditBillService = AddEditBillService(viewModelScope, addEditUseCases, preferences) {
+    val addEditBillVM: AddEditBillService = AddEditBillService(viewModelScope, useCases, preferences) {
         onEvent(ManageBillsEvent.ToggleAddEdit(null))
         getBills()
     }
@@ -67,8 +72,21 @@ class ManageBillsViewModel @Inject constructor(
                 }
             }
             is ManageBillsEvent.PayBill -> {
-                _state.value.billToPay?.let {
-                    onEvent(ManageBillsEvent.TogglePayBill(null))
+                _state.value.billToPay?.let { bill ->
+                    viewModelScope.launch {
+                        useCases.pay(FinanceItem(
+                            name = bill.bill.name,
+                            amount = (paymentFormState.fields[0].value).toDouble(),
+                            timestamp = System.currentTimeMillis(),
+                            type = FinanceType.OUTCOME,
+                            financeCategoryId = bill.category.categoryId!!,
+                            financeAccountId = _state.value.paymentAccountId!!,
+                            trackable = bill.category.trackable
+                        ))
+                        useCases.updateAccountBalance(-(paymentFormState.fields[0].value).toDouble(), _state.value.paymentAccountId!!)
+                        useCases.add(bill.getPayedBill())
+                        onEvent(ManageBillsEvent.TogglePayBill(null))
+                    }
                 }
             }
             is ManageBillsEvent.PaymentAccountSelected -> {
@@ -83,7 +101,7 @@ class ManageBillsViewModel @Inject constructor(
     private var getJob: Job? = null
     fun getBills() {
         getJob?.cancel()
-        getJob = addEditUseCases.get()
+        getJob = useCases.get()
             .onEach {
                 _state.value = _state.value.copy(bills = it)
             }
@@ -93,7 +111,7 @@ class ManageBillsViewModel @Inject constructor(
     private var getAccountsJob: Job? = null
     private fun getAccounts() {
         getAccountsJob?.cancel()
-        getAccountsJob = addEditUseCases.getAccounts()
+        getAccountsJob = useCases.getAccounts()
             .onEach { accounts ->
                 _state.value = _state.value.copy(
                     accounts = accounts,

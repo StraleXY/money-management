@@ -108,13 +108,15 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesAddEditBillUseCases(categoryRepo: CategoryRepo, accountRepo: AccountRepo, billRepo: BillRepo) : AddEditBillUseCases {
+    fun providesAddEditBillUseCases(categoryRepo: CategoryRepo, accountRepo: AccountRepo, billRepo: BillRepo, financeRepo: FinanceRepo) : AddEditBillUseCases {
         return AddEditBillUseCases(
             getCategories = GetCategories(categoryRepo),
             getAccounts = GetAccounts(accountRepo),
             add = AddBill(billRepo),
             get = GetBills(billRepo),
-            delete = DeleteBill(billRepo)
+            delete = DeleteBill(billRepo),
+            pay = AddFinance(financeRepo),
+            updateAccountBalance = UpdateAccountBalance(accountRepo)
         )
     }
 
