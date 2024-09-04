@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_bill
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.dsc.form_builder.FormState
@@ -56,14 +57,21 @@ class AddEditBillService(
     }
 
     fun initBill(bill: Bill) {
-        _state.value = _state.value.copy(
-            currentBillId = bill.bill.billId
-        )
+        _state.value = _state.value.copy(currentBillId = bill.bill.billId)
         bill.category?.categoryId?.let { onEvent(AddEditBillEvent.CategorySelected(it)) }
         bill.account.accountId?.let { onEvent(AddEditBillEvent.AccountSelected(it)) }
         formState.fields[0].change(bill.bill.time.toString())
         formState.fields[1].change(bill.bill.name)
         formState.fields[2].change(bill.bill.amount.toString())
+    }
+
+    fun clear() {
+        _state.value = _state.value.copy(currentBillId = null)
+        onEvent(AddEditBillEvent.CategorySelected(null))
+        onEvent(AddEditBillEvent.AccountSelected(null))
+        formState.fields[0].change("")
+        formState.fields[1].change("")
+        formState.fields[2].change("")
     }
 
     fun onEvent(event: AddEditBillEvent) {

@@ -9,8 +9,10 @@ import com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,7 +39,11 @@ class ManageBillsViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isAddEditOpen = !_state.value.isAddEditOpen
                 )
-                event.bill?.let { addEditBillVM.initBill(it) }
+                if(event.bill == null) viewModelScope.launch {
+                    delay(300)
+                    addEditBillVM.clear()
+                }
+                else addEditBillVM.initBill(event.bill)
             }
         }
     }

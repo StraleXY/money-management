@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_bill
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsChips
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 
@@ -44,6 +46,7 @@ fun AddEditBillCard(
     val accountListState = rememberLazyListState()
 
     LaunchedEffect(state.selectedCategoryId) {
+        Log.i("CATEGORY", "Changed to id: ${state.selectedCategoryId} | Is empty? ${state.categories.isEmpty()}")
         if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
         categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
     }
@@ -61,14 +64,15 @@ fun AddEditBillCard(
         modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
         header = {
-            AccountsList(
-                accounts = state.accounts,
-                states = state.accountStates,
-                currency = state.currency,
-                listState = accountListState
-            ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
+
         }
     ) {
+        AccountsChips(
+            accounts = state.accounts,
+            states = state.accountStates,
+            listState = accountListState
+        ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
+        Spacer(modifier = Modifier.height(8.dp))
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth(),

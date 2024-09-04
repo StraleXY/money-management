@@ -56,12 +56,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.R
+import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
@@ -72,6 +74,28 @@ import com.theminimalismhub.moneymanagement.ui.theme.economica
 import kotlinx.coroutines.launch
 import kotlin.math.log2
 import kotlin.random.Random
+
+@Composable
+fun AccountChip(
+    modifier: Modifier = Modifier.widthIn(60.dp, 180.dp),
+    account: Account,
+    selected: Boolean = true,
+    onClick: () -> Unit
+) {
+    val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
+    val textColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.secondaryVariant else MaterialTheme.colors.onSurface, tween(durationMillis = 250))
+
+    ActionChip(
+        modifier = modifier,
+        text = account.name,
+        textColor = textColor.value,
+        backgroundColor = backgroundColor.value,
+        borderThickness = 0.dp,
+        onClick = { onClick() },
+        backgroundStrength = 1f,
+        icon = getAccountIcon(account.type)
+    )
+}
 
 @Composable
 fun AccountCardMini(
@@ -532,15 +556,19 @@ private fun AccountIcon(
 ) {
     Icon(
         modifier = modifier,
-        imageVector = when(type) {
-            AccountType.CARD -> Icons.Default.CreditCard
-            AccountType.CASH -> Icons.Default.AccountBalanceWallet
-            AccountType.SAVINGS -> Icons.Default.Savings
-            AccountType.HELP -> Icons.Default.SupervisorAccount
-            AccountType.INSURANCE -> Icons.Default.MonitorHeart
-            AccountType.CRYPTO -> Icons.Default.CurrencyBitcoin
-        },
+        imageVector = getAccountIcon(type),
         contentDescription = Icons.Default.CreditCard.name,
         tint = color
     )
+}
+
+fun getAccountIcon(type: AccountType) : ImageVector {
+    return when(type) {
+        AccountType.CARD -> Icons.Default.CreditCard
+        AccountType.CASH -> Icons.Default.AccountBalanceWallet
+        AccountType.SAVINGS -> Icons.Default.Savings
+        AccountType.HELP -> Icons.Default.SupervisorAccount
+        AccountType.INSURANCE -> Icons.Default.MonitorHeart
+        AccountType.CRYPTO -> Icons.Default.CurrencyBitcoin
+    }
 }
