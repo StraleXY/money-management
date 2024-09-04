@@ -7,5 +7,6 @@ data class AddEditBillUseCases(
     val getCategories: GetCategories,
     val getAccounts: GetAccounts,
     val add: AddBill,
-    val get: GetBills
+    val get: GetBills,
+    val delete: DeleteBill
 )

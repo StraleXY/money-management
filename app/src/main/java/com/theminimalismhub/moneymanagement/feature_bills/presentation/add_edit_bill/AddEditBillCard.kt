@@ -1,6 +1,5 @@
 package com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_bill
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -21,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,7 +27,6 @@ import com.dsc.form_builder.TextFieldState
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
-import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
@@ -158,8 +154,9 @@ fun AddEditBillCard(
                 if(!vm.formState.validate()) return@CRUDButtons
                 vm.onEvent(AddEditBillEvent.AddBill)
             },
-            deleteEnabled =  state.currentFinanceId != null,
+            deleteEnabled =  state.currentBillId != null,
             onDelete = {
+                vm.onEvent(AddEditBillEvent.DeleteBill)
             }
         )
         Spacer(modifier = Modifier.height(8.dp))

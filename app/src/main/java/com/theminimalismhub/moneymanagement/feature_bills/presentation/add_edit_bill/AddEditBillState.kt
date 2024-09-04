@@ -8,7 +8,7 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 data class AddEditBillState(
     val currency: String = "",
     val categories: List<Category> = emptyList(),
-    val currentFinanceId: Int? = null,
+    val currentBillId: Int? = null,
 
     val selectedCategoryId: Int? = null,
     val recurringType: RecurringType = RecurringType.MONTHLY,

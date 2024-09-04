@@ -15,4 +15,8 @@ class BillRepoImpl(private val dao: BillDao) : BillRepo {
     override suspend fun insert(item: BillItem): Long {
         return dao.insertBill(item)
     }
+
+    override suspend fun delete(id: Int) {
+        dao.deleteBill(id)
+    }
 }

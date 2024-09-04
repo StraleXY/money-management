@@ -7,4 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface BillRepo {
     fun getAll(): Flow<List<Bill>>
     suspend fun insert(item: BillItem) : Long
+    suspend fun delete(id: Int)
 }

@@ -9,6 +9,7 @@ import com.theminimalismhub.moneymanagement.feature_bills.data.repository.BillRe
 import com.theminimalismhub.moneymanagement.feature_bills.domain.repository.BillRepo
 import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.AddBill
 import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.AddEditBillUseCases
+import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.DeleteBill
 import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.GetBills
 import com.theminimalismhub.moneymanagement.feature_categories.data.repository.CategoryRepoImpl
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
@@ -112,7 +113,8 @@ object AppModule {
             getCategories = GetCategories(categoryRepo),
             getAccounts = GetAccounts(accountRepo),
             add = AddBill(billRepo),
-            get = GetBills(billRepo)
+            get = GetBills(billRepo),
+            delete = DeleteBill(billRepo)
         )
     }
 

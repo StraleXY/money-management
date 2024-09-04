@@ -37,6 +37,7 @@ class ManageBillsViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isAddEditOpen = !_state.value.isAddEditOpen
                 )
+                event.bill?.let { addEditBillVM.initBill(it) }
             }
         }
     }

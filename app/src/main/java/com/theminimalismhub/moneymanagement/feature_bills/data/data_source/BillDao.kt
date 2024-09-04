@@ -13,9 +13,13 @@ import kotlinx.coroutines.flow.Flow
 interface BillDao {
 
     @Transaction
-    @Query("SELECT * FROM bill ORDER BY due DESC")
+    @Query("SELECT * FROM bill ORDER BY due ASC")
     fun getAll() : Flow<List<Bill>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBill(bill: BillItem): Long
+
+    @Transaction
+    @Query("DELETE FROM bill WHERE billId = :id")
+    suspend fun deleteBill(id: Int)
 }

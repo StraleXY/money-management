@@ -7,6 +7,7 @@ import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_bills.data.model.BillItem
+import com.theminimalismhub.moneymanagement.feature_bills.domain.model.Bill
 import com.theminimalismhub.moneymanagement.feature_bills.domain.model.RecurringType
 import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.AddEditBillUseCases
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.HashMap
 
@@ -55,6 +55,17 @@ class AddEditBillService(
         getAccounts()
     }
 
+    fun initBill(bill: Bill) {
+        _state.value = _state.value.copy(
+            currentBillId = bill.bill.billId
+        )
+        bill.category?.categoryId?.let { onEvent(AddEditBillEvent.CategorySelected(it)) }
+        bill.account.accountId?.let { onEvent(AddEditBillEvent.AccountSelected(it)) }
+        formState.fields[0].change(bill.bill.time.toString())
+        formState.fields[1].change(bill.bill.name)
+        formState.fields[2].change(bill.bill.amount.toString())
+    }
+
     fun onEvent(event: AddEditBillEvent) {
         when(event) {
             is AddEditBillEvent.AccountSelected -> {
@@ -85,11 +96,20 @@ class AddEditBillService(
                             due = calendar.timeInMillis,
                             billCategoryId = _state.value.selectedCategoryId!!,
                             billAccountId = _state.value.selectedAccountId!!,
-                            isLastMonthPaid = time < dayOfMonth
+                            isLastMonthPaid = time < dayOfMonth,
+                            billId = _state.value.currentBillId
                         )
                     )
+                    requestClose()
                 }
-                requestClose()
+            }
+            is AddEditBillEvent.DeleteBill -> {
+                _state.value.currentBillId?.let {
+                    scope.launch {
+                        useCases.delete(it)
+                        requestClose()
+                    }
+                }
             }
         }
     }
