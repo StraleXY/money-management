@@ -50,7 +50,7 @@ fun BillCard(
             .fillMaxWidth()
             .clickable { onEdit() }
             .alpha(if(bill.bill.isLastMonthPaid) 0.5f else 1f)
-            .padding(horizontal = 24.dp),
+            .padding(start = 24.dp, end = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row {

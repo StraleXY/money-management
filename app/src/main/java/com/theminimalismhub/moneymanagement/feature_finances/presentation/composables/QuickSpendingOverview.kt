@@ -89,12 +89,12 @@ fun QuickSpendingOverview(
 }
 
 @Composable
-private fun SpendingSegment(
+fun SpendingSegment(
     modifier: Modifier = Modifier,
     title: String,
     amount: Double,
-    hint: String,
-    secondaryAmount: Double,
+    hint: String = "",
+    secondaryAmount: Double? = null,
     currency: String = "RSD"
 ) {
     val animatedAmount by
@@ -102,8 +102,8 @@ private fun SpendingSegment(
         else animateIntAsState(targetValue = amount.toInt(), tween(750))
 
     val animatedSecondaryAmount by
-        if(Currencier.isDecimal(secondaryAmount)) animateFloatAsState(targetValue = secondaryAmount.toFloat(), tween(750))
-        else animateIntAsState(targetValue = secondaryAmount.toInt(), tween(750))
+        if(Currencier.isDecimal(secondaryAmount ?: 0.0)) animateFloatAsState(targetValue = secondaryAmount?.toFloat() ?: 0f, tween(750))
+        else animateIntAsState(targetValue = secondaryAmount?.toInt() ?: 0, tween(750))
 
     Column(
         modifier = modifier,
@@ -123,13 +123,15 @@ private fun SpendingSegment(
             color = if(amount < 0.0) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            modifier = Modifier
-                .alpha(0.65f),
-            text = "$hint: ${if(secondaryAmount == 0.0) "--" else Currencier.formatAmount(animatedSecondaryAmount.toFloat()) } $currency",
-            style = MaterialTheme.typography.h3.copy(
-                fontSize = 15.sp
+        secondaryAmount?.let {
+            Text(
+                modifier = Modifier
+                    .alpha(0.65f),
+                text = "$hint: ${if (secondaryAmount == 0.0) "--" else Currencier.formatAmount(animatedSecondaryAmount.toFloat())} $currency",
+                style = MaterialTheme.typography.h3.copy(
+                    fontSize = 15.sp
+                )
             )
-        )
+        }
     }
 }
