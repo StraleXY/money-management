@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.core.composables
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
@@ -28,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
 import kotlin.math.roundToInt
 
 @Composable
@@ -90,4 +93,27 @@ fun ActionChip(
             )
         }
     }
+}
+
+@Composable
+fun SelectableChip(
+    modifier: Modifier = Modifier.widthIn(60.dp, 180.dp),
+    label: String,
+    icon: ImageVector? = null,
+    selected: Boolean = false,
+    onClick: () -> Unit
+) {
+    val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
+    val textColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.secondaryVariant else MaterialTheme.colors.onSurface, tween(durationMillis = 250))
+
+    ActionChip(
+        modifier = modifier,
+        text = label,
+        textColor = textColor.value,
+        backgroundColor = backgroundColor.value,
+        borderThickness = 0.dp,
+        onClick = onClick,
+        backgroundStrength = 1f,
+        icon = icon
+    )
 }

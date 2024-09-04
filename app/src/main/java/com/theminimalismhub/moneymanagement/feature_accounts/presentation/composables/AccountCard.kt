@@ -65,6 +65,7 @@ import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
+import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
@@ -82,18 +83,12 @@ fun AccountChip(
     selected: Boolean = true,
     onClick: () -> Unit
 ) {
-    val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
-    val textColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.secondaryVariant else MaterialTheme.colors.onSurface, tween(durationMillis = 250))
-
-    ActionChip(
+    SelectableChip(
         modifier = modifier,
-        text = account.name,
-        textColor = textColor.value,
-        backgroundColor = backgroundColor.value,
-        borderThickness = 0.dp,
-        onClick = { onClick() },
-        backgroundStrength = 1f,
-        icon = getAccountIcon(account.type)
+        label = account.name,
+        icon = getAccountIcon(account.type),
+        onClick = onClick,
+        selected = selected
     )
 }
 

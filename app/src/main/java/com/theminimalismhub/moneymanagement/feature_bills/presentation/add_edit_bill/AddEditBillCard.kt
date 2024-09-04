@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_bill
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -13,25 +14,37 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Timelapse
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.dsc.form_builder.TextFieldState
+import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
+import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
+import com.theminimalismhub.moneymanagement.feature_bills.domain.model.RecurringType
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsChips
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.ToggleChip
 
 
 @Composable
@@ -57,22 +70,15 @@ fun AddEditBillCard(
 
     val focusManager = LocalFocusManager.current
     val time: TextFieldState  = vm.formState.getState("time")
+    val interval: TextFieldState  = vm.formState.getState("interval")
     val name: TextFieldState  = vm.formState.getState("name")
     val amount: TextFieldState  = vm.formState.getState("amount")
 
     FloatingCard(
         modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
-        header = {
-
-        }
+        header = {}
     ) {
-        AccountsChips(
-            accounts = state.accounts,
-            states = state.accountStates,
-            listState = accountListState
-        ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
-        Spacer(modifier = Modifier.height(8.dp))
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -92,7 +98,39 @@ fun AddEditBillCard(
                 }
             }
         }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        AccountsChips(
+            accounts = state.accounts,
+            states = state.accountStates,
+            listState = accountListState
+        ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 34.dp),
+            horizontalArrangement = Arrangement.Start,
+        ) {
+            item {
+                SelectableChip(
+                    label = "Payed Monthly",
+                    icon = Icons.Default.Today,
+                    onClick = { vm.onEvent(AddEditBillEvent.SelectRecurring(RecurringType.MONTHLY)) },
+                    selected = state.recurringType == RecurringType.MONTHLY
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SelectableChip(
+                    label = "Payed in Interval",
+                    icon = Icons.Default.Timelapse,
+                    onClick = { vm.onEvent(AddEditBillEvent.SelectRecurring(RecurringType.INTERVAL)) },
+                    selected = state.recurringType == RecurringType.INTERVAL
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
             value = time.value,
             onValueChange = { time.change(it) },
@@ -111,6 +149,28 @@ fun AddEditBillCard(
                 .padding(horizontal = 36.dp),
             message = time.errorMessage,
             hasError = time.hasError
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        AnimatedVisibility(visible = state.recurringType == RecurringType.INTERVAL) {
+            OutlinedTextField(
+                value = interval.value,
+                onValueChange = { interval.change(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 36.dp),
+                textStyle = MaterialTheme.typography.body1,
+                label = { Text(text = "Interval [Days]") },
+                isError = interval.hasError,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+            )
+        }
+        ErrorText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 36.dp),
+            message = interval.errorMessage,
+            hasError = interval.hasError
         )
         Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(

@@ -16,6 +16,6 @@ data class AddEditBillState(
 
     val selectedAccountId: Int? = null,
     val accounts: List<Account> = emptyList(),
-    val accountStates: HashMap<Int, MutableState<Boolean>> = HashMap()
+    val accountStates: HashMap<Int, MutableState<Boolean>> = HashMap(),
 
 )
