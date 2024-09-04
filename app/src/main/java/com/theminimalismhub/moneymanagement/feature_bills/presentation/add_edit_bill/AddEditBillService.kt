@@ -120,11 +120,11 @@ class AddEditBillService(
                     var dueDay = (formState.fields[0].value).toInt()
                     val interval = (formState.fields[3].value.ifEmpty { "0" }).toInt()
                     val calendar = Calendar.getInstance()
+                    calendar.set(Calendar.DAY_OF_MONTH, dueDay)
                     if (dueDay < dayOfMonth) {
                         when(_state.value.recurringType) {
                             RecurringType.MONTHLY -> {
                                 calendar.add(Calendar.MONTH, 1)
-                                calendar.set(Calendar.DAY_OF_MONTH, dueDay)
                             }
                             RecurringType.INTERVAL -> {
                                 calendar.set(Calendar.DAY_OF_MONTH, dueDay)
