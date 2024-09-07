@@ -39,6 +39,7 @@ import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestinati
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddNewAccount
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
+import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
@@ -100,6 +101,19 @@ fun HomeScreen(
                     AddNewAccount { navigator.navigate(ManageAccountsScreenDestination(isAddNew = true))}
                 }
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            ToggleTracking(
+                modifier = Modifier.padding(start = 12.dp),
+                action = "Show Line Graph",
+                actionHint = "Toggle whether weekly and monthly line graphs are shown.",
+                toggled = false
+            ) { }
+            ToggleTracking(
+                modifier = Modifier.padding(start = 12.dp),
+                action = "Compact Overview",
+                actionHint = "Toggle between compact or expanded spending overview.",
+                toggled = true
+            ) { }
             Spacer(modifier = Modifier.height(24.dp))
         },
         frontLayerContent = {
