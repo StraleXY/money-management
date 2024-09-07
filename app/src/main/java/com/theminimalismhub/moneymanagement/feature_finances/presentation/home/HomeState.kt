@@ -18,6 +18,7 @@ data class HomeState(
     val earningsPerTimePeriod: List<GraphEntry> = emptyList(),
     val maxEarnings: Double = 0.0,
     val quickSpendingAmount: Double = 0.0,
+    val dailyAverage: Double = 0.0,
     val limit: Double = 0.0,
     val currency: String = "",
 

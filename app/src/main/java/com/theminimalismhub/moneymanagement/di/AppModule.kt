@@ -91,7 +91,8 @@ object AppModule {
         return HomeUseCases(
             getFinances = GetFinances(financeRepo),
             getTotalPerDay = GetTotalPerDay(financeRepo, categoryRepo),
-            getAccounts = GetAccounts(accountRepo)
+            getAccounts = GetAccounts(accountRepo),
+            getTotal = GetTotal(financeRepo)
         )
     }
 

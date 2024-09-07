@@ -135,10 +135,11 @@ fun HomeScreen(
                                 isToday = state.isToday,
                                 rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
                             )
-                            QuickSpendingOverview(
+                            QuickSpendingOverviewCompact(
                                 modifier = Modifier
                                     .padding(horizontal = 20.dp),
                                 amount = state.quickSpendingAmount,
+                                average = state.dailyAverage,
                                 rangeLength = vm.rangeService.rangeLength,
                                 limit = state.limit,
                                 limitHidden = state.itemsTypeStates[2]!!.value,
