@@ -78,7 +78,7 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
 
     Scaffold(
         floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen || state.billToPay != null) {
-            if(state.isAddEditOpen) vm.onEvent(ManageBillsEvent.ToggleAddEdit(null))
+            if(state.billToPay == null) vm.onEvent(ManageBillsEvent.ToggleAddEdit(null))
             vm.onEvent(ManageBillsEvent.TogglePayBill(null))
         } },
         scaffoldState = scaffoldState,
