@@ -36,4 +36,8 @@
     <!-- Crypto -->
     <string name="crypto_balance_mask">#5%l.&amp;</string>
 
+    <!-- Bills -->
+    <string name="b_title">Manage Bills</string>
+    <string name="b_hint">Manage your recurring expenses like bills and subscriptions!</string>
+
 </resources>

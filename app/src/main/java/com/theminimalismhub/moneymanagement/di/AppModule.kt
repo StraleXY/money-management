@@ -5,6 +5,12 @@ import android.content.Context
 import com.theminimalismhub.moneymanagement.feature_accounts.data.repository.AccountRepoImpl
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.repository.AccountRepo
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.*
+import com.theminimalismhub.moneymanagement.feature_bills.data.repository.BillRepoImpl
+import com.theminimalismhub.moneymanagement.feature_bills.domain.repository.BillRepo
+import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.AddBill
+import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.AddEditBillUseCases
+import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.DeleteBill
+import com.theminimalismhub.moneymanagement.feature_bills.domain.use_cases.GetBills
 import com.theminimalismhub.moneymanagement.feature_categories.data.repository.CategoryRepoImpl
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.AddCategory
@@ -57,6 +63,11 @@ object AppModule {
     }
 
     @Provides @Singleton
+    fun providesBillRepo(db: MoneyDatabase) : BillRepo {
+        return BillRepoImpl(db.billDao)
+    }
+
+    @Provides @Singleton
     fun providesManageCategoriesUseCases(repo: CategoryRepo): ManageCategoriesUseCases {
         return ManageCategoriesUseCases(
             get = GetCategories(repo),
@@ -93,6 +104,19 @@ object AppModule {
             delete = DeleteAccount(repo),
             addTransaction = AddTransaction(financeRepo, repo),
             getTransactions = GetFinances(financeRepo)
+        )
+    }
+
+    @Provides @Singleton
+    fun providesAddEditBillUseCases(categoryRepo: CategoryRepo, accountRepo: AccountRepo, billRepo: BillRepo, financeRepo: FinanceRepo) : AddEditBillUseCases {
+        return AddEditBillUseCases(
+            getCategories = GetCategories(categoryRepo),
+            getAccounts = GetAccounts(accountRepo),
+            add = AddBill(billRepo),
+            get = GetBills(billRepo),
+            delete = DeleteBill(billRepo),
+            pay = AddFinance(financeRepo),
+            updateAccountBalance = UpdateAccountBalance(accountRepo)
         )
     }
 

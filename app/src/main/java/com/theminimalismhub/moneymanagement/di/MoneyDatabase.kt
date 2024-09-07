@@ -7,6 +7,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.theminimalismhub.moneymanagement.feature_accounts.data.data_source.AccountDao
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
+import com.theminimalismhub.moneymanagement.feature_bills.data.data_source.BillDao
+import com.theminimalismhub.moneymanagement.feature_bills.data.model.BillItem
 import com.theminimalismhub.moneymanagement.feature_categories.data.data_source.CategoryDao
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.data_source.FinanceDao
@@ -16,9 +18,10 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
     entities = [
         Category::class,
         Account::class,
-        FinanceItem::class
+        FinanceItem::class,
+        BillItem::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(1, 2),  // account: primary
@@ -28,12 +31,14 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceI
         AutoMigration(5, 6),  // finance item: category can be null
         AutoMigration(6, 7, spec = From6To7Migration::class),  // finance item: renamed financeTo to financeFrom
         AutoMigration(7, 8),  // add: trackable flag to category and finance item
+        AutoMigration(8, 9), // add: BillItem
     ]
 )
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {
     abstract val categoryDao: CategoryDao
     abstract val financeDao: FinanceDao
     abstract val accountDao: AccountDao
+    abstract val billDao: BillDao
     companion object {
         @Volatile
         var Instance: MoneyDatabase? = null
@@ -58,7 +63,6 @@ abstract class MoneyDatabase protected constructor() : RoomDatabase() {
 
 @RenameColumn(tableName = "Finance", fromColumnName = "financeAccountIdTo", toColumnName = "financeAccountIdFrom")
 class From6To7Migration : AutoMigrationSpec
-
 
 
 fun query(block: () -> Unit) = MoneyDatabase.Instance?.queryExecutor?.execute(block)
