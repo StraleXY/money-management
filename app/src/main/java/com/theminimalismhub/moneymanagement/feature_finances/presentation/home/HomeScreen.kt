@@ -102,19 +102,6 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
-            ToggleTracking(
-                modifier = Modifier.padding(start = 12.dp),
-                action = "Show Line Graph",
-                actionHint = "Toggle whether weekly and monthly line graphs are shown.",
-                toggled = false
-            ) { }
-            ToggleTracking(
-                modifier = Modifier.padding(start = 12.dp),
-                action = "Compact Overview",
-                actionHint = "Toggle between compact or expanded spending overview.",
-                toggled = true
-            ) { }
-            Spacer(modifier = Modifier.height(24.dp))
         },
         frontLayerContent = {
             Scaffold(
@@ -145,14 +132,16 @@ fun HomeScreen(
                                 limitHidden = state.itemsTypeStates[2]!!.value,
                                 currency = state.currency
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                             ItemsTypeSelector(
                                 modifier = Modifier
                                     .padding(horizontal = 20.dp),
                                 itemsTypeStates = state.itemsTypeStates,
                                 itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                             AnimatedVisibility(
-                                visible = state.itemsTypeStates[2]!!.value,
+                                visible = state.itemsTypeStates[2]!!.value && state.filterIncomeByAccount || state.itemsTypeStates.filter { it.key != 2 }.any { it.value.value } && state.filterOutcomeByAccount,
                                 enter = expandVertically(tween(400))
                                         + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
                                         + fadeIn(tween(300, 450)),
@@ -160,17 +149,27 @@ fun HomeScreen(
                                         + fadeOut(tween(300))
                                         + shrinkVertically(tween(450, 250))
                             ) {
-                                AccountsList(
-                                    modifier = Modifier.padding(bottom = 12.dp),
-                                    spacing = 8.dp,
-                                    contentPadding = PaddingValues(horizontal = 20.dp),
-                                    accounts = state.accounts,
-                                    states = state.accountStates,
-                                    currency = state.currency
-                                ) { vm.onEvent(HomeEvent.AccountClicked(it)) }
+                                Card(
+                                    modifier = Modifier
+                                        .padding(horizontal = 20.dp)
+                                        .padding(bottom = 8.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(15.dp),
+                                    backgroundColor =
+                                    if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
+                                    else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
+                                    elevation = 4.dp
+                                ) {
+                                    AccountsChips(
+                                        spacing = 8.dp,
+                                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
+                                        accounts = state.accounts,
+                                        states = state.accountStates
+                                    ) { vm.onEvent(HomeEvent.AccountClicked(it)) }
+                                }
                             }
                             AnimatedVisibility(
-                                visible = vm.rangeService.rangeLength > 1,
+                                visible = vm.rangeService.rangeLength > 1 && state.showLineGraph,
                                 enter = expandVertically(tween(400))
                                         + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
                                         + fadeIn(tween(300, 450)),
@@ -189,7 +188,8 @@ fun HomeScreen(
                             CategoryTotalsOverview(
                                 totalPerCategory = state.totalPerCategory,
                                 categoryBarStates = state.categoryBarStates,
-                                currency = state.currency
+                                currency = state.currency,
+                                collapsable = state.collapseCategories
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                         }
                         items(state.results) {
@@ -378,5 +378,4 @@ private fun ItemsTypeSelector(
             Spacer(modifier = Modifier.width(4.dp))
         }
     }
-    Spacer(modifier = Modifier.height(12.dp))
 }

@@ -10,4 +10,5 @@ sealed class HomeEvent {
     data class CategoryClicked(val id: Int) : HomeEvent()
     data class ItemTypeSelected(val idx: Int) : HomeEvent()
     data class AccountClicked(val id: Int) : HomeEvent()
+    object ToggleShowLineGraph : HomeEvent()
 }

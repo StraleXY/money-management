@@ -1,12 +1,8 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
-import android.util.Log
 import androidx.compose.material.Colors
-import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -48,7 +44,11 @@ class HomeViewModel @Inject constructor(
     init {
         _state.value = _state.value.copy(
             limit = preferences.getSimpleLimit().toDouble(),
-            currency = preferences.getCurrency()
+            currency = preferences.getCurrency(),
+            showLineGraph = preferences.getShowLineGraph(),
+            collapseCategories = preferences.getCollapseCategories(),
+            filterIncomeByAccount = preferences.getFilterIncomeByAccount(),
+            filterOutcomeByAccount = preferences.getFilterOutcomeByAccount()
         )
         initDateRange()
         initAverages()
@@ -89,6 +89,10 @@ class HomeViewModel @Inject constructor(
                 selectedCategoryId = null
                 toggleAccountPreview(event.id)
                 getFinances()
+            }
+            is HomeEvent.ToggleShowLineGraph -> {
+                _state.value = _state.value.copy(showLineGraph = !_state.value.showLineGraph)
+                preferences.setShowLineGraph(_state.value.showLineGraph)
             }
         }
     }

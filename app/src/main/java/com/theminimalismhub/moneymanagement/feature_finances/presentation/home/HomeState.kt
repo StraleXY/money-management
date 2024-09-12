@@ -31,5 +31,10 @@ data class HomeState(
         1 to mutableStateOf(false),
         2 to mutableStateOf(false),
         3 to mutableStateOf(false),
-    )
+    ),
+
+    val showLineGraph: Boolean = false,
+    val collapseCategories: Boolean = false,
+    val filterIncomeByAccount: Boolean = false,
+    val filterOutcomeByAccount: Boolean = false
 )

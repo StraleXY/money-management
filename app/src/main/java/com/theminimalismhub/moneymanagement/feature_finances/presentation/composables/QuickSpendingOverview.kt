@@ -219,5 +219,4 @@ fun QuickSpendingOverviewCompact(
             }
         }
     }
-    Spacer(modifier = Modifier.height(12.dp))
 }
