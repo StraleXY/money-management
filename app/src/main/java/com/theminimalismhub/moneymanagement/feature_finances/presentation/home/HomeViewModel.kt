@@ -41,7 +41,9 @@ class HomeViewModel @Inject constructor(
     val rangeService = RangePickerService()
     private var selectedAccountId: Int? = null
 
-    init {
+    init { init() }
+
+    fun init() {
         _state.value = _state.value.copy(
             limit = preferences.getSimpleLimit().toDouble(),
             currency = preferences.getCurrency(),

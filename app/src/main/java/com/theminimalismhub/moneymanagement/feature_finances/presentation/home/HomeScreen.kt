@@ -63,6 +63,8 @@ fun HomeScreen(
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
 
+    LaunchedEffect(Unit) { vm.init() }
+
     val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
@@ -122,6 +124,8 @@ fun HomeScreen(
                                 isToday = state.isToday,
                                 rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
                             )
+                            CardRangePicker()
+                            Spacer(modifier = Modifier.height(8.dp))
                             QuickSpendingOverviewCompact(
                                 modifier = Modifier
                                     .padding(horizontal = 20.dp),

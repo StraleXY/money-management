@@ -1,11 +1,14 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
 import android.util.Half.toFloat
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -26,6 +29,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.dynamicanimation.animation.FlingAnimation
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerDefaults
+import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import kotlin.math.absoluteValue
 
@@ -218,5 +226,50 @@ fun QuickSpendingOverviewCompact(
                 }
             }
         }
+    }
+}
+
+
+enum class Direction {
+    PREVIOUS, NEXT
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun CardRangePicker(
+
+) {
+
+    val scrollState = rememberPagerState(
+        pageCount = 3,
+        initialPage = 1,
+        infiniteLoop = true
+    )
+
+    var previousPage by remember { mutableStateOf(1) }
+    val currentPage by remember { derivedStateOf { scrollState.currentPage } }
+
+    LaunchedEffect(currentPage) {
+        try {
+            Log.d("SCROLL", "$previousPage -> $currentPage [Direction: ${Direction.values()[(previousPage - currentPage + 2) % 3]}]")
+        } catch (e: IndexOutOfBoundsException) {
+            Log.i("SCROLL", "Scroll did not happen yet!")
+        }
+        previousPage = currentPage
+    }
+
+    HorizontalPager(
+        state = scrollState
+    ) {
+        QuickSpendingOverviewCompact(
+            modifier = Modifier
+                .padding(horizontal = 20.dp),
+            amount = it.toDouble(),
+            average = 1.0,
+            rangeLength = 1,
+            limit = 1.0,
+            limitHidden = true,
+            currency = "Page"
+        )
     }
 }
