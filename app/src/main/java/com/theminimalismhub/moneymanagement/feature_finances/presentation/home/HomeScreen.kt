@@ -125,17 +125,17 @@ fun HomeScreen(
                                 rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
                             )
                             CardRangePicker()
-                            Spacer(modifier = Modifier.height(8.dp))
-                            QuickSpendingOverviewCompact(
-                                modifier = Modifier
-                                    .padding(horizontal = 20.dp),
-                                amount = state.quickSpendingAmount,
-                                average = state.dailyAverage,
-                                rangeLength = vm.rangeService.rangeLength,
-                                limit = state.limit,
-                                limitHidden = state.itemsTypeStates[2]!!.value,
-                                currency = state.currency
-                            )
+//                            Spacer(modifier = Modifier.height(8.dp))
+//                            QuickSpendingOverviewCompact(
+//                                modifier = Modifier
+//                                    .padding(horizontal = 20.dp),
+//                                amount = state.quickSpendingAmount,
+//                                average = state.dailyAverage,
+//                                rangeLength = vm.rangeService.rangeLength,
+//                                limit = state.limit,
+//                                limitHidden = state.itemsTypeStates[2]!!.value,
+//                                currency = state.currency
+//                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             ItemsTypeSelector(
                                 modifier = Modifier

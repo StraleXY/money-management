@@ -3,10 +3,15 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.compo
 import android.util.Half.toFloat
 import android.util.Log
 import androidx.compose.animation.*
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -30,10 +35,12 @@ import androidx.compose.ui.unit.sp
 import androidx.dynamicanimation.animation.FlingAnimation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerDefaults
 import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @Composable
 fun QuickSpendingOverview(
@@ -150,6 +157,7 @@ fun SpendingSegment(
 
 @Composable
 fun QuickSpendingOverviewCompact(
+    exampleDate: Int = 13,
     modifier: Modifier = Modifier,
     amount: Double,
     average: Double,
@@ -186,11 +194,11 @@ fun QuickSpendingOverviewCompact(
             modifier = Modifier.padding(20.dp)
         ) {
             Text(
-                text = if(limitHidden) "Earned:" else "Spent:",
-                style = MaterialTheme.typography.body1,
+                text = "September $exampleDate",
+                style = MaterialTheme.typography.body2,
                 modifier = Modifier
                     .padding(start = 4.dp)
-                    .alpha(0.75f)
+                    .alpha(0.85f)
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -298,17 +306,22 @@ fun CardRangePicker(
     }
 
     HorizontalPager(
-        state = scrollState
+        state = scrollState,
+        flingBehavior = PagerDefaults.defaultPagerFlingConfig(
+            state = scrollState,
+            snapAnimationSpec = tween(200),
+            decayAnimationSpec = exponentialDecay(0.5f, 0.1f)
+        )
     ) {
         QuickSpendingOverviewCompact(
-            modifier = Modifier
-                .padding(horizontal = 20.dp),
-            amount = dates.toList()[it].toDouble(),
-            average = 1.0,
+            modifier = Modifier.padding(horizontal = 20.dp),
+            exampleDate = dates.toList()[it],
+            amount = Random(dates.toList()[pages.indexOf(0)]).nextDouble(1500.0, 4000.0),
+            average = 2500.0,
             rangeLength = 1,
             limit = 1.0,
-            limitHidden = true,
-            currency = "Page"
+            limitHidden = false,
+            currency = "RSD"
         )
     }
 }
