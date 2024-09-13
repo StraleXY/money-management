@@ -1,27 +1,28 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
-import android.util.Half.toFloat
 import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,16 +30,21 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.dynamicanimation.animation.FlingAnimation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerDefaults
 import com.google.accompanist.pager.rememberPagerState
+import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
+import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.Calendar
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -157,14 +163,16 @@ fun SpendingSegment(
 
 @Composable
 fun QuickSpendingOverviewCompact(
-    exampleDate: Int = 13,
+    exampleDate: String,
     modifier: Modifier = Modifier,
     amount: Double,
     average: Double,
     rangeLength: Int,
     limit: Double = 0.0,
     limitHidden: Boolean = false,
-    currency: String = "RSD"
+    currency: String = "RSD",
+    dateSelectable: Boolean,
+    dateClicked: () -> Unit
 ) {
     fun increase() : Int {
         return try {
@@ -194,11 +202,16 @@ fun QuickSpendingOverviewCompact(
             modifier = Modifier.padding(20.dp)
         ) {
             Text(
-                text = "September $exampleDate",
+                text = exampleDate,
                 style = MaterialTheme.typography.body2,
                 modifier = Modifier
                     .padding(start = 4.dp)
-                    .alpha(0.85f)
+                    .alpha(1f)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        enabled = dateSelectable
+                    ) { dateClicked() }
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -259,69 +272,170 @@ fun <T> MutableList<T>.rotateLeft() {
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun CardRangePicker(
-
+    rangeService: RangePickerService,
+    rangePicked: (Pair<Long, Long>, Boolean) -> Unit,
+    isToday: Boolean = true,
+    amount: Double,
+    average: Double,
+    limit: Double,
+    limitHidden: Boolean,
+    currency: String
 ) {
 
+    val scope = rememberCoroutineScope()
+
+    var rangePreview by remember { mutableStateOf(rangeService.formattedDate()) }
+    val offsets = remember { mutableStateListOf(-1, 0, 1) }
+    val ranges = remember { mutableStateListOf(rangeService.getPreviousPair(), rangeService.getCurrentPair(), rangeService.getNextPair()) }
+
+    fun updateOffsets() {
+        ranges[offsets.indexOf(-1)] = rangeService.getPreviousPair()
+        ranges[offsets.indexOf(0)] = rangeService.getCurrentPair()
+        ranges[offsets.indexOf(1)] = rangeService.getNextPair()
+    }
+
+    fun update() {
+        rangePreview = rangeService.formattedDate()
+        updateOffsets()
+        rangePicked(Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp()), rangeService.isToday())
+    }
+
+    val scrollState = rememberPagerState(pageCount = 3, initialPage = 1, infiniteLoop = true)
     var ready by remember { mutableStateOf(false) }
-
-    val pages = remember { mutableStateListOf(-1, 0, 1) }
-    val dates = remember { mutableStateListOf(12, 13, 14) }
-
-    val scrollState = rememberPagerState(
-        pageCount = 3,
-        initialPage = 1,
-        infiniteLoop = true
-    )
-
     var previousPage by remember { mutableStateOf(1) }
     val currentPage by remember { derivedStateOf { scrollState.currentPage } }
 
-    fun updateDates() {
-        Log.d("SCROLL", "Before: ${dates.toList()} [${pages.toList()}]")
+    fun onSwipe() {
+        when(Direction.values()[(previousPage - currentPage + 2) % 3]) {
+            Direction.PREVIOUS -> {
+                offsets.rotateLeft()
+                rangeService.previous()
+                update()
+            }
+            Direction.NEXT -> {
+                offsets.rotateRight()
+                rangeService.next()
+                update()
+            }
+        }
+        previousPage = currentPage
+    }
 
-        val curIdx = pages.indexOf(0)
-        val nextIdx = pages.indexOf(1)
-        val prevIdx = pages.indexOf(-1)
-
-        dates[nextIdx] = dates[curIdx] + 1
-        dates[prevIdx] = dates[curIdx] -1
-
-        Log.d("SCROLL", "After: ${dates.toList()}")
+    fun animateUpdate() {
+        scope.launch {
+            ready = false
+            scrollState.animateScrollToPage(
+                page = (currentPage + 1) % 3,
+                pageOffset = 0.5f
+            )
+            ready = false
+            scrollState.animateScrollToPage(
+                page = (currentPage - 1) % 3
+            )
+        }
     }
 
     LaunchedEffect(currentPage) {
         try {
-            when(Direction.values()[(previousPage - currentPage + 2) % 3]) {
-                Direction.PREVIOUS -> pages.rotateLeft()
-                Direction.NEXT -> pages.rotateRight()
-            }
-            previousPage = currentPage
-        } catch (_: IndexOutOfBoundsException) {
-            delay(500)
+            Log.d("SCROLL", "Scrolling to page: $currentPage [Ready: $ready]")
+            if (ready) onSwipe()
+            else ready = true
+        }
+        catch (_: IndexOutOfBoundsException) {
             ready = true
         }
     }
-    LaunchedEffect(pages.toList()) {
-        if(ready) updateDates()
-    }
+    LaunchedEffect(offsets.toList()) { if(ready) updateOffsets() }
 
-    HorizontalPager(
-        state = scrollState,
-        flingBehavior = PagerDefaults.defaultPagerFlingConfig(
+    val picker = datePickerDialog(
+        initialTime = rangeService.getCurrentTimestamp(),
+        datePicked = {
+            rangeService.set(it)
+            animateUpdate()
+            update()
+        }
+    )
+
+    Column {
+        Box(
+
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                ToggleButton(
+                    text = "DAILY",
+                    isToggled = rangeService.type == RangeType.DAILY
+                ) {
+                    rangeService.setModeDay()
+                    update()
+                }
+                ToggleButton(
+                    text = "WEEKLY",
+                    isToggled = rangeService.type == RangeType.WEEKLY
+                ) {
+                    rangeService.setModeWeek()
+                    update()
+                }
+                ToggleButton(
+                    text = "MONTHLY",
+                    isToggled = rangeService.type == RangeType.MONTHLY
+                ) {
+                    rangeService.setModeMonth()
+                    update()
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 10.dp)
+            ) {
+                AnimatedVisibility(
+                    visible = !isToday,
+                    enter = fadeIn() + slideInVertically(initialOffsetY = { h -> -h/4 }),
+                    exit = fadeOut() + slideOutVertically(targetOffsetY = { h -> -h/4 })
+                ) {
+                    IconButton(onClick = {
+                        rangeService.setToday()
+                        animateUpdate()
+                        update()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Today,
+                            contentDescription = Icons.Default.ArrowLeft.name
+                        )
+                    }
+                }
+            }
+        }
+        HorizontalPager(
             state = scrollState,
-            snapAnimationSpec = tween(200),
-            decayAnimationSpec = exponentialDecay(0.5f, 0.1f)
-        )
-    ) {
-        QuickSpendingOverviewCompact(
-            modifier = Modifier.padding(horizontal = 20.dp),
-            exampleDate = dates.toList()[it],
-            amount = Random(dates.toList()[pages.indexOf(0)]).nextDouble(1500.0, 4000.0),
-            average = 2500.0,
-            rangeLength = 1,
-            limit = 1.0,
-            limitHidden = false,
-            currency = "RSD"
-        )
+            flingBehavior = PagerDefaults.defaultPagerFlingConfig(
+                state = scrollState,
+                snapAnimationSpec = tween(200),
+                decayAnimationSpec = exponentialDecay(0.5f, 0.1f)
+            )
+        ) {
+            QuickSpendingOverviewCompact(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                exampleDate = rangeService.formatPair(ranges.toList()[it]),
+                amount = amount,
+                average = average,
+                rangeLength = rangeService.rangeLength,
+                limit = limit,
+                limitHidden = limitHidden,
+                currency = currency,
+                dateSelectable = rangeService.type == RangeType.DAILY,
+                dateClicked = {
+                    picker.updateDate(
+                        rangeService.getStartDay().get(Calendar.YEAR),
+                        rangeService.getStartDay().get(Calendar.MONTH),
+                        rangeService.getStartDay().get(Calendar.DAY_OF_MONTH)
+                    )
+                    picker.show()
+                }
+            )
+        }
     }
 }

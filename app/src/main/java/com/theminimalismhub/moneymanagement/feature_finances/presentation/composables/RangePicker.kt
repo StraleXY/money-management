@@ -73,7 +73,7 @@ fun RangePicker(
                 update()
             }
         }
-        if(false) Row(
+        Row(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp),
@@ -188,7 +188,7 @@ fun ToggleButton(
 }
 
 @Composable
-private fun datePickerDialog(
+fun datePickerDialog(
     initialTime: Long = System.currentTimeMillis(),
     datePicked: (Long) -> Unit
 ) : DatePickerDialog {

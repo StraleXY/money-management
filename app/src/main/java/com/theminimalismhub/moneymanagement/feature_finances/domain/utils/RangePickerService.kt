@@ -93,6 +93,32 @@ class RangePickerService {
         }
     }
 
+    fun formatPair(pair: Pair<Long, Long>): String {
+        return when (distance) {
+            1 -> SimpleDateFormat("EEEE d MMM").format(pair.first)
+            7 -> (SimpleDateFormat("MMM d").format(pair.first) + " - " + SimpleDateFormat("MMM d").format(pair.second)) + "  [Week " + start[Calendar.WEEK_OF_YEAR] + "]"
+            else -> SimpleDateFormat("MMMM YYYY").format(pair.first)
+        }
+    }
+
+    fun getDistanceInMillis() : Long {
+        return (rangeLength * 24 * 60 * 60 * 1000).toLong()
+    }
+
+    fun getCurrentPair(): Pair<Long, Long> {
+        return Pair(getStartTimestamp(), getEndTimestamp())
+    }
+
+    fun getPreviousPair() : Pair<Long, Long> {
+        val currentPair = getCurrentPair()
+        return Pair(currentPair.first - getDistanceInMillis(), currentPair.second - getDistanceInMillis())
+    }
+
+    fun getNextPair() : Pair<Long, Long> {
+        val currentPair = getCurrentPair()
+        return Pair(currentPair.first + getDistanceInMillis(), currentPair.second + getDistanceInMillis())
+    }
+
     fun getStartTimestamp(): Long {
         return start.timeInMillis
     }

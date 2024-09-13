@@ -119,12 +119,21 @@ fun HomeScreen(
                     ) {
                         item {
                             Spacer(modifier = Modifier.height(36.dp))
-                            RangePicker(
+//                            RangePicker(
+//                                rangeService = vm.rangeService,
+//                                isToday = state.isToday,
+//                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
+//                            )
+                            CardRangePicker(
                                 rangeService = vm.rangeService,
                                 isToday = state.isToday,
-                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
+                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) },
+                                amount = state.quickSpendingAmount,
+                                average = state.dailyAverage,
+                                limit = state.limit,
+                                limitHidden = state.itemsTypeStates[2]!!.value,
+                                currency = state.currency
                             )
-                            CardRangePicker()
 //                            Spacer(modifier = Modifier.height(8.dp))
 //                            QuickSpendingOverviewCompact(
 //                                modifier = Modifier
