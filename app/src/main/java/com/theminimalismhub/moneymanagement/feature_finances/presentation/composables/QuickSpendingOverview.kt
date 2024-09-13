@@ -7,8 +7,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -32,9 +30,9 @@ import androidx.compose.ui.unit.sp
 import androidx.dynamicanimation.animation.FlingAnimation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerDefaults
 import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
+import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 
 @Composable
@@ -233,12 +231,33 @@ fun QuickSpendingOverviewCompact(
 enum class Direction {
     PREVIOUS, NEXT
 }
+fun <T> MutableList<T>.rotateRight() {
+    if (this.isNotEmpty()) {
+        this.apply {
+            val lastElement = this.removeAt(this.size - 1)  // Remove the last element
+            this.add(0, lastElement)  // Add the last element to the front of the list
+        }
+    }
+}
+fun <T> MutableList<T>.rotateLeft() {
+    if (this.isNotEmpty()) {
+        this.apply {
+            val firstElement = this.removeAt(0)  // Remove the first element
+            this.add(firstElement)  // Add the first element to the end of the list
+        }
+    }
+}
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun CardRangePicker(
 
 ) {
+
+    var ready by remember { mutableStateOf(false) }
+
+    val pages = remember { mutableStateListOf(-1, 0, 1) }
+    val dates = remember { mutableStateListOf(12, 13, 14) }
 
     val scrollState = rememberPagerState(
         pageCount = 3,
@@ -249,13 +268,33 @@ fun CardRangePicker(
     var previousPage by remember { mutableStateOf(1) }
     val currentPage by remember { derivedStateOf { scrollState.currentPage } }
 
+    fun updateDates() {
+        Log.d("SCROLL", "Before: ${dates.toList()} [${pages.toList()}]")
+
+        val curIdx = pages.indexOf(0)
+        val nextIdx = pages.indexOf(1)
+        val prevIdx = pages.indexOf(-1)
+
+        dates[nextIdx] = dates[curIdx] + 1
+        dates[prevIdx] = dates[curIdx] -1
+
+        Log.d("SCROLL", "After: ${dates.toList()}")
+    }
+
     LaunchedEffect(currentPage) {
         try {
-            Log.d("SCROLL", "$previousPage -> $currentPage [Direction: ${Direction.values()[(previousPage - currentPage + 2) % 3]}]")
-        } catch (e: IndexOutOfBoundsException) {
-            Log.i("SCROLL", "Scroll did not happen yet!")
+            when(Direction.values()[(previousPage - currentPage + 2) % 3]) {
+                Direction.PREVIOUS -> pages.rotateLeft()
+                Direction.NEXT -> pages.rotateRight()
+            }
+            previousPage = currentPage
+        } catch (_: IndexOutOfBoundsException) {
+            delay(500)
+            ready = true
         }
-        previousPage = currentPage
+    }
+    LaunchedEffect(pages.toList()) {
+        if(ready) updateDates()
     }
 
     HorizontalPager(
@@ -264,7 +303,7 @@ fun CardRangePicker(
         QuickSpendingOverviewCompact(
             modifier = Modifier
                 .padding(horizontal = 20.dp),
-            amount = it.toDouble(),
+            amount = dates.toList()[it].toDouble(),
             average = 1.0,
             rangeLength = 1,
             limit = 1.0,
