@@ -15,6 +15,7 @@ data class HomeState(
     val isToday: Boolean = true,
     val totalPerCategory: List<CategoryAmount> = emptyList(),
     val categoryBarStates: HashMap<Int, MutableState<CategoryBarState>> = HashMap(),
+    val selectedCategoryId: Int? = null,
     val earningsPerTimePeriod: List<GraphEntry> = emptyList(),
     val maxEarnings: Double = 0.0,
     val quickSpendingAmount: Double = 0.0,

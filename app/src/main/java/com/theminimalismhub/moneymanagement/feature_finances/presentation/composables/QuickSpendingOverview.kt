@@ -22,7 +22,9 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.PieChartOutline
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.Tonality
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +43,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -172,7 +175,8 @@ fun QuickSpendingOverviewCompact(
     limitHidden: Boolean = false,
     currency: String = "RSD",
     dateSelectable: Boolean,
-    dateClicked: () -> Unit
+    dateClicked: () -> Unit,
+    selectedCategory: CategoryAmount?
 ) {
     fun increase() : Int {
         return try {
@@ -188,10 +192,24 @@ fun QuickSpendingOverviewCompact(
         if(Currencier.isDecimal(amount)) animateFloatAsState(targetValue = amount.toFloat(), tween(750))
         else animateIntAsState(targetValue = amount.toInt(), tween(750))
 
-    val animatedPercent by animateFloatAsState(targetValue = percent.absoluteValue.toFloat(), tween(750))
+    val animatedPercent by animateFloatAsState(targetValue =
+        if(selectedCategory != null) (selectedCategory.amount / amount * 100).toInt().toFloat()
+        else percent.absoluteValue.toFloat(), tween(750),
+        label = "spendings_chip_value"
+    )
     
-    val animatedBackground by animateColorAsState(targetValue = if(percent > 0) Color(209, 59, 21, 100) else Color(111, 176, 62, 100))
-    val animatedForeground by animateColorAsState(targetValue = if(percent > 0) Color(232, 210, 204, 255) else Color(232, 245, 223, 255))
+    val animatedBackground by animateColorAsState(targetValue =
+        if(selectedCategory != null) Color((Color(selectedCategory.color).red * 255).toInt(), (Color(selectedCategory.color).green * 255).toInt(), (Color(selectedCategory.color).blue * 255).toInt(), 125)
+        else if(percent > 0) Color(209, 59, 21, 100)
+        else Color(111, 176, 62, 100),
+        label = "spendings_chip_background"
+    )
+    val animatedForeground by animateColorAsState(targetValue =
+        if(selectedCategory != null) MaterialTheme.colors.onBackground
+        else if(percent > 0) Color(232, 210, 204, 255)
+        else Color(232, 245, 223, 255),
+        label = "spendings_chip_text"
+    )
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -220,7 +238,7 @@ fun QuickSpendingOverviewCompact(
                     color = MaterialTheme.colors.onBackground
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                if(!limitHidden) Box(
+                if(!limitHidden || selectedCategory != null) Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(100))
                         .background(animatedBackground),
@@ -232,10 +250,11 @@ fun QuickSpendingOverviewCompact(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = if (percent > 0) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                            imageVector = if(selectedCategory != null) Icons.Default.Tonality else if (percent > 0) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                             contentDescription = "Upper-Lower icon",
                             tint = animatedForeground
                         )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "${animatedPercent.toInt()}%",
                             style = MaterialTheme.typography.body1,
@@ -279,7 +298,8 @@ fun CardRangePicker(
     average: Double,
     limit: Double,
     limitHidden: Boolean,
-    currency: String
+    currency: String,
+    selectedCategory: CategoryAmount?
 ) {
 
     val scope = rememberCoroutineScope()
@@ -289,9 +309,11 @@ fun CardRangePicker(
     val ranges = remember { mutableStateListOf(rangeService.getPreviousPair(), rangeService.getCurrentPair(), rangeService.getNextPair()) }
 
     fun updateOffsets() {
+        Log.d("SCROLL", "Before: ${ranges.map { rangeService.formatPair(it) }.toList()} [${offsets.toList()}]")
         ranges[offsets.indexOf(-1)] = rangeService.getPreviousPair()
         ranges[offsets.indexOf(0)] = rangeService.getCurrentPair()
         ranges[offsets.indexOf(1)] = rangeService.getNextPair()
+        Log.d("SCROLL", "After: ${ranges.map { rangeService.formatPair(it) }.toList()} [${offsets.toList()}]")
     }
 
     fun update() {
@@ -337,7 +359,6 @@ fun CardRangePicker(
 
     LaunchedEffect(currentPage) {
         try {
-            Log.d("SCROLL", "Scrolling to page: $currentPage [Ready: $ready]")
             if (ready) onSwipe()
             else ready = true
         }
@@ -361,7 +382,9 @@ fun CardRangePicker(
 
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center),
                 horizontalArrangement = Arrangement.Center
             ) {
                 ToggleButton(
@@ -434,7 +457,8 @@ fun CardRangePicker(
                         rangeService.getStartDay().get(Calendar.DAY_OF_MONTH)
                     )
                     picker.show()
-                }
+                },
+                selectedCategory = selectedCategory
             )
         }
     }

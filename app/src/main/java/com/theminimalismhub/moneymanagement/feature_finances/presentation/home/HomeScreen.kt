@@ -118,12 +118,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         item {
-                            Spacer(modifier = Modifier.height(36.dp))
-//                            RangePicker(
-//                                rangeService = vm.rangeService,
-//                                isToday = state.isToday,
-//                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
-//                            )
+                            Spacer(modifier = Modifier.height(32.dp))
                             CardRangePicker(
                                 rangeService = vm.rangeService,
                                 isToday = state.isToday,
@@ -132,19 +127,9 @@ fun HomeScreen(
                                 average = state.dailyAverage,
                                 limit = state.limit,
                                 limitHidden = state.itemsTypeStates[2]!!.value,
-                                currency = state.currency
+                                currency = state.currency,
+                                selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                             )
-//                            Spacer(modifier = Modifier.height(8.dp))
-//                            QuickSpendingOverviewCompact(
-//                                modifier = Modifier
-//                                    .padding(horizontal = 20.dp),
-//                                amount = state.quickSpendingAmount,
-//                                average = state.dailyAverage,
-//                                rangeLength = vm.rangeService.rangeLength,
-//                                limit = state.limit,
-//                                limitHidden = state.itemsTypeStates[2]!!.value,
-//                                currency = state.currency
-//                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             ItemsTypeSelector(
                                 modifier = Modifier

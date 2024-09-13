@@ -111,7 +111,7 @@ class RangePickerService {
 
     fun getPreviousPair() : Pair<Long, Long> {
         val currentPair = getCurrentPair()
-        return Pair(currentPair.first - getDistanceInMillis(), currentPair.second - getDistanceInMillis())
+        return Pair(currentPair.first + getDistanceInMillis(), currentPair.second + getDistanceInMillis())
     }
 
     fun getNextPair() : Pair<Long, Long> {
