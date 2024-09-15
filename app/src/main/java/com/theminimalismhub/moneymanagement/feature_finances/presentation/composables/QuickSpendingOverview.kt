@@ -188,7 +188,9 @@ fun QuickSpendingOverviewCompact(
     dateSelectable: Boolean = false,
     dateClicked: (() -> Unit)? = null,
     selectedCategory: CategoryAmount? = null,
-    contentAlpha: Float = 1f
+    contentAlpha: Float = 1f,
+    isExpanded: Boolean? = null,
+    onToggle: (() -> Unit)? = null
 ) {
     fun increase() : Int {
         return try {
@@ -199,7 +201,11 @@ fun QuickSpendingOverviewCompact(
     }
 
     val percent by remember(amount) { mutableStateOf(increase()) }
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(isExpanded ?: false) }
+
+    LaunchedEffect(isExpanded) {
+        isExpanded?.let { expanded = isExpanded }
+    }
 
     val animatedAmount by
         if(Currencier.isDecimal(amount)) animateFloatAsState(targetValue = amount.toFloat(), tween(750))
@@ -293,7 +299,7 @@ fun QuickSpendingOverviewCompact(
                             .fillMaxWidth()
                             .padding(start = 4.dp)
                     ) {
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
                         Row {
                             Text(
                                 modifier = Modifier.alpha(0.75f),
@@ -349,7 +355,10 @@ fun QuickSpendingOverviewCompact(
                 .align(Alignment.TopEnd)
                 .padding(8.dp)) {
                 IconButton(
-                    onClick = { expanded = !expanded }
+                    onClick = {
+                        if(onToggle != null) onToggle()
+                        else expanded = !expanded
+                    }
                 ) {
                     Icon(
                         modifier = Modifier.rotate(-animatedIconRotation),
@@ -436,6 +445,8 @@ fun CardRangePicker(
         }
     )
 
+    var expanded by remember { mutableStateOf(false) }
+
     Column {
         Box {
             Row(
@@ -517,7 +528,9 @@ fun CardRangePicker(
                     picker.show()
                 },
                 selectedCategory = selectedCategory,
-                contentAlpha = (animatedScale.value - 0.9f) * 10
+                contentAlpha = (animatedScale.value - 0.9f) * 10,
+                isExpanded = expanded,
+                onToggle = { expanded = !expanded}
             )
         }
     }
