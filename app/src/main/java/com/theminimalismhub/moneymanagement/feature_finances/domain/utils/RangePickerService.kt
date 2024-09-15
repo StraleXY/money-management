@@ -1,11 +1,8 @@
 package com.theminimalismhub.moneymanagement.feature_finances.domain.utils
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.theminimalismhub.jobmanagerv2.utils.Dater
-import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -102,7 +99,7 @@ class RangePickerService {
     }
 
     fun getDistanceInMillis() : Long {
-        return (rangeLength * 24 * 60 * 60 * 1000).toLong()
+        return rangeLength.toLong() * 24 * 60 * 60 * 1000
     }
 
     fun getCurrentPair(): Pair<Long, Long> {
@@ -111,12 +108,24 @@ class RangePickerService {
 
     fun getPreviousPair() : Pair<Long, Long> {
         val currentPair = getCurrentPair()
-        return Pair(currentPair.first + getDistanceInMillis(), currentPair.second + getDistanceInMillis())
+        return if(distance != -1) Pair(currentPair.first - getDistanceInMillis(), currentPair.second - getDistanceInMillis())
+        else {
+            val currentMonth = Calendar.getInstance()
+            currentMonth.timeInMillis = currentPair.first
+            currentMonth.add(Calendar.MONTH, -1)
+            Dater.getDateRange(currentMonth.get(Calendar.MONTH), currentMonth.get(Calendar.YEAR))
+        }
     }
 
     fun getNextPair() : Pair<Long, Long> {
         val currentPair = getCurrentPair()
-        return Pair(currentPair.first + getDistanceInMillis(), currentPair.second + getDistanceInMillis())
+        return if(distance != -1) Pair(currentPair.first + getDistanceInMillis(), currentPair.second + getDistanceInMillis())
+        else {
+            val currentMonth = Calendar.getInstance()
+            currentMonth.timeInMillis = currentPair.first
+            currentMonth.add(Calendar.MONTH, 1)
+            Dater.getDateRange(currentMonth.get(Calendar.MONTH), currentMonth.get(Calendar.YEAR))
+        }
     }
 
     fun getStartTimestamp(): Long {

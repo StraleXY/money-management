@@ -1,11 +1,21 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
-import android.util.Log
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,10 +29,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.PieChartOutline
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.Tonality
 import androidx.compose.runtime.*
@@ -30,9 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,12 +52,10 @@ import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import kotlin.math.absoluteValue
-import kotlin.random.Random
 
 @Composable
 fun QuickSpendingOverview(
@@ -267,27 +273,6 @@ fun QuickSpendingOverviewCompact(
     }
 }
 
-
-enum class Direction {
-    PREVIOUS, NEXT
-}
-fun <T> MutableList<T>.rotateRight() {
-    if (this.isNotEmpty()) {
-        this.apply {
-            val lastElement = this.removeAt(this.size - 1)  // Remove the last element
-            this.add(0, lastElement)  // Add the last element to the front of the list
-        }
-    }
-}
-fun <T> MutableList<T>.rotateLeft() {
-    if (this.isNotEmpty()) {
-        this.apply {
-            val firstElement = this.removeAt(0)  // Remove the first element
-            this.add(firstElement)  // Add the first element to the end of the list
-        }
-    }
-}
-
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun CardRangePicker(
@@ -301,86 +286,67 @@ fun CardRangePicker(
     currency: String,
     selectedCategory: CategoryAmount?
 ) {
+    val PREVIOUS_PAGE = 0
+    val CENTER_PAGE = 1
+    val NEXT_PAGE = 2
 
     val scope = rememberCoroutineScope()
-
-    var rangePreview by remember { mutableStateOf(rangeService.formattedDate()) }
-    val offsets = remember { mutableStateListOf(-1, 0, 1) }
     val ranges = remember { mutableStateListOf(rangeService.getPreviousPair(), rangeService.getCurrentPair(), rangeService.getNextPair()) }
-
-    fun updateOffsets() {
-        Log.d("SCROLL", "Before: ${ranges.map { rangeService.formatPair(it) }.toList()} [${offsets.toList()}]")
-        ranges[offsets.indexOf(-1)] = rangeService.getPreviousPair()
-        ranges[offsets.indexOf(0)] = rangeService.getCurrentPair()
-        ranges[offsets.indexOf(1)] = rangeService.getNextPair()
-        Log.d("SCROLL", "After: ${ranges.map { rangeService.formatPair(it) }.toList()} [${offsets.toList()}]")
-    }
-
-    fun update() {
-        rangePreview = rangeService.formattedDate()
-        updateOffsets()
-        rangePicked(Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp()), rangeService.isToday())
-    }
-
-    val scrollState = rememberPagerState(pageCount = 3, initialPage = 1, infiniteLoop = true)
-    var ready by remember { mutableStateOf(false) }
-    var previousPage by remember { mutableStateOf(1) }
+    val scrollState = rememberPagerState(pageCount = 3, initialPage = CENTER_PAGE)
     val currentPage by remember { derivedStateOf { scrollState.currentPage } }
 
-    fun onSwipe() {
-        when(Direction.values()[(previousPage - currentPage + 2) % 3]) {
-            Direction.PREVIOUS -> {
-                offsets.rotateLeft()
-                rangeService.previous()
-                update()
-            }
-            Direction.NEXT -> {
-                offsets.rotateRight()
-                rangeService.next()
-                update()
-            }
+    fun updatePages() {
+        scope.launch {
+            ranges[CENTER_PAGE] = rangeService.getCurrentPair()
+            delay(5)
+            scrollState.scrollToPage(CENTER_PAGE)
+            delay(5)
+            ranges[PREVIOUS_PAGE] = rangeService.getPreviousPair()
+            ranges[NEXT_PAGE] = rangeService.getNextPair()
         }
-        previousPage = currentPage
     }
 
+    val animatedScale = remember { Animatable(initialValue = 1f, visibilityThreshold = 0.01f) }
     fun animateUpdate() {
         scope.launch {
-            ready = false
-            scrollState.animateScrollToPage(
-                page = (currentPage + 1) % 3,
-                pageOffset = 0.5f
-            )
-            ready = false
-            scrollState.animateScrollToPage(
-                page = (currentPage - 1) % 3
-            )
+            animatedScale.animateTo(1f, keyframes {
+                durationMillis = 400
+                0.9f at 200 with EaseIn
+                1f at 400 with EaseOut
+            })
         }
     }
 
-    LaunchedEffect(currentPage) {
-        try {
-            if (ready) onSwipe()
-            else ready = true
-        }
-        catch (_: IndexOutOfBoundsException) {
-            ready = true
+    fun sendOnUpdate(isAnimated: Boolean) {
+        rangePicked(Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp()), rangeService.isToday())
+        updatePages()
+        if(isAnimated) animateUpdate()
+    }
+
+    fun onSwipe() {
+        when(scrollState.currentPage) {
+            PREVIOUS_PAGE -> {
+                rangeService.previous()
+                sendOnUpdate(false)
+            }
+            NEXT_PAGE -> {
+                rangeService.next()
+                sendOnUpdate(false)
+            }
         }
     }
-    LaunchedEffect(offsets.toList()) { if(ready) updateOffsets() }
+    LaunchedEffect(currentPage) { if(currentPage != CENTER_PAGE) onSwipe() }
 
     val picker = datePickerDialog(
         initialTime = rangeService.getCurrentTimestamp(),
         datePicked = {
             rangeService.set(it)
-            animateUpdate()
-            update()
+            sendOnUpdate(true)
         }
     )
 
     Column {
-        Box(
-
-        ) {
+        Box {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -392,21 +358,21 @@ fun CardRangePicker(
                     isToggled = rangeService.type == RangeType.DAILY
                 ) {
                     rangeService.setModeDay()
-                    update()
+                    sendOnUpdate(true)
                 }
                 ToggleButton(
                     text = "WEEKLY",
                     isToggled = rangeService.type == RangeType.WEEKLY
                 ) {
                     rangeService.setModeWeek()
-                    update()
+                    sendOnUpdate(true)
                 }
                 ToggleButton(
                     text = "MONTHLY",
                     isToggled = rangeService.type == RangeType.MONTHLY
                 ) {
                     rangeService.setModeMonth()
-                    update()
+                    sendOnUpdate(true)
                 }
             }
             Column(
@@ -421,8 +387,7 @@ fun CardRangePicker(
                 ) {
                     IconButton(onClick = {
                         rangeService.setToday()
-                        animateUpdate()
-                        update()
+                        sendOnUpdate(true)
                     }) {
                         Icon(
                             imageVector = Icons.Default.Today,
@@ -433,12 +398,14 @@ fun CardRangePicker(
             }
         }
         HorizontalPager(
+            modifier = Modifier.scale(animatedScale.value),
             state = scrollState,
             flingBehavior = PagerDefaults.defaultPagerFlingConfig(
                 state = scrollState,
-                snapAnimationSpec = tween(200),
-                decayAnimationSpec = exponentialDecay(0.5f, 0.1f)
-            )
+                snapAnimationSpec = tween(150),
+                decayAnimationSpec = exponentialDecay(0.6f, 0.1f)
+            ),
+            dragEnabled = currentPage == CENTER_PAGE
         ) {
             QuickSpendingOverviewCompact(
                 modifier = Modifier.padding(horizontal = 20.dp),
