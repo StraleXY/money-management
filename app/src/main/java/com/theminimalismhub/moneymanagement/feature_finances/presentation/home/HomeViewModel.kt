@@ -50,7 +50,8 @@ class HomeViewModel @Inject constructor(
             showLineGraph = preferences.getShowLineGraph(),
             collapseCategories = preferences.getCollapseCategories(),
             filterIncomeByAccount = preferences.getFilterIncomeByAccount(),
-            filterOutcomeByAccount = preferences.getFilterOutcomeByAccount()
+            filterOutcomeByAccount = preferences.getFilterOutcomeByAccount(),
+            swipeableNavigation = preferences.getSwipeableNavigation()
         )
         initDateRange()
         initAverages()

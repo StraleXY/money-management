@@ -180,9 +180,9 @@ fun QuickSpendingOverviewCompact(
     limit: Double = 0.0,
     limitHidden: Boolean = false,
     currency: String = "RSD",
-    dateSelectable: Boolean,
-    dateClicked: () -> Unit,
-    selectedCategory: CategoryAmount?,
+    dateSelectable: Boolean = false,
+    dateClicked: (() -> Unit)? = null,
+    selectedCategory: CategoryAmount? = null,
     contentAlpha: Float = 1f
 ) {
     fun increase() : Int {
@@ -238,7 +238,7 @@ fun QuickSpendingOverviewCompact(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         enabled = dateSelectable
-                    ) { dateClicked() }
+                    ) { dateClicked?.invoke() }
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(

@@ -37,5 +37,6 @@ data class HomeState(
     val showLineGraph: Boolean = false,
     val collapseCategories: Boolean = false,
     val filterIncomeByAccount: Boolean = false,
-    val filterOutcomeByAccount: Boolean = false
+    val filterOutcomeByAccount: Boolean = false,
+    val swipeableNavigation: Boolean = false
 )

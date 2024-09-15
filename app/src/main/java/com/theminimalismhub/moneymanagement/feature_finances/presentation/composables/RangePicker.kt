@@ -26,12 +26,11 @@ import java.util.*
 fun RangePicker(
     modifier: Modifier = Modifier,
     rangeService: RangePickerService,
-    rangePicked: (Pair<Long, Long>, Boolean) -> Unit,
-    isToday: Boolean = true
+    isToday: Boolean = true,
+    rangePicked: (Pair<Long, Long>, Boolean) -> Unit
 ) {
 
     var rangePreview by remember { mutableStateOf(rangeService.formattedDate()) }
-//    var isToday by remember { mutableStateOf(today) }
 
     fun update() {
         rangePreview = rangeService.formattedDate()
