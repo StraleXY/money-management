@@ -182,7 +182,8 @@ fun QuickSpendingOverviewCompact(
     currency: String = "RSD",
     dateSelectable: Boolean,
     dateClicked: () -> Unit,
-    selectedCategory: CategoryAmount?
+    selectedCategory: CategoryAmount?,
+    contentAlpha: Float = 1f
 ) {
     fun increase() : Int {
         return try {
@@ -223,7 +224,9 @@ fun QuickSpendingOverviewCompact(
         elevation = 8.dp
     ) {
         Column(
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier
+                .padding(20.dp)
+                .alpha(contentAlpha)
         ) {
             Text(
                 text = exampleDate,
@@ -307,6 +310,7 @@ fun CardRangePicker(
     }
 
     val animatedScale = remember { Animatable(initialValue = 1f, visibilityThreshold = 0.01f) }
+
     fun animateUpdate() {
         scope.launch {
             animatedScale.animateTo(1f, keyframes {
@@ -335,6 +339,7 @@ fun CardRangePicker(
             }
         }
     }
+
     LaunchedEffect(currentPage) { if(currentPage != CENTER_PAGE) onSwipe() }
 
     val picker = datePickerDialog(
@@ -425,7 +430,8 @@ fun CardRangePicker(
                     )
                     picker.show()
                 },
-                selectedCategory = selectedCategory
+                selectedCategory = selectedCategory,
+                contentAlpha = (animatedScale.value - 0.9f) * 10
             )
         }
     }
