@@ -11,9 +11,11 @@ import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -31,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.Tonality
 import androidx.compose.runtime.*
@@ -38,10 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -194,17 +199,18 @@ fun QuickSpendingOverviewCompact(
     }
 
     val percent by remember(amount) { mutableStateOf(increase()) }
+    var expanded by remember { mutableStateOf(false) }
 
     val animatedAmount by
         if(Currencier.isDecimal(amount)) animateFloatAsState(targetValue = amount.toFloat(), tween(750))
-        else animateIntAsState(targetValue = amount.toInt(), tween(750))
-
+        else animateIntAsState(targetValue = amount.toInt(), tween(750),
+        label = "spendings_amount"
+    )
     val animatedPercent by animateFloatAsState(targetValue =
         if(selectedCategory != null) (selectedCategory.amount / amount * 100).toInt().toFloat()
         else percent.absoluteValue.toFloat(), tween(750),
         label = "spendings_chip_value"
     )
-    
     val animatedBackground by animateColorAsState(targetValue =
         if(selectedCategory != null) Color((Color(selectedCategory.color).red * 255).toInt(), (Color(selectedCategory.color).green * 255).toInt(), (Color(selectedCategory.color).blue * 255).toInt(), 125)
         else if(percent > 0) Color(209, 59, 21, 100)
@@ -215,7 +221,11 @@ fun QuickSpendingOverviewCompact(
         if(selectedCategory != null) MaterialTheme.colors.onBackground
         else if(percent > 0) Color(232, 210, 204, 255)
         else Color(232, 245, 223, 255),
-        label = "spendings_chip_text"
+        label = "spendings_chip_foreground"
+    )
+    val animatedIconRotation by animateFloatAsState(targetValue =
+        if(expanded) 180f else 0f,
+        label = "arrow_direction"
     )
 
     Card(
@@ -223,53 +233,129 @@ fun QuickSpendingOverviewCompact(
         shape = RoundedCornerShape(15.dp),
         elevation = 8.dp
     ) {
-        Column(
-            modifier = Modifier
-                .padding(20.dp)
-                .alpha(contentAlpha)
-        ) {
-            Text(
-                text = exampleDate,
-                style = MaterialTheme.typography.body2,
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
                 modifier = Modifier
-                    .padding(start = 4.dp)
-                    .alpha(1f)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        enabled = dateSelectable
-                    ) { dateClicked?.invoke() }
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
+                    .padding(20.dp)
+                    .alpha(contentAlpha)
+            ) {
                 Text(
-                    text = "${animatedAmount.toInt()} $currency",
-                    style = MaterialTheme.typography.h2,
-                    color = MaterialTheme.colors.onBackground
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                if(!limitHidden || selectedCategory != null) Box(
+                    text = exampleDate,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(100))
-                        .background(animatedBackground),
-                ) {
-                    Row(
+                        .padding(start = 4.dp)
+                        .alpha(1f)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            enabled = dateSelectable
+                        ) { dateClicked?.invoke() }
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "${animatedAmount.toInt()} $currency",
+                        style = MaterialTheme.typography.h2,
+                        color = MaterialTheme.colors.onBackground
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    if(!limitHidden || selectedCategory != null) Box(
                         modifier = Modifier
-                            .height(36.dp)
-                            .padding(start = 8.dp, end = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .clip(RoundedCornerShape(100))
+                            .background(animatedBackground),
                     ) {
-                        Icon(
-                            imageVector = if(selectedCategory != null) Icons.Default.Tonality else if (percent > 0) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                            contentDescription = "Upper-Lower icon",
-                            tint = animatedForeground
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "${animatedPercent.toInt()}%",
-                            style = MaterialTheme.typography.body1,
-                            color = animatedForeground
-                        )
+                        Row(
+                            modifier = Modifier
+                                .height(36.dp)
+                                .padding(start = 8.dp, end = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = if(selectedCategory != null) Icons.Default.Tonality else if (percent > 0) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                                contentDescription = "Upper-Lower icon",
+                                tint = animatedForeground
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "${animatedPercent.toInt()}%",
+                                style = MaterialTheme.typography.body1,
+                                color = animatedForeground
+                            )
+                        }
                     }
+                }
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = fadeIn() + expandVertically { 0 },
+                    exit = fadeOut() + shrinkVertically { 0 }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row {
+                            Text(
+                                modifier = Modifier.alpha(0.75f),
+                                text = "Average: ",
+                                style = MaterialTheme.typography.body2
+                            )
+                            Text(
+                                text = "${(average * rangeLength).toInt()} $currency ",
+                                style = MaterialTheme.typography.body2,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.alpha(0.75f),
+                                text = "Target: ",
+                                style = MaterialTheme.typography.body2
+                            )
+                            Text(
+                                text = "${(limit * rangeLength).toInt()} $currency ",
+                                style = MaterialTheme.typography.body2,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(14.dp)
+                                    .alpha(0.25f)
+                                    .background(MaterialTheme.colors.primary)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "${(amount - (limit * rangeLength)).absoluteValue.toInt()} $currency",
+                                style = MaterialTheme.typography.body2,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if(amount > limit * rangeLength) "Over Budget" else "Remaining",
+                                style = MaterialTheme.typography.body2,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = if(amount > limit * rangeLength) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
+                            )
+                        }
+                    }
+                }
+            }
+            Row(modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)) {
+                IconButton(
+                    onClick = { expanded = !expanded }
+                ) {
+                    Icon(
+                        modifier = Modifier.rotate(-animatedIconRotation),
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Expand-Shrink"
+                    )
                 }
             }
         }
