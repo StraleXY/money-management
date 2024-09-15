@@ -131,7 +131,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             SettingsTile(
                 title = "Swipeable Navigation",
-                description = "Enables swiping on the spending's card for movement trough time instead of arrows above the card.",
+                description = "Enables swiping on the spending's card for movement through time instead of arrows above the card.",
                 toggled = state.swipeableNavigation,
                 onToggle = { vm.onEvent(SettingsEvent.ToggleSwipeableNavigation) }
             )
