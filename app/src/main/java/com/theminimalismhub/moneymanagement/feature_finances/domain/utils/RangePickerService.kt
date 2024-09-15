@@ -1,11 +1,8 @@
 package com.theminimalismhub.moneymanagement.feature_finances.domain.utils
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.theminimalismhub.jobmanagerv2.utils.Dater
-import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -90,6 +87,44 @@ class RangePickerService {
             1 -> SimpleDateFormat("EEEE d MMM").format(start.time)
             7 -> (SimpleDateFormat("MMM d").format(start.time) + " - " + SimpleDateFormat("MMM d").format(end.time)) + "  [Week " + start[Calendar.WEEK_OF_YEAR] + "]"
             else -> SimpleDateFormat("MMMM YYYY").format(start.time)
+        }
+    }
+
+    fun formatPair(pair: Pair<Long, Long>): String {
+        return when (distance) {
+            1 -> SimpleDateFormat("EEEE d MMM").format(pair.first)
+            7 -> (SimpleDateFormat("MMM d").format(pair.first) + " - " + SimpleDateFormat("MMM d").format(pair.second)) + "  [Week " + start[Calendar.WEEK_OF_YEAR] + "]"
+            else -> SimpleDateFormat("MMMM YYYY").format(pair.first)
+        }
+    }
+
+    fun getDistanceInMillis() : Long {
+        return rangeLength.toLong() * 24 * 60 * 60 * 1000
+    }
+
+    fun getCurrentPair(): Pair<Long, Long> {
+        return Pair(getStartTimestamp(), getEndTimestamp())
+    }
+
+    fun getPreviousPair() : Pair<Long, Long> {
+        val currentPair = getCurrentPair()
+        return if(distance != -1) Pair(currentPair.first - getDistanceInMillis(), currentPair.second - getDistanceInMillis())
+        else {
+            val currentMonth = Calendar.getInstance()
+            currentMonth.timeInMillis = currentPair.first
+            currentMonth.add(Calendar.MONTH, -1)
+            Dater.getDateRange(currentMonth.get(Calendar.MONTH), currentMonth.get(Calendar.YEAR))
+        }
+    }
+
+    fun getNextPair() : Pair<Long, Long> {
+        val currentPair = getCurrentPair()
+        return if(distance != -1) Pair(currentPair.first + getDistanceInMillis(), currentPair.second + getDistanceInMillis())
+        else {
+            val currentMonth = Calendar.getInstance()
+            currentMonth.timeInMillis = currentPair.first
+            currentMonth.add(Calendar.MONTH, 1)
+            Dater.getDateRange(currentMonth.get(Calendar.MONTH), currentMonth.get(Calendar.YEAR))
         }
     }
 

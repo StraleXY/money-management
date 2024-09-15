@@ -13,4 +13,6 @@ interface Preferences {
     fun setFilterIncomeByAccount(value: Boolean)
     fun getFilterOutcomeByAccount() : Boolean
     fun setFilterOutcomeByAccount(value: Boolean)
+    fun getSwipeableNavigation() : Boolean
+    fun setSwipeableNavigation(value: Boolean)
 }

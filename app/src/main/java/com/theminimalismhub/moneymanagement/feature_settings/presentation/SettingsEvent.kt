@@ -7,4 +7,5 @@ sealed class SettingsEvent {
     object ToggleCollapseCategories : SettingsEvent()
     object ToggleFilterIncomeByAccount : SettingsEvent()
     object ToggleFilterOutcomeByAccount : SettingsEvent()
+    object ToggleSwipeableNavigation : SettingsEvent()
 }

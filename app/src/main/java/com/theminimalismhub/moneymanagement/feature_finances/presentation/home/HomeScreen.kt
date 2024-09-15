@@ -30,6 +30,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageBillsScreenDestination
@@ -62,6 +63,8 @@ fun HomeScreen(
     BackHandler(enabled = state.isAddEditOpen) {
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
+
+    LaunchedEffect(Unit) { vm.init() }
 
     val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     BackdropScaffold(
@@ -116,21 +119,34 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         item {
-                            Spacer(modifier = Modifier.height(36.dp))
-                            RangePicker(
+                            Spacer(modifier = Modifier.height(32.dp))
+                            if(!state.swipeableNavigation) {
+                                RangePicker(
+                                    rangeService = vm.rangeService,
+                                    isToday = state.isToday
+                                ) { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
+                                QuickSpendingOverviewCompact(
+                                    modifier = Modifier.padding(horizontal = 20.dp),
+                                    exampleDate = "Spent",
+                                    amount = state.quickSpendingAmount,
+                                    average = state.dailyAverage,
+                                    rangeLength = vm.rangeService.rangeLength,
+                                    limit = state.limit,
+                                    limitHidden = state.itemsTypeStates[2]!!.value,
+                                    currency = state.currency,
+                                    selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
+                                )
+                            }
+                            else CardRangePicker(
                                 rangeService = vm.rangeService,
                                 isToday = state.isToday,
-                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
-                            )
-                            QuickSpendingOverviewCompact(
-                                modifier = Modifier
-                                    .padding(horizontal = 20.dp),
+                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) },
                                 amount = state.quickSpendingAmount,
                                 average = state.dailyAverage,
-                                rangeLength = vm.rangeService.rangeLength,
                                 limit = state.limit,
                                 limitHidden = state.itemsTypeStates[2]!!.value,
-                                currency = state.currency
+                                currency = state.currency,
+                                selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             ItemsTypeSelector(

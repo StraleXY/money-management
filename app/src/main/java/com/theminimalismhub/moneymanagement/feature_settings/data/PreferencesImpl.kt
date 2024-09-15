@@ -25,6 +25,7 @@ class PreferencesImpl constructor(
         const val COLLAPSABLE_CATEGORIES: String = "collapsable_categories"
         const val FILTER_INCOME_BY_ACCOUNT: String = "filter_income_by_account"
         const val FILTER_OUTCOME_BY_ACCOUNT: String = "filter_outcome_by_account"
+        const val SWIPEABLE_NAVIGATION: String = "swipeable_navigation"
     }
 
     override fun getSimpleLimit(): Float {
@@ -70,5 +71,13 @@ class PreferencesImpl constructor(
 
     override fun setFilterOutcomeByAccount(value: Boolean) {
         LocalStorage.putBoolean(context, PREFERENCES_NAME, KEYS.FILTER_OUTCOME_BY_ACCOUNT, value)
+    }
+
+    override fun getSwipeableNavigation(): Boolean {
+        return LocalStorage.getBoolean(context, PREFERENCES_NAME, KEYS.SWIPEABLE_NAVIGATION, false)
+    }
+
+    override fun setSwipeableNavigation(value: Boolean) {
+        LocalStorage.putBoolean(context, PREFERENCES_NAME, KEYS.SWIPEABLE_NAVIGATION, value)
     }
 }

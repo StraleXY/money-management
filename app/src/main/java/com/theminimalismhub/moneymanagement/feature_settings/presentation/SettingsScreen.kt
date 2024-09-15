@@ -128,6 +128,13 @@ fun SettingsScreen(
                 toggled = state.filterOutcomeByAccount,
                 onToggle = { vm.onEvent(SettingsEvent.ToggleFilterOutcomeByAccount) }
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Swipeable Navigation",
+                description = "Enables swiping on the spending's card for movement through time instead of arrows above the card.",
+                toggled = state.swipeableNavigation,
+                onToggle = { vm.onEvent(SettingsEvent.ToggleSwipeableNavigation) }
+            )
             Spacer(modifier = Modifier.height(24.dp))
 
             SettingsSegment(name = "LIMITS")

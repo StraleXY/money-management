@@ -157,7 +157,7 @@ fun SettingsTile(
     Row (
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp)
+            .padding(start = 32.dp, end = 28.dp)
             .alpha(if (enabled) 1f else 0.45f),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

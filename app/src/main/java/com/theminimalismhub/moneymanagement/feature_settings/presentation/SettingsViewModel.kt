@@ -38,7 +38,8 @@ class SettingsViewModel @Inject constructor(
             showLineGraph = preferences.getShowLineGraph(),
             collapseCategories = preferences.getCollapseCategories(),
             filterIncomeByAccount = preferences.getFilterIncomeByAccount(),
-            filterOutcomeByAccount = preferences.getFilterOutcomeByAccount()
+            filterOutcomeByAccount = preferences.getFilterOutcomeByAccount(),
+            swipeableNavigation = preferences.getSwipeableNavigation()
         )
     }
 
@@ -66,6 +67,10 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.ToggleFilterOutcomeByAccount -> {
                 _state.value = _state.value.copy(filterOutcomeByAccount = !_state.value.filterOutcomeByAccount)
                 preferences.setFilterOutcomeByAccount(_state.value.filterOutcomeByAccount)
+            }
+            is SettingsEvent.ToggleSwipeableNavigation -> {
+                _state.value = _state.value.copy(swipeableNavigation = !_state.value.swipeableNavigation)
+                preferences.setSwipeableNavigation(_state.value.swipeableNavigation)
             }
         }
     }
