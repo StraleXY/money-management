@@ -1,5 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_settings.presentation
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
@@ -12,6 +14,9 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     val preferences: Preferences
 ) : ViewModel() {
+
+    private val _state = mutableStateOf(SettingsState())
+    val state: State<SettingsState> = _state
 
     val formState = FormState(
         fields = listOf(
@@ -29,6 +34,13 @@ class SettingsViewModel @Inject constructor(
     init {
         formState.fields[0].change(preferences.getSimpleLimit().toInt().toString())
         formState.fields[1].change(preferences.getCurrency())
+        _state.value = _state.value.copy(
+            showLineGraph = preferences.getShowLineGraph(),
+            collapseCategories = preferences.getCollapseCategories(),
+            filterIncomeByAccount = preferences.getFilterIncomeByAccount(),
+            filterOutcomeByAccount = preferences.getFilterOutcomeByAccount(),
+            swipeableNavigation = preferences.getSwipeableNavigation()
+        )
     }
 
     fun onEvent(event: SettingsEvent) {
@@ -39,6 +51,26 @@ class SettingsViewModel @Inject constructor(
             }
             is SettingsEvent.OnCurrencyChanged -> {
                 preferences.setCurrency(event.value)
+            }
+            is SettingsEvent.ToggleShowLineGraph -> {
+                _state.value = _state.value.copy(showLineGraph = !_state.value.showLineGraph)
+                preferences.setShowLineGraph(_state.value.showLineGraph)
+            }
+            is SettingsEvent.ToggleCollapseCategories -> {
+                _state.value = _state.value.copy(collapseCategories = !_state.value.collapseCategories)
+                preferences.setCollapseCategories(_state.value.collapseCategories)
+            }
+            is SettingsEvent.ToggleFilterIncomeByAccount -> {
+                _state.value = _state.value.copy(filterIncomeByAccount = !_state.value.filterIncomeByAccount)
+                preferences.setFilterIncomeByAccount(_state.value.filterIncomeByAccount)
+            }
+            is SettingsEvent.ToggleFilterOutcomeByAccount -> {
+                _state.value = _state.value.copy(filterOutcomeByAccount = !_state.value.filterOutcomeByAccount)
+                preferences.setFilterOutcomeByAccount(_state.value.filterOutcomeByAccount)
+            }
+            is SettingsEvent.ToggleSwipeableNavigation -> {
+                _state.value = _state.value.copy(swipeableNavigation = !_state.value.swipeableNavigation)
+                preferences.setSwipeableNavigation(_state.value.swipeableNavigation)
             }
         }
     }

@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
@@ -28,6 +29,8 @@ import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.di.MoneyDatabase
 import com.theminimalismhub.moneymanagement.di.path
 import com.theminimalismhub.moneymanagement.di.query
+import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 import com.theminimalismhub.moneymanagement.feature_settings.composables.SettingsSegment
 import com.theminimalismhub.moneymanagement.feature_settings.composables.SettingsTile
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
@@ -43,6 +46,7 @@ fun SettingsScreen(
     navigator: DestinationsNavigator,
     vm: SettingsViewModel = hiltViewModel()
 ) {
+    val state = vm.state.value
     val context = LocalContext.current
     val backupLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.sqlite3")) { uri ->
@@ -95,6 +99,41 @@ fun SettingsScreen(
                 fieldState = vm.formState.getState("currency"),
                 inputType = KeyboardType.Text,
                 onValChanged = { vm.onEvent(SettingsEvent.OnCurrencyChanged(it)) }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Show Line Graph",
+                description = "Toggle whether weekly and monthly line graphs are shown.",
+                toggled = state.showLineGraph,
+                onToggle = { vm.onEvent(SettingsEvent.ToggleShowLineGraph) }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Collapsable Categories",
+                description = "Collapse category bars by default to 5 entries.",
+                toggled = state.collapseCategories,
+                onToggle = { vm.onEvent(SettingsEvent.ToggleCollapseCategories) }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Filter Income",
+                description = "Allows you to filter income by account.",
+                toggled = state.filterIncomeByAccount,
+                onToggle = { vm.onEvent(SettingsEvent.ToggleFilterIncomeByAccount) }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Filter Outcome",
+                description = "Allows you to filter outcome by account.",
+                toggled = state.filterOutcomeByAccount,
+                onToggle = { vm.onEvent(SettingsEvent.ToggleFilterOutcomeByAccount) }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsTile(
+                title = "Swipeable Navigation",
+                description = "Enables swiping on the spending's card for movement through time instead of arrows above the card.",
+                toggled = state.swipeableNavigation,
+                onToggle = { vm.onEvent(SettingsEvent.ToggleSwipeableNavigation) }
             )
             Spacer(modifier = Modifier.height(24.dp))
 

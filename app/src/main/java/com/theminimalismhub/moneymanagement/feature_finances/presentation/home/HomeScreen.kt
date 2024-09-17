@@ -30,6 +30,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageBillsScreenDestination
@@ -39,6 +40,7 @@ import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestinati
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddNewAccount
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
+import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.AddEditFinanceEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.*
@@ -62,15 +64,17 @@ fun HomeScreen(
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
 
+    LaunchedEffect(Unit) { vm.init() }
+
     val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     BackdropScaffold(
         scaffoldState = backdropScaffoldState,
         peekHeight = 0.dp,
         backLayerBackgroundColor = MaterialTheme.colors.background,
         frontLayerScrimColor =
-            if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (0.95f * 255L).toInt()))
-            else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (0.95f * 255L).toInt())),
-        frontLayerElevation = 2.dp,
+            if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (1 * 255L).toInt()))
+            else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (1f * 255L).toInt())),
+        frontLayerElevation = 8.dp,
         gesturesEnabled = !state.isAddEditOpen,
         appBar = {
             ScreenHeader(
@@ -80,8 +84,6 @@ fun HomeScreen(
         },
         backLayerContent = {
             // BACKDROP CONTENT
-            MainAppActions(navigator)
-            Spacer(modifier = Modifier.height(12.dp))
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 24.dp),
@@ -101,6 +103,8 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
+            MainAppActions(navigator)
+            Spacer(modifier = Modifier.height(12.dp))
         },
         frontLayerContent = {
             Scaffold(
@@ -115,29 +119,45 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         item {
-                            Spacer(modifier = Modifier.height(36.dp))
-                            RangePicker(
+                            Spacer(modifier = Modifier.height(32.dp))
+                            if(!state.swipeableNavigation) {
+                                RangePicker(
+                                    rangeService = vm.rangeService,
+                                    isToday = state.isToday
+                                ) { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
+                                QuickSpendingOverviewCompact(
+                                    modifier = Modifier.padding(horizontal = 20.dp),
+                                    exampleDate = "Spent",
+                                    amount = state.quickSpendingAmount,
+                                    average = state.dailyAverage,
+                                    rangeLength = vm.rangeService.rangeLength,
+                                    limit = state.limit,
+                                    limitHidden = state.itemsTypeStates[2]!!.value,
+                                    currency = state.currency,
+                                    selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
+                                )
+                            }
+                            else CardRangePicker(
                                 rangeService = vm.rangeService,
                                 isToday = state.isToday,
-                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
-                            )
-                            QuickSpendingOverview(
-                                modifier = Modifier
-                                    .padding(horizontal = 20.dp),
+                                rangePicked = { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) },
                                 amount = state.quickSpendingAmount,
-                                rangeLength = vm.rangeService.rangeLength,
+                                average = state.dailyAverage,
                                 limit = state.limit,
                                 limitHidden = state.itemsTypeStates[2]!!.value,
-                                currency = state.currency
+                                currency = state.currency,
+                                selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                             ItemsTypeSelector(
                                 modifier = Modifier
                                     .padding(horizontal = 20.dp),
                                 itemsTypeStates = state.itemsTypeStates,
                                 itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                             AnimatedVisibility(
-                                visible = state.itemsTypeStates[2]!!.value,
+                                visible = state.itemsTypeStates[2]!!.value && state.filterIncomeByAccount || state.itemsTypeStates.filter { it.key != 2 }.any { it.value.value } && state.filterOutcomeByAccount,
                                 enter = expandVertically(tween(400))
                                         + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
                                         + fadeIn(tween(300, 450)),
@@ -145,17 +165,27 @@ fun HomeScreen(
                                         + fadeOut(tween(300))
                                         + shrinkVertically(tween(450, 250))
                             ) {
-                                AccountsList(
-                                    modifier = Modifier.padding(bottom = 12.dp),
-                                    spacing = 8.dp,
-                                    contentPadding = PaddingValues(horizontal = 20.dp),
-                                    accounts = state.accounts,
-                                    states = state.accountStates,
-                                    currency = state.currency
-                                ) { vm.onEvent(HomeEvent.AccountClicked(it)) }
+                                Card(
+                                    modifier = Modifier
+                                        .padding(horizontal = 20.dp)
+                                        .padding(bottom = 8.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(15.dp),
+                                    backgroundColor =
+                                    if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
+                                    else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
+                                    elevation = 4.dp
+                                ) {
+                                    AccountsChips(
+                                        spacing = 8.dp,
+                                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
+                                        accounts = state.accounts,
+                                        states = state.accountStates
+                                    ) { vm.onEvent(HomeEvent.AccountClicked(it)) }
+                                }
                             }
                             AnimatedVisibility(
-                                visible = vm.rangeService.rangeLength > 1,
+                                visible = vm.rangeService.rangeLength > 1 && state.showLineGraph,
                                 enter = expandVertically(tween(400))
                                         + scaleIn(initialScale = 0.9f, animationSpec = tween(300, 450))
                                         + fadeIn(tween(300, 450)),
@@ -174,7 +204,8 @@ fun HomeScreen(
                             CategoryTotalsOverview(
                                 totalPerCategory = state.totalPerCategory,
                                 categoryBarStates = state.categoryBarStates,
-                                currency = state.currency
+                                currency = state.currency,
+                                collapsable = state.collapseCategories
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                         }
                         items(state.results) {
@@ -363,5 +394,4 @@ private fun ItemsTypeSelector(
             Spacer(modifier = Modifier.width(4.dp))
         }
     }
-    Spacer(modifier = Modifier.height(12.dp))
 }

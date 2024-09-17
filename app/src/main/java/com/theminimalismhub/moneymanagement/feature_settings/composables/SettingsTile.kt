@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -30,8 +31,8 @@ fun SettingsTile(
     modifier: Modifier = Modifier,
     title: String,
     description: String,
-    titleColor: Color = MaterialTheme.colors.onBackground,
-    descriptionColor: Color = MaterialTheme.colors.primaryVariant,
+    titleColor: Color = colors.onBackground,
+    descriptionColor: Color = colors.primaryVariant,
     icon: ImageVector? = null,
     onClick: () -> Unit,
     enabled: Boolean = true
@@ -85,8 +86,8 @@ fun SettingsTile(
     modifier: Modifier = Modifier,
     title: String,
     description: String,
-    titleColor: Color = MaterialTheme.colors.onBackground,
-    descriptionColor: Color = MaterialTheme.colors.primaryVariant,
+    titleColor: Color = colors.onBackground,
+    descriptionColor: Color = colors.primaryVariant,
     enabled: Boolean = true,
     fieldState: TextFieldState,
     inputType: KeyboardType,
@@ -136,7 +137,54 @@ fun SettingsTile(
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 unfocusedBorderColor = MaterialTheme.colors.secondaryVariant,
-                focusedBorderColor = MaterialTheme.colors.primaryVariant
+                focusedBorderColor = colors.primaryVariant
+            )
+        )
+    }
+}
+
+@Composable
+fun SettingsTile(
+    modifier: Modifier = Modifier,
+    title: String,
+    description: String,
+    titleColor: Color = colors.onBackground,
+    descriptionColor: Color = colors.primaryVariant,
+    enabled: Boolean = true,
+    toggled: Boolean = false,
+    onToggle: (Boolean) -> Unit
+) {
+    Row (
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 32.dp, end = 28.dp)
+            .alpha(if (enabled) 1f else 0.45f),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column (
+            modifier = Modifier.widthIn(max = 248.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = title.uppercase(),
+                color = titleColor,
+                style = MaterialTheme.typography.body1
+            )
+            Text(
+                text = description,
+                color = descriptionColor,
+                style = MaterialTheme.typography.subtitle1
+            )
+        }
+        Spacer(modifier = Modifier.width(24.dp))
+        Checkbox(
+            checked = toggled,
+            onCheckedChange = onToggle,
+            enabled = enabled,
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colors.primary,
+                uncheckedColor = MaterialTheme.colors.primary
             )
         )
     }

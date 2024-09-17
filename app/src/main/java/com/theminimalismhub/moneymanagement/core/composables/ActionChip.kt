@@ -104,7 +104,7 @@ fun SelectableChip(
     onClick: () -> Unit
 ) {
     val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
-    val textColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.secondaryVariant else MaterialTheme.colors.onSurface, tween(durationMillis = 250))
+    val textColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.background else MaterialTheme.colors.onBackground, tween(durationMillis = 250))
 
     ActionChip(
         modifier = modifier,

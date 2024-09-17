@@ -31,7 +31,7 @@ fun GraphSpendingOverview(
         shape = RoundedCornerShape(15.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 12.dp),
+            .padding(bottom = 8.dp),
         backgroundColor =
             if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
             else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),

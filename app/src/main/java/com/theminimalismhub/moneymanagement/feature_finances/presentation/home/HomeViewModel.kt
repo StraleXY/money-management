@@ -1,15 +1,12 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
-import android.util.Log
 import androidx.compose.material.Colors
-import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.theminimalismhub.jobmanagerv2.utils.Dater
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
@@ -23,6 +20,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,16 +37,24 @@ class HomeViewModel @Inject constructor(
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
-    private var selectedCategoryId: Int? = null
+//    private var selectedCategoryId: Int? = null
     val rangeService = RangePickerService()
     private var selectedAccountId: Int? = null
 
-    init {
+    init { init() }
+
+    fun init() {
         _state.value = _state.value.copy(
             limit = preferences.getSimpleLimit().toDouble(),
-            currency = preferences.getCurrency()
+            currency = preferences.getCurrency(),
+            showLineGraph = preferences.getShowLineGraph(),
+            collapseCategories = preferences.getCollapseCategories(),
+            filterIncomeByAccount = preferences.getFilterIncomeByAccount(),
+            filterOutcomeByAccount = preferences.getFilterOutcomeByAccount(),
+            swipeableNavigation = preferences.getSwipeableNavigation()
         )
         initDateRange()
+        initAverages()
         getFinances()
         getAccounts()
     }
@@ -62,45 +69,49 @@ class HomeViewModel @Inject constructor(
                 addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance))
             }
             is HomeEvent.RangeChanged -> {
-                toggleCategoryBar(selectedCategoryId)
+                toggleCategoryBar(_state.value.selectedCategoryId)
                 _state.value = _state.value.copy(
                     dateRange = event.range,
                     isToday = event.isToday
                 )
-                if(rangeService.type == RangeType.DAILY) addEditService.onEvent(AddEditFinanceEvent.DateChanged(event.range.first))
+                if (rangeService.type == RangeType.DAILY) addEditService.onEvent(AddEditFinanceEvent.DateChanged(event.range.first))
                 else addEditService.onEvent(AddEditFinanceEvent.DateChanged(System.currentTimeMillis()))
                 getFinances()
             }
             is HomeEvent.CategoryClicked -> {
                 toggleCategoryBar(event.id)
-                getFinances()
+                getFinances(false)
             }
             is HomeEvent.ItemTypeSelected -> {
-                selectedCategoryId = null
+                _state.value = _state.value.copy(selectedCategoryId = null)
                 selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
                 _state.value.itemsTypeStates.forEach { _state.value.itemsTypeStates[it.key]!!.value = it.key == event.idx }
                 getFinances()
             }
             is HomeEvent.AccountClicked -> {
-                selectedCategoryId = null
+                _state.value = _state.value.copy(selectedCategoryId = null)
                 toggleAccountPreview(event.id)
                 getFinances()
+            }
+            is HomeEvent.ToggleShowLineGraph -> {
+                _state.value = _state.value.copy(showLineGraph = !_state.value.showLineGraph)
+                preferences.setShowLineGraph(_state.value.showLineGraph)
             }
         }
     }
 
     // Finances
     private var getFinancesJob: Job? = null
-    private fun getFinances() {
+    private fun getFinances(updateQuickSpending: Boolean = true) {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
         val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
         val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getFinances(_state.value.dateRange, selectedCategoryId, selectedAccountId, types, tracked)
+        getFinancesJob = useCases.getFinances(_state.value.dateRange, _state.value.selectedCategoryId, selectedAccountId, types, tracked)
             .onEach { finance ->
                 _state.value = _state.value.copy(results = finance)
-                if(selectedCategoryId == null) getCategoryTotals()
-                updateQuickSpending()
+                if(_state.value.selectedCategoryId == null) getCategoryTotals()
+                if(updateQuickSpending) updateQuickSpending()
                 getGraphData()
             }
             .launchIn(viewModelScope)
@@ -118,6 +129,13 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(
             dateRange = Pair(rangeService.getStartTimestamp(), rangeService.getEndTimestamp())
         )
+    }
+    private fun initAverages() {
+        viewModelScope.launch {
+            val yearRange = Dater.getDateRange(month = null, year = Dater.getYear())
+            val yearTotal = useCases.getTotal(yearRange, FinanceType.OUTCOME, null, null, listOf(true))
+            _state.value = _state.value.copy(dailyAverage = yearTotal / LocalDateTime.now().dayOfYear)
+        }
     }
     private fun getCategoryTotals() {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
@@ -139,7 +157,7 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(totalsPerAccount = bars.groupBy { it.accountId })
         bars.forEach {
             _state.value.categoryBarStates[it.categoryId] = mutableStateOf(
-                when (selectedCategoryId) {
+                when (_state.value.selectedCategoryId) {
                     null -> CategoryBarState.NEUTRAL
                     it.categoryId -> CategoryBarState.SELECTED
                     else -> CategoryBarState.DESELECTED
@@ -148,12 +166,12 @@ class HomeViewModel @Inject constructor(
         }
     }
     private fun toggleCategoryBar(categoryId: Int?) {
-        if(selectedCategoryId == categoryId) {
+        if(_state.value.selectedCategoryId == categoryId) {
             _state.value.categoryBarStates.forEach { (_, state) -> state.value = CategoryBarState.NEUTRAL }
-            selectedCategoryId = null
+            _state.value = _state.value.copy(selectedCategoryId = null)
         } else {
             _state.value.categoryBarStates.forEach { (id, state) -> state.value = if(id == categoryId) CategoryBarState.SELECTED else CategoryBarState.DESELECTED }
-            selectedCategoryId = categoryId
+            _state.value = _state.value.copy(selectedCategoryId = categoryId)
         }
     }
     private fun getGraphData() {
@@ -164,11 +182,11 @@ class HomeViewModel @Inject constructor(
                 type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
                 items = _state.value.results,
                 color =
-                    if(selectedCategoryId == null) colors.onSurface.toArgb()
-                    else Colorer.getAdjustedDarkColor(_state.value.totalPerCategory.first{ it.categoryId == selectedCategoryId }.color, colors.isLight).toArgb()
+                    if(_state.value.selectedCategoryId == null) colors.onSurface.toArgb()
+                    else Colorer.getAdjustedDarkColor(_state.value.totalPerCategory.first{ it.categoryId == _state.value.selectedCategoryId }.color, colors.isLight).toArgb()
             )
         )
-        if(selectedCategoryId == null) {
+        if(_state.value.selectedCategoryId == null) {
             _state.value = _state.value.copy(
                 maxEarnings = _state.value.earningsPerTimePeriod.maxOf { it.value }
             )

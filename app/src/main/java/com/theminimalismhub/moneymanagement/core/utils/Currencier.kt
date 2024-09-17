@@ -9,11 +9,15 @@ class Currencier {
         fun formatAmount(value: Int): String {
             return value.toString()
         }
-        fun formatAmount(value: Double): String {
-            return formatAmount(value.toFloat())
+        fun formatAmount(value: Double, isCompact: Boolean = false): String {
+            return formatAmount(value.toFloat(), isCompact)
         }
-        fun formatAmount(value: Float): String {
-            if (value % 1 == 0.0f) return value.toInt().toString()
+        fun formatAmount(value: Float, isCompact: Boolean = false): String {
+            if (value % 1 == 0.0f) {
+                return if (value > 99999 && isCompact) "${(value / 1000).toInt()}k"
+                else value.toInt().toString()
+            }
+            // TODO Fix displaying of large decimal numbers
             val df = DecimalFormat("#.##")
             return df.format(value)
         }

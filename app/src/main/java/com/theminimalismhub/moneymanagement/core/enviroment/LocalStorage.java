@@ -75,4 +75,9 @@ public class LocalStorage {
         SharedPreferences pref = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         return pref.getBoolean(key, false);
     }
+
+    public static Boolean getBoolean(Context context, String prefsName, String key, Boolean def) {
+        SharedPreferences pref = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        return pref.getBoolean(key, def);
+    }
 }

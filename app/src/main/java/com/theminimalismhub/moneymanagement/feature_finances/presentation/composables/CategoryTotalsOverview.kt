@@ -31,12 +31,13 @@ fun CategoryTotalsOverview(
     categoryBarStates: HashMap<Int, MutableState<CategoryBarState>>,
     currency: String = "RSD",
     collapsable: Boolean = false,
+    collapsedCount: Int = 5,
     showCount: Boolean = false,
     onClick: (Int) -> Unit
 ) {
-    var showAmount by remember { mutableStateOf(5) }
+    var showAmount by remember { mutableStateOf(collapsedCount) }
     fun toggleShowAmount() {
-        showAmount = if(showAmount < totalPerCategory.size) totalPerCategory.size else 5
+        showAmount = if(showAmount < totalPerCategory.size) totalPerCategory.size else collapsedCount
     }
     Card(
         shape = RoundedCornerShape(15.dp),
@@ -80,7 +81,7 @@ fun CategoryTotalsOverview(
             }
         }
     }
-    if (collapsable) Row(
+    if (collapsable && totalPerCategory.size > collapsedCount) Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
     ) {
