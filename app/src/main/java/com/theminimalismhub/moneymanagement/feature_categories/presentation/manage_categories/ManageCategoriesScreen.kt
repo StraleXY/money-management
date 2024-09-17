@@ -85,6 +85,11 @@ fun ManageCategoriesScreen(
                         tween(if (state.isAddEditOpen) 250 else 350)
                     ).value)
                 )
+                if(state.incomeCategories.isEmpty() && state.outcomeCategories.isEmpty()) ErrorBox(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    text = "No Categories",
+                    hint = "You need at least one income and one outcome category in order to use the app!"
+                )
                 CategoryContainer(
                     chipsHeight = chipsHeight,
                     categories = state.incomeCategories,

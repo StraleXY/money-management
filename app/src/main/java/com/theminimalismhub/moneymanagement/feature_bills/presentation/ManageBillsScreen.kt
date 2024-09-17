@@ -43,6 +43,7 @@ import com.dsc.form_builder.TextFieldState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
+import com.theminimalismhub.moneymanagement.core.composables.ErrorBox
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
@@ -95,8 +96,10 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
                         title = stringResource(id = R.string.b_title),
                         hint = stringResource(id = R.string.b_hint)
                     )
-                    Column(
-                        modifier = Modifier.padding(horizontal = 22.dp).padding(bottom = 28.dp)
+                    if(state.bills.isNotEmpty()) Column(
+                        modifier = Modifier
+                            .padding(horizontal = 22.dp)
+                            .padding(bottom = 28.dp)
                     ) {
                         Card(
                             shape = RoundedCornerShape(15.dp),
@@ -132,6 +135,11 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
                             }
                         }
                     }
+                    if(state.bills.isEmpty()) ErrorBox(
+                        modifier = Modifier.padding(horizontal = 22.dp),
+                        text = "No Bills",
+                        hint = "Bills are used as a shortcut for reoccurring payments."
+                    )
                 }
                 items(state.bills.filter { !it.bill.isLastMonthPaid }) {
                     BillCard(

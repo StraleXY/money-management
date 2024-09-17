@@ -72,9 +72,9 @@ fun HomeScreen(
         peekHeight = 0.dp,
         backLayerBackgroundColor = MaterialTheme.colors.background,
         frontLayerScrimColor =
-            if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (0.95f * 255L).toInt()))
-            else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (0.95f * 255L).toInt())),
-        frontLayerElevation = 2.dp,
+            if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (1 * 255L).toInt()))
+            else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (1f * 255L).toInt())),
+        frontLayerElevation = 8.dp,
         gesturesEnabled = !state.isAddEditOpen,
         appBar = {
             ScreenHeader(
@@ -84,8 +84,6 @@ fun HomeScreen(
         },
         backLayerContent = {
             // BACKDROP CONTENT
-            MainAppActions(navigator)
-            Spacer(modifier = Modifier.height(12.dp))
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 24.dp),
@@ -105,6 +103,8 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
+            MainAppActions(navigator)
+            Spacer(modifier = Modifier.height(12.dp))
         },
         frontLayerContent = {
             Scaffold(
