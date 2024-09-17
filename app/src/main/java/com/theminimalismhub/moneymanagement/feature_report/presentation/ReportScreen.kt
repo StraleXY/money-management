@@ -89,7 +89,7 @@ fun ReportScreen(vm: ReportVM = hiltViewModel()) {
                         style = MaterialTheme.typography.h1
                     )
                     Text(
-                        text = "Total spent in ${state.year}.",
+                        text = "Total ${if(state.selectedType == FinanceType.OUTCOME) "spent" else "earned"} in ${state.year}.",
                         style = MaterialTheme.typography.h5
                     )
                 }

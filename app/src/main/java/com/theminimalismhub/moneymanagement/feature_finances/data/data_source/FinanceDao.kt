@@ -13,9 +13,14 @@ interface FinanceDao {
     @Transaction
     @Query("SELECT * FROM finance WHERE type != 'TRANSACTION' ORDER BY timestamp ASC")
     fun getAll(): Flow<List<Finance>>
+
     @Transaction
-    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to AND financeAccountId = :accountId AND type IN (:types) ORDER BY timestamp ASC")
+    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to AND (financeAccountId = :accountId OR financeAccountIdFrom = :accountId) AND type IN (:types) ORDER BY timestamp ASC")
     fun getAll(from: Long, to: Long, accountId : Int, types: List<FinanceType>): Flow<List<Finance>>
+
+//    @Transaction
+//    @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to AND financeAccountId = :accountId AND type IN (:types) ORDER BY timestamp ASC")
+//    fun getAll(from: Long, to: Long, accountId : Int, types: List<FinanceType>): Flow<List<Finance>>
 
     @Transaction
     @Query("SELECT * FROM finance WHERE timestamp >= :from AND timestamp <= :to AND type IN (:types) AND trackable IN (:tracked) ORDER BY timestamp ASC")

@@ -79,7 +79,7 @@ class AddEditFinanceService(
                         currentTrackable = event.finance.finance.trackable
                     )
                     formState.fields[0].change(event.finance.finance.name)
-                    formState.fields[1].change(Currencier.formatAmount(event.finance.finance.amount))
+                    formState.fields[1].change(Currencier.formatAmount(event.finance.finance.amount, false))
                     onEvent(AddEditFinanceEvent.AccountSelected(event.finance.finance.financeAccountId))
                     initialAccountId = event.finance.finance.financeAccountId
                     initialAmount = event.finance.finance.amount

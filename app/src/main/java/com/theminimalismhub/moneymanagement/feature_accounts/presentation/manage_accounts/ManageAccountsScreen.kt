@@ -33,10 +33,12 @@ import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddEditAccountCard
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.TransactionCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SpendingSegment
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -127,8 +129,18 @@ fun ManageAccountsScreen(
                 scrollState = scroll
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
-                if(state.results.isEmpty()) ErrorNoData()
-                state.results.forEach {
+                if (state.results.isEmpty()) ErrorNoData()
+                else {
+                    AccountStats(
+                        income = state.results.filter { it.finance.type == FinanceType.INCOME && it.finance.financeAccountId == state.selectedAccountId }.sumOf { it.finance.amount },
+                        outcome = state.results.filter { it.finance.type == FinanceType.OUTCOME && it.finance.financeAccountId == state.selectedAccountId }.sumOf { it.finance.amount },
+                        inTransaction = state.results.filter { it.finance.type == FinanceType.TRANSACTION && it.finance.financeAccountId == state.selectedAccountId }.sumOf { it.finance.amount },
+                        outTransaction = state.results.filter { it.finance.type == FinanceType.TRANSACTION && it.finance.financeAccountIdFrom == state.selectedAccountId }.sumOf { it.finance.amount },
+                        currency = state.currency
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+                state.results.filter { it.finance.type == FinanceType.TRANSACTION && it.finance.financeAccountId == state.selectedAccountId }.forEach {
                     FinanceCard(
                         finance = it,
                         previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
@@ -221,6 +233,55 @@ fun SlidingCard(
                     Spacer(modifier = Modifier.height(160.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AccountStats(
+    income: Double,
+    outcome: Double,
+    inTransaction: Double,
+    outTransaction: Double,
+    currency: String
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        shape = RoundedCornerShape(15.dp),
+        elevation = 16.dp
+    ) {
+        Row(modifier = Modifier.padding(16.dp)) {
+            SpendingSegment(
+                modifier = Modifier
+                    .weight(0.49f, true)
+                    .height(120.dp),
+                title = "TOTAL INFLOW",
+                amount = inTransaction + income,
+                currency = currency,
+                secondaryAmounts = listOf(
+                    Pair("Transactions", inTransaction),
+                    Pair("Income", income)
+                )
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Divider(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(88.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            SpendingSegment(
+                modifier = Modifier
+                    .weight(0.49f, true)
+                    .height(120.dp),
+                title = "TOTAL OUTFLOW",
+                amount = outTransaction + outcome,
+                currency = currency,
+                secondaryAmounts = listOf(
+                    Pair("Transactions", outTransaction),
+                    Pair("Outcome", outcome)
+                )
+            )
         }
     }
 }

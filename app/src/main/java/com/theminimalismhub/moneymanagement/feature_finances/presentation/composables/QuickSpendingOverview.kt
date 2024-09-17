@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
+import android.util.Half.toFloat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -93,8 +94,7 @@ fun QuickSpendingOverview(
                     .height(125.dp),
                 title = if(limitHidden) "TOTAL" else "SPENT",
                 amount = amount,
-                hint = "AVERAGE",
-                secondaryAmount = if(rangeLength == 1) 0.0 else amount / rangeLength,
+                secondaryAmounts = listOf(Pair("AVERAGE", if(rangeLength == 1) 0.0 else amount / rangeLength)),
                 currency = currency
             )
             AnimatedVisibility(
@@ -116,8 +116,7 @@ fun QuickSpendingOverview(
                         .height(125.dp),
                     title = "REMAINING",
                     amount = limit * rangeLength - amount,
-                    hint = "LIMIT",
-                    secondaryAmount = limit * rangeLength,
+                    secondaryAmounts = listOf(Pair("LIMIT", limit * rangeLength)),
                     currency = currency
                 )
             }
@@ -132,17 +131,16 @@ fun SpendingSegment(
     modifier: Modifier = Modifier,
     title: String,
     amount: Double,
-    hint: String = "",
-    secondaryAmount: Double? = null,
-    currency: String = "RSD"
+    currency: String = "RSD",
+    secondaryAmounts: List<Pair<String, Double>> = emptyList()
 ) {
     val animatedAmount by
         if(Currencier.isDecimal(amount)) animateFloatAsState(targetValue = amount.toFloat(), tween(750))
         else animateIntAsState(targetValue = amount.toInt(), tween(750))
 
-    val animatedSecondaryAmount by
-        if(Currencier.isDecimal(secondaryAmount ?: 0.0)) animateFloatAsState(targetValue = secondaryAmount?.toFloat() ?: 0f, tween(750))
-        else animateIntAsState(targetValue = secondaryAmount?.toInt() ?: 0, tween(750))
+    val animatedSecondaryAmounts = secondaryAmounts.map {
+        animateFloatAsState(targetValue = it.second.toFloat(), tween(750), label = "amount_${it.first}")
+    }
 
     Column(
         modifier = modifier,
@@ -155,18 +153,18 @@ fun SpendingSegment(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "${Currencier.formatAmount(animatedAmount.toFloat())} $currency ",
+            text = "${Currencier.formatAmount(animatedAmount.toFloat(), true)} $currency ",
             style = MaterialTheme.typography.h3.copy(
                 fontSize = 45.sp
             ),
             color = if(amount < 0.0) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
-        secondaryAmount?.let {
+        secondaryAmounts.forEachIndexed { idx, secondary ->
             Text(
                 modifier = Modifier
                     .alpha(0.65f),
-                text = "$hint: ${if (secondaryAmount == 0.0) "--" else Currencier.formatAmount(animatedSecondaryAmount.toFloat())} $currency",
+                text = "${secondary.first}: ${if (secondary.second == 0.0) "--" else Currencier.formatAmount(if(Currencier.isDecimal(secondary.second)) animatedSecondaryAmounts[idx].value.toDouble() else animatedSecondaryAmounts[idx].value.toInt().toDouble(), true)} $currency",
                 style = MaterialTheme.typography.h3.copy(
                     fontSize = 15.sp
                 )

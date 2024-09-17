@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -205,10 +206,11 @@ class ManageAccountsViewModel @Inject constructor(
     private fun getTransactions(accountId: Int?) {
         if(accountId == null) return
         getFinancesJob?.cancel()
-        getFinancesJob = useCases.getTransactions(Pair(-1L, Long.MAX_VALUE), accountId, listOf(FinanceType.TRANSACTION))
+        getFinancesJob = useCases.getTransactions(Pair(-1L, Long.MAX_VALUE), accountId, listOf(FinanceType.TRANSACTION, FinanceType.OUTCOME, FinanceType.INCOME))
             .onEach { finance ->
                 _state.value = _state.value.copy(
-                    results = finance
+                    results = finance,
+                    selectedAccountId = accountId
                 )
             }
             .launchIn(viewModelScope)
