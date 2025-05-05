@@ -3,15 +3,30 @@ package com.theminimalismhub.moneymanagement.feature_finances.domain.services
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
+@AndroidEntryPoint
 class PaymentNotificationListener : NotificationListenerService() {
 
-    object Wallets {
+    @Inject
+    lateinit var useCases: AddEditFinanceUseCases
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private object Wallets {
         const val GOOGLE = "com.google.android.apps.walletnfcrel"
     }
-
 
     override fun onListenerConnected() {
         super.onListenerConnected()
@@ -33,11 +48,20 @@ class PaymentNotificationListener : NotificationListenerService() {
         val priceRaw = tokens[0]
         val price = priceRaw.filter { c -> c.isDigit() || c == '.' || c == ',' }.toDouble().roundToInt()
         val cardLabel = tokens[1]
-        makePayment(price.toDouble(), cardLabel, place)
+//        makePayment(price.toDouble(), cardLabel, place)
     }
 
     private fun makePayment(price: Double, cardLabel: String, item: String) {
         Log.d("Payment", "Spent $price RSD using card: '$cardLabel' for: $item")
-
+        serviceScope.launch {
+            useCases.add(FinanceItem(
+                name = item,
+                amount = price,
+                timestamp = System.currentTimeMillis(),
+                type = FinanceType.OUTCOME,
+                financeCategoryId = 1,
+                financeAccountId = 1
+            ))
+        }
     }
 }
