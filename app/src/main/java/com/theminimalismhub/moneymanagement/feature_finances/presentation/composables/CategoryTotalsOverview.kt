@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.compo
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -39,15 +40,12 @@ fun CategoryTotalsOverview(
     fun toggleShowAmount() {
         showAmount = if(showAmount < totalPerCategory.size) totalPerCategory.size else collapsedCount
     }
-    Card(
-        shape = RoundedCornerShape(15.dp),
+    Box(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .fillMaxWidth(),
-        backgroundColor =
-            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
-            else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
-        elevation = 4.dp
+            .fillMaxWidth()
+            .background(
+                if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.02f))
+                else MaterialTheme.colors.surface.copy(1f, 0.08f, 0.08f, 0.08f)),
     ) {
         Box(
             modifier = Modifier

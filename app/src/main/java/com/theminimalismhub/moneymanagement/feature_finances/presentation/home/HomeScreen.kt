@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -126,7 +127,6 @@ fun HomeScreen(
                                     isToday = state.isToday
                                 ) { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
                                 QuickSpendingOverviewCompact(
-                                    modifier = Modifier.padding(horizontal = 20.dp),
                                     exampleDate = "Spent",
                                     amount = state.quickSpendingAmount,
                                     average = state.dailyAverage,
@@ -148,14 +148,10 @@ fun HomeScreen(
                                 currency = state.currency,
                                 selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
                             ItemsTypeSelector(
-                                modifier = Modifier
-                                    .padding(horizontal = 20.dp),
                                 itemsTypeStates = state.itemsTypeStates,
                                 itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
                             AnimatedVisibility(
                                 visible = state.itemsTypeStates[2]!!.value && state.filterIncomeByAccount || state.itemsTypeStates.filter { it.key != 2 }.any { it.value.value } && state.filterOutcomeByAccount,
                                 enter = expandVertically(tween(400))
@@ -165,16 +161,12 @@ fun HomeScreen(
                                         + fadeOut(tween(300))
                                         + shrinkVertically(tween(450, 250))
                             ) {
-                                Card(
+                                Box(
                                     modifier = Modifier
-                                        .padding(horizontal = 20.dp)
-                                        .padding(bottom = 8.dp)
-                                        .fillMaxWidth(),
-                                    shape = RoundedCornerShape(15.dp),
-                                    backgroundColor =
-                                    if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
-                                    else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
-                                    elevation = 4.dp
+                                        .fillMaxWidth()
+                                        .background(
+                                            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.02f))
+                                            else MaterialTheme.colors.surface.copy(1f, 0.08f, 0.08f, 0.08f)),
                                 ) {
                                     AccountsChips(
                                         spacing = 8.dp,
@@ -194,8 +186,6 @@ fun HomeScreen(
                                         + shrinkVertically(tween(450, 250))
                             ) {
                                 GraphSpendingOverview(
-                                    modifier = Modifier
-                                        .padding(horizontal = 20.dp),
                                     earningsPerTimePeriod = state.earningsPerTimePeriod,
                                     maxEarnings = state.maxEarnings,
                                     limit = state.limit
@@ -329,18 +319,17 @@ private fun ItemsTypeSelector(
     itemsTypeStates: Map<Int, MutableState<Boolean>>,
     itemToggled: (Int) -> Unit
 ) {
-    Card(
+    Box(
         modifier = modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        backgroundColor =
-            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
-            else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
-        elevation = 4.dp
+            .fillMaxWidth()
+            .background(
+                if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.02f))
+                else MaterialTheme.colors.surface.copy(1f, 0.08f, 0.08f, 0.08f)),
     ) {
         Row(
             modifier = Modifier
-                .padding(10.dp),
+                .fillMaxWidth()
+                .padding(start = 10.dp, end = 10.dp, top = 20.dp, bottom = 10.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             ToggleChip(

@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,15 +28,12 @@ fun GraphSpendingOverview(
     maxEarnings: Double,
     limit: Double
 ) {
-    Card(
-        shape = RoundedCornerShape(15.dp),
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        backgroundColor =
-            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
-            else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
-        elevation = 4.dp
+            .background(
+                if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.02f))
+                else MaterialTheme.colors.surface.copy(1f, 0.08f, 0.08f, 0.08f)),
     ) {
         Box (
             modifier = Modifier

@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.Tonality
+import androidx.compose.material.primarySurface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,11 +46,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerDefaults
@@ -232,141 +235,143 @@ fun QuickSpendingOverviewCompact(
         label = "arrow_direction"
     )
 
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        elevation = 8.dp
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.04f))
+                else MaterialTheme.colors.surface.copy(1f, 0.12f, 0.12f, 0.12f)),
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column(
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+                .alpha(contentAlpha)
+        ) {
+            Text(
+                text = exampleDate,
+                style = MaterialTheme.typography.body2,
                 modifier = Modifier
-                    .padding(20.dp)
-                    .alpha(contentAlpha)
-            ) {
+                    .padding(start = 4.dp)
+                    .alpha(1f)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        enabled = dateSelectable
+                    ) { dateClicked?.invoke() }
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = exampleDate,
-                    style = MaterialTheme.typography.body2,
-                    modifier = Modifier
-                        .padding(start = 4.dp)
-                        .alpha(1f)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            enabled = dateSelectable
-                        ) { dateClicked?.invoke() }
+                    text = "${animatedAmount.toInt()} $currency",
+                    style = MaterialTheme.typography.h2,
+                    color = MaterialTheme.colors.onBackground
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "${animatedAmount.toInt()} $currency",
-                        style = MaterialTheme.typography.h2,
-                        color = MaterialTheme.colors.onBackground
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    if(!limitHidden || selectedCategory != null) Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(100))
-                            .background(animatedBackground),
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .height(36.dp)
-                                .padding(start = 8.dp, end = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = if(selectedCategory != null) Icons.Default.Tonality else if (percent > 0) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                                contentDescription = "Upper-Lower icon",
-                                tint = animatedForeground
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "${animatedPercent.toInt()}%",
-                                style = MaterialTheme.typography.body1,
-                                color = animatedForeground
-                            )
-                        }
-                    }
-                }
-                AnimatedVisibility(
-                    visible = expanded,
-                    enter = fadeIn() + expandVertically { 0 },
-                    exit = fadeOut() + shrinkVertically { 0 }
+                Spacer(modifier = Modifier.width(12.dp))
+                if(!limitHidden || selectedCategory != null) Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(100))
+                        .background(animatedBackground),
                 ) {
-                    Column(
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 4.dp)
+                            .height(36.dp)
+                            .padding(start = 8.dp, end = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Row {
-                            Text(
-                                modifier = Modifier.alpha(0.75f),
-                                text = "Average: ",
-                                style = MaterialTheme.typography.body2
-                            )
-                            Text(
-                                text = "${(average * rangeLength).toInt()} $currency ",
-                                style = MaterialTheme.typography.body2,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                modifier = Modifier.alpha(0.75f),
-                                text = "Target: ",
-                                style = MaterialTheme.typography.body2
-                            )
-                            Text(
-                                text = "${(limit * rangeLength).toInt()} $currency ",
-                                style = MaterialTheme.typography.body2,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Box(
-                                modifier = Modifier
-                                    .width(1.dp)
-                                    .height(14.dp)
-                                    .alpha(0.25f)
-                                    .background(MaterialTheme.colors.primary)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "${(amount - (limit * rangeLength)).absoluteValue.toInt()} $currency",
-                                style = MaterialTheme.typography.body2,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = if(amount > limit * rangeLength) "Over Budget" else "Remaining",
-                                style = MaterialTheme.typography.body2,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = if(amount > limit * rangeLength) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
-                            )
-                        }
+                        Icon(
+                            imageVector = if(selectedCategory != null) Icons.Default.Tonality else if (percent > 0) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                            contentDescription = "Upper-Lower icon",
+                            tint = animatedForeground
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${animatedPercent.toInt()}%",
+                            style = MaterialTheme.typography.body1,
+                            color = animatedForeground
+                        )
                     }
                 }
             }
-            Row(modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)) {
-                IconButton(
-                    onClick = {
-                        if(onToggle != null) onToggle()
-                        else expanded = !expanded
-                    }
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandVertically { 0 },
+                exit = fadeOut() + shrinkVertically { 0 }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp)
                 ) {
-                    Icon(
-                        modifier = Modifier.rotate(-animatedIconRotation),
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Expand-Shrink"
-                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row {
+                        Text(
+                            modifier = Modifier.alpha(0.75f),
+                            text = "Average: ",
+                            style = MaterialTheme.typography.body2
+                        )
+                        Text(
+                            text = "${(average * rangeLength).toInt()} $currency ",
+                            style = MaterialTheme.typography.body2,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            modifier = Modifier.alpha(0.75f),
+                            text = "Target: ",
+                            style = MaterialTheme.typography.body2
+                        )
+                        Text(
+                            text = "${(limit * rangeLength).toInt()} $currency ",
+                            style = MaterialTheme.typography.body2,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(14.dp)
+                                .alpha(0.25f)
+                                .background(MaterialTheme.colors.primary)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "${(amount - (limit * rangeLength)).absoluteValue.toInt()} $currency",
+                            style = MaterialTheme.typography.body2,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if(amount > limit * rangeLength) "Over Budget" else "Remaining",
+                            style = MaterialTheme.typography.body2,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = if(amount > limit * rangeLength) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
+                        )
+                    }
                 }
             }
         }
+        Row(modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(8.dp)) {
+            IconButton(
+                onClick = {
+                    if(onToggle != null) onToggle()
+                    else expanded = !expanded
+                }
+            ) {
+                Icon(
+                    modifier = Modifier.rotate(-animatedIconRotation),
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Expand-Shrink"
+                )
+            }
+        }
     }
+
 }
 
 @OptIn(ExperimentalPagerApi::class)
