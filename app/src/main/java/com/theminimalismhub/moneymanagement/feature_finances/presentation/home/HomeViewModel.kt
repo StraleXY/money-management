@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 import androidx.compose.material.Colors
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -97,6 +98,19 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(showLineGraph = !_state.value.showLineGraph)
                 preferences.setShowLineGraph(_state.value.showLineGraph)
             }
+
+            is HomeEvent.DisplayTypeChanged -> {
+                _state.value = _state.value.copy(selectedCategoryId = null)
+                selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
+                _state.value = _state.value.copy(displayTypes = event.types)
+                getFinances()
+            }
+            is HomeEvent.DisplayTrackedChanged -> {
+                _state.value = _state.value.copy(selectedCategoryId = null)
+                selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
+                _state.value = _state.value.copy(displayTracked = event.tracked)
+                getFinances()
+            }
         }
     }
 
@@ -104,8 +118,12 @@ class HomeViewModel @Inject constructor(
     private var getFinancesJob: Job? = null
     private fun getFinances(updateQuickSpending: Boolean = true) {
         val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
-        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
+//        val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
+//        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
+
+        val types: MutableList<FinanceType> = _state.value.displayTypes.toMutableList()
+        val tracked: MutableList<Boolean> = _state.value.displayTracked.toMutableList()
+
         getFinancesJob?.cancel()
         getFinancesJob = useCases.getFinances(_state.value.dateRange, _state.value.selectedCategoryId, selectedAccountId, types, tracked)
             .onEach { finance ->
@@ -117,8 +135,7 @@ class HomeViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
     private fun updateQuickSpending() {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val types: MutableList<FinanceType> = if(idx == 2) mutableListOf(FinanceType.INCOME) else mutableListOf(FinanceType.OUTCOME)
+        val types: MutableList<FinanceType> = if(_state.value.displayTypes.contains(FinanceType.OUTCOME)) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
         _state.value = _state.value.copy(
             quickSpendingAmount = _state.value.results.sumOf { if (types.contains(it.finance.type)) it.finance.amount else 0.0 }
         )
@@ -138,8 +155,7 @@ class HomeViewModel @Inject constructor(
         }
     }
     private fun getCategoryTotals() {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val type: FinanceType = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
+        val type: FinanceType = if(_state.value.displayTypes.contains(FinanceType.OUTCOME)) FinanceType.OUTCOME else FinanceType.INCOME
         val bars: MutableList<CategoryAmount> = mutableListOf()
         _state.value.results.filter{ it.finance.type == type }.groupBy { it.category!!.categoryId }.forEach {
             bars.add(
@@ -179,7 +195,7 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(
             earningsPerTimePeriod = useCases.getTotalPerDay(
                 range = _state.value.dateRange,
-                type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
+                type = if(_state.value.displayTypes.contains(FinanceType.OUTCOME)) FinanceType.OUTCOME else FinanceType.INCOME,
                 items = _state.value.results,
                 color =
                     if(_state.value.selectedCategoryId == null) colors.onSurface.toArgb()

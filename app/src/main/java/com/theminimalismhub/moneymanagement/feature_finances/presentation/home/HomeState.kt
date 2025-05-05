@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
@@ -27,6 +28,8 @@ data class HomeState(
     val accountStates: HashMap<Int, MutableState<Boolean>> = HashMap(),
     val totalsPerAccount: Map<Int, List<CategoryAmount>> = HashMap(),
 
+    val displayTypes: List<FinanceType> = listOf(FinanceType.OUTCOME),
+    val displayTracked: List<Boolean> = listOf(true, false),
     val itemsTypeStates: Map<Int, MutableState<Boolean>> = mapOf(
         0 to mutableStateOf(true),
         1 to mutableStateOf(false),

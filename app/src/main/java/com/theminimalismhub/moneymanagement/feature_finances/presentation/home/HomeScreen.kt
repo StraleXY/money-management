@@ -33,6 +33,8 @@ import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageBillsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
@@ -76,6 +78,7 @@ fun HomeScreen(
             if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (1 * 255L).toInt()))
             else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (1f * 255L).toInt())),
         frontLayerElevation = 8.dp,
+        frontLayerShape = RoundedCornerShape(0),
         gesturesEnabled = !state.isAddEditOpen,
         appBar = {
             ScreenHeader(
@@ -120,7 +123,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         item {
-                            Spacer(modifier = Modifier.height(32.dp))
+//                            Box(modifier = Modifier.height(32.dp).shadedBackground(Shade.LIGHT)) { }
                             if(!state.swipeableNavigation) {
                                 RangePicker(
                                     rangeService = vm.rangeService,
@@ -132,7 +135,7 @@ fun HomeScreen(
                                     average = state.dailyAverage,
                                     rangeLength = vm.rangeService.rangeLength,
                                     limit = state.limit,
-                                    limitHidden = state.itemsTypeStates[2]!!.value,
+                                    limitHidden = !state.displayTypes.contains(FinanceType.OUTCOME),
                                     currency = state.currency,
                                     selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                                 )
@@ -144,13 +147,13 @@ fun HomeScreen(
                                 amount = state.quickSpendingAmount,
                                 average = state.dailyAverage,
                                 limit = state.limit,
-                                limitHidden = state.itemsTypeStates[2]!!.value,
+                                limitHidden = !state.displayTypes.contains(FinanceType.OUTCOME),
                                 currency = state.currency,
                                 selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                             )
-                            ItemsTypeSelector(
-                                itemsTypeStates = state.itemsTypeStates,
-                                itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
+                            ItemTypeSelectorV2(
+                                onTypeChanged = { vm.onEvent(HomeEvent.DisplayTypeChanged(it)) },
+                                onTrackedChanged = { vm.onEvent(HomeEvent.DisplayTrackedChanged(it)) }
                             )
                             AnimatedVisibility(
                                 visible = state.itemsTypeStates[2]!!.value && state.filterIncomeByAccount || state.itemsTypeStates.filter { it.key != 2 }.any { it.value.value } && state.filterOutcomeByAccount,
@@ -164,9 +167,7 @@ fun HomeScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(
-                                            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.02f))
-                                            else MaterialTheme.colors.surface.copy(1f, 0.08f, 0.08f, 0.08f)),
+                                        .shadedBackground(Shade.DARK),
                                 ) {
                                     AccountsChips(
                                         spacing = 8.dp,
@@ -311,76 +312,4 @@ private fun MainAppActions(
         }
     }
     Spacer(modifier = Modifier.width(16.dp))
-}
-
-@Composable
-private fun ItemsTypeSelector(
-    modifier: Modifier = Modifier,
-    itemsTypeStates: Map<Int, MutableState<Boolean>>,
-    itemToggled: (Int) -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.02f))
-                else MaterialTheme.colors.surface.copy(1f, 0.08f, 0.08f, 0.08f)),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, end = 10.dp, top = 20.dp, bottom = 10.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            ToggleChip(
-                name = "MIXED OVERVIEW",
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_mobiledata_off_24),
-                        contentDescription = "MIXED VIEW"
-                    )
-                },
-                toggled = itemsTypeStates[0]!!.value,
-                onSelected = { itemToggled(0) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ToggleChip(
-                name = "OUTCOME ITEMS",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowUpward,
-                        contentDescription = "OUTCOME ITEMS"
-                    )
-                },
-                toggled = itemsTypeStates[1]!!.value,
-                onSelected = { itemToggled(1) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ToggleChip(
-                name = "INCOME ITEMS",
-                icon = {
-                    Icon(
-                        modifier = Modifier.rotate(180f),
-                        imageVector = Icons.Default.ArrowUpward,
-                        contentDescription = "INCOME ITEMS"
-                    )
-                },
-                toggled = itemsTypeStates[2]!!.value,
-                onSelected = { itemToggled(2) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ToggleChip(
-                name = "UNTRACKED ITEMS",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.MobiledataOff,
-                        contentDescription = "UNTRACKED ITEMS"
-                    )
-                },
-                toggled = itemsTypeStates[3]!!.value,
-                onSelected = { itemToggled(3) }
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-        }
-    }
 }

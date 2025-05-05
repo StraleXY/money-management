@@ -59,7 +59,7 @@ fun CategoryBar(
     }
     fun calc(x: Double) : Float {
         val fraction = normalize((x / maxAmount.coerceAtLeast(1.0)))
-        return (fraction * 0.7f).toFloat().coerceAtLeast(0.05f)
+        return (fraction * 0.7f).toFloat().coerceAtLeast(0.108f)
     }
     // val animatedScale = animateFloatAsState(targetValue = if(state == CategoryBarState.DESELECTED) 0.95f else 1f)
     val animatedWidth = remember { Animatable(0.045f) }
@@ -87,9 +87,7 @@ fun CategoryBar(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) {
-                clicked(categoryInfo.categoryId)
-            },
+            ) { clicked(categoryInfo.categoryId) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
@@ -97,11 +95,11 @@ fun CategoryBar(
             modifier = Modifier
                 .fillMaxWidth(animatedWidth.value)
                 .height(42.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(21.dp))
                 .background(animatedColor),
             content = {}
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(6.dp))
         Column {
             AutoResizeText(
                 text = categoryInfo.name + if(showCount) " [${categoryInfo.count}]" else "",

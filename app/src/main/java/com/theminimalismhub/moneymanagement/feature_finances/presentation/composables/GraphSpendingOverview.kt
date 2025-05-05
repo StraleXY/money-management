@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 
 @Composable
 fun GraphSpendingOverview(
@@ -31,12 +33,11 @@ fun GraphSpendingOverview(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.02f))
-                else MaterialTheme.colors.surface.copy(1f, 0.08f, 0.08f, 0.08f)),
+            .shadedBackground(Shade.DARK),
     ) {
         Box (
             modifier = Modifier
+                .padding(top = 20.dp)
                 .fillMaxWidth()
                 .animateContentSize()
         ) {
