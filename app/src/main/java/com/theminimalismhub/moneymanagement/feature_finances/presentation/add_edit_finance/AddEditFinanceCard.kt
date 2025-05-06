@@ -208,7 +208,7 @@ fun AddEditFinanceCard(
                 cardToggled(null)
             }
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height((9.5).dp))
     }
 }
 

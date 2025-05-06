@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.core.composables
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,57 +38,52 @@ fun CRUDButtons(
 ) {
     Row(
         modifier = Modifier
-            .height(47.dp)
+            .height(45.dp)
             .padding(horizontal = 33.dp)
             .fillMaxWidth()
-            .shadedBackground(Shade.LIGHT, RoundedCornerShape(100)),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+            .shadedBackground(Shade.LIGHT, RoundedCornerShape(100))
     ) {
-        Spacer(modifier = Modifier.width(5.dp))
-        TextButton(
-            onClick = onSave,
-            enabled = saveEnabled,
-            shape = RoundedCornerShape(100)
+        Spacer(modifier = Modifier.width(132.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Save,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(20.dp)
-                        .alpha(0.8f)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(id = R.string.action_save),
-                    style = MaterialTheme.typography.button
-                )
-                Spacer(modifier = Modifier.width(4.dp))
+            if(deleteEnabled) HoldableActionButton(
+                modifier = Modifier,
+                text = stringResource(id = R.string.action_delete),
+                icon = Icons.Default.Delete,
+                textStyle = MaterialTheme.typography.button,
+                duration = 2500,
+                circleColor = Color.Transparent,
+                alternatedColor = MaterialTheme.colors.error,
+                iconColor = MaterialTheme.colors.onBackground,
+                onHold = onDelete,
+                enabled = deleteEnabled
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(
+                modifier = Modifier.fillMaxHeight(),
+                onClick = onSave,
+                enabled = saveEnabled,
+                shape = RoundedCornerShape(100)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Save,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .alpha(0.8f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.action_save),
+                        style = MaterialTheme.typography.button
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
             }
         }
-//        ActionChip(
-//            text = stringResource(id = R.string.action_save),
-//            icon = Icons.Default.Save,
-//            textStyle = MaterialTheme.typography.button,
-//            borderThickness = 0.dp,
-//            backgroundStrength = 0.1f,
-//            modifier = Modifier,
-//            onClick = onSave,
-//            enabled = saveEnabled
-//        )
-        Spacer(modifier = Modifier.width(12.dp))
-        if(deleteEnabled) HoldableActionButton(
-            modifier = Modifier,
-            text = stringResource(id = R.string.action_delete),
-            icon = Icons.Default.Delete,
-            textStyle = MaterialTheme.typography.button,
-            duration = 2500,
-            circleColor = Color.Transparent,
-            alternatedColor = MaterialTheme.colors.error,
-            iconColor = MaterialTheme.colors.onBackground,
-            onHold = onDelete,
-            enabled = deleteEnabled
-        )
     }
 }

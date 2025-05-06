@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -95,7 +96,6 @@ fun HoldableActionButton(
 
     Row (
         modifier = modifier
-            .fillMaxWidth()
             .alpha(if(enabled) 1f else 0.5f)
             .customHoldClickEffect(
                 duration,

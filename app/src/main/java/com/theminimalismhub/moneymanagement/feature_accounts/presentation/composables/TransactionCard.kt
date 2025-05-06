@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -144,22 +145,27 @@ fun TransactionCard(
                 .padding(horizontal = 33.dp)
                 .fillMaxWidth()
                 .shadedBackground(Shade.LIGHT, RoundedCornerShape(100)),
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(modifier = Modifier.width(5.dp))
-            HoldableActionButton(
-                modifier = Modifier,
-                text = stringResource(id = R.string.ma_confirm_transaction),
-                icon = Icons.Default.Check,
-                textStyle = MaterialTheme.typography.button,
-                duration = 2500,
-                circleColor = Color.Transparent,
-                alternatedColor = MaterialTheme.colors.primary,
-                iconColor = MaterialTheme.colors.onBackground,
-                onHold = { onTransaction(accountTo!!) }
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colors.primary, RoundedCornerShape(100))
+            ) {
+                HoldableActionButton(
+                    modifier = Modifier.padding(start = 9.dp, end = 14.dp).align(Alignment.Center),
+                    text = stringResource(id = R.string.ma_confirm_transaction),
+                    icon = Icons.Default.Check,
+                    textStyle = MaterialTheme.typography.button,
+                    duration = 2500,
+                    circleColor = Color.Transparent,
+                    alternatedColor = MaterialTheme.colors.onPrimary,
+                    iconColor = MaterialTheme.colors.onPrimary,
+                    onHold = { onTransaction(accountTo!!) }
+                )
+            }
         }
-        Spacer(modifier = Modifier.height((6.5).dp))
+        Spacer(modifier = Modifier.height((9.5).dp))
     }
 }
