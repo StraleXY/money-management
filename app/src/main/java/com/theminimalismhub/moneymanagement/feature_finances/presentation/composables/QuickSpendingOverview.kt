@@ -87,7 +87,7 @@ fun QuickSpendingOverview(
                     coordinates.size.width.toDp()
                 }
             },
-        shape = RoundedCornerShape(15.dp),
+        shape = RoundedCornerShape(20.dp),
         elevation = 8.dp
     ) {
         Row(

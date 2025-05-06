@@ -82,6 +82,6 @@ val Typography = Typography(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp,
-        letterSpacing = 3.sp
+        letterSpacing = 2.5.sp
     )
 )

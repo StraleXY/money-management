@@ -7,17 +7,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 
 @Composable
 fun ScreenHeader(
     modifier: Modifier = Modifier,
     title: String,
-    hint: String? = null
+    hint: String? = null,
+    hasBackground: Boolean = false
 ) {
-    Column(
-        modifier = modifier
-            .padding(top = 20.dp)
-    ) {
+    Column(modifier = if(!hasBackground) modifier else modifier.shadedBackground(Shade.MID)) {
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.h1,
@@ -38,5 +39,4 @@ fun ScreenHeader(
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
-
 }

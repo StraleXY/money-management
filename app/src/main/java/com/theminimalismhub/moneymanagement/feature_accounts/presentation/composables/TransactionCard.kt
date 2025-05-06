@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
@@ -28,6 +29,8 @@ import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
@@ -49,7 +52,6 @@ fun TransactionCard(
     var accountTo by remember { mutableStateOf(if(accounts.isNotEmpty()) accounts[0] else null) }
 
     FloatingCard(
-        modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
         header = {
             Column(
@@ -95,12 +97,14 @@ fun TransactionCard(
             onValueChange = { name.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Name") },
             isError = name.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -115,12 +119,14 @@ fun TransactionCard(
             onValueChange = { amount.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Amount") },
             isError = amount.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -131,17 +137,29 @@ fun TransactionCard(
         )
         if(!amount.hasError) Spacer(modifier = Modifier.height(4.dp))
         Spacer(modifier = Modifier.height(24.dp))
-        HoldableActionButton(
-            modifier = Modifier,
-            text = stringResource(id = R.string.ma_confirm_transaction),
-            icon = Icons.Default.Check,
-            textStyle = MaterialTheme.typography.button,
-            duration = 2500,
-            circleColor = Color.Transparent,
-            alternatedColor = MaterialTheme.colors.primary,
-            iconColor = MaterialTheme.colors.onBackground,
-            onHold = { onTransaction(accountTo!!) }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier
+                .height(47.dp)
+                .padding(horizontal = 33.dp)
+                .fillMaxWidth()
+                .shadedBackground(Shade.LIGHT, RoundedCornerShape(100)),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(5.dp))
+            HoldableActionButton(
+                modifier = Modifier,
+                text = stringResource(id = R.string.ma_confirm_transaction),
+                icon = Icons.Default.Check,
+                textStyle = MaterialTheme.typography.button,
+                duration = 2500,
+                circleColor = Color.Transparent,
+                alternatedColor = MaterialTheme.colors.primary,
+                iconColor = MaterialTheme.colors.onBackground,
+                onHold = { onTransaction(accountTo!!) }
+            )
+        }
+        Spacer(modifier = Modifier.height((6.5).dp))
     }
 }

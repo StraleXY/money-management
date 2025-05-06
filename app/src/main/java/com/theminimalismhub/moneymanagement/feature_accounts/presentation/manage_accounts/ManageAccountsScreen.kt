@@ -203,7 +203,7 @@ fun SlidingCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(15.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .graphicsLayer {
                     translationY =
                         ((headerHeight - accountsPagerHeight - scrollState.value.dp).toPx()).coerceAtLeast(0f)
@@ -214,7 +214,7 @@ fun SlidingCard(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(15.dp))
+                    .clip(RoundedCornerShape(20.dp))
                     .graphicsLayer {
                         val cardTranslationY = ((headerHeight - accountsPagerHeight - scrollState.value.dp).toPx()).coerceAtLeast(0f)
                         textTrans = if (cardTranslationY > 0) scrollState.value.dp.toPx() / 2 else textTrans
@@ -224,7 +224,7 @@ fun SlidingCard(
                 // CONTENT - adds bottom podding
                 Column(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(15.dp))
+                        .clip(RoundedCornerShape(20.dp))
                         .shadow(8.dp)
                         .heightIn(screenHeight - accountsPagerHeight + 160.dp)
                         .background(MaterialTheme.colors.surface)
@@ -247,7 +247,7 @@ fun AccountStats(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-        shape = RoundedCornerShape(15.dp),
+        shape = RoundedCornerShape(20.dp),
         elevation = 16.dp
     ) {
         Row(modifier = Modifier.padding(16.dp)) {

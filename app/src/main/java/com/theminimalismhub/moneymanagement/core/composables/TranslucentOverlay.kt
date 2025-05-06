@@ -22,7 +22,8 @@ import androidx.core.graphics.ColorUtils
 
 @Composable
 fun TranslucentOverlay(
-    visible: Boolean
+    visible: Boolean,
+    opacity: Float = 1f
 ) {
     val focusManager = LocalFocusManager.current
     AnimatedVisibility(
@@ -34,8 +35,8 @@ fun TranslucentOverlay(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (0.95f * 255L).toInt()))
-                    else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.background.toArgb(), (0.95f * 255L).toInt()))
+                    if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (opacity * 255L).toInt()))
+                    else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.background.toArgb(), (opacity * 255L).toInt()))
                 )
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },

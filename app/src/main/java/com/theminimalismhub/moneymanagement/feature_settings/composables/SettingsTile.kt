@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_settings.composables
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -138,7 +139,8 @@ fun SettingsTile(
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 unfocusedBorderColor = MaterialTheme.colors.secondaryVariant,
                 focusedBorderColor = colors.primaryVariant
-            )
+            ),
+            shape = RoundedCornerShape(100)
         )
     }
 }

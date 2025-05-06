@@ -20,9 +20,9 @@ fun AccountsList(
     accounts: List<Account>,
     states: HashMap<Int, MutableState<Boolean>>,
     listState: LazyListState = rememberLazyListState(),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 32.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
     currency: String = "RSD",
-    spacing: Dp = 16.dp,
+    spacing: Dp = 12.dp,
     selectionChanged: (Int) -> Unit
 ) {
     LazyRow(

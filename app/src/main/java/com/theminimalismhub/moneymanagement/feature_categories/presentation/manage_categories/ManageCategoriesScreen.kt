@@ -106,7 +106,6 @@ fun ManageCategoriesScreen(
             }
             TranslucentOverlay(visible = state.isAddEditOpen)
             FloatingCard(
-                modifier = Modifier.padding(horizontal = 16.dp),
                 visible = state.isAddEditOpen,
                 header = {
                     Card(
@@ -114,7 +113,7 @@ fun ManageCategoriesScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 32.dp),
                         elevation = Dp(8f),
-                        shape = RoundedCornerShape(15.dp)
+                        shape = RoundedCornerShape(20.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
@@ -44,7 +45,6 @@ fun AddEditAccountCard(
     val descriptionVisible by remember { mutableStateOf(type == AccountType.CARD) }
 
     FloatingCard(
-        modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
         header = {
             Column(
@@ -86,12 +86,14 @@ fun AddEditAccountCard(
             onValueChange = { name.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Name") },
             isError = name.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -107,6 +109,7 @@ fun AddEditAccountCard(
             onValueChange = { balance.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Balance") },
@@ -115,7 +118,8 @@ fun AddEditAccountCard(
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.clearFocus(true) },
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
-            )
+            ),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -135,12 +139,14 @@ fun AddEditAccountCard(
                     onValueChange = { description.change(it) },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(60.dp)
                         .padding(horizontal = 36.dp),
                     textStyle = MaterialTheme.typography.body1,
                     label = { Text(text = if(type == AccountType.CARD) "Last 4 Digits" else "Description") },
                     isError = description.hasError,
                     keyboardOptions = KeyboardOptions(keyboardType = if(type == AccountType.CARD) KeyboardType.Number else KeyboardType.Text, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
+                    shape = RoundedCornerShape(100)
                 )
                 ErrorText(
                     modifier = Modifier

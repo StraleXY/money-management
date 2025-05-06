@@ -107,7 +107,7 @@ fun AccountCardMini(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onClick() },
-        shape = RoundedCornerShape(15.dp),
+        shape = RoundedCornerShape(24.dp),
         elevation = 8.dp,
         backgroundColor = Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), if(selected) 0f else 0.1f))
     ) {
@@ -204,7 +204,7 @@ fun AccountCardLarge(
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(15.dp),
+        shape = RoundedCornerShape(20.dp),
         backgroundColor = MaterialTheme.colors.background,
         elevation = 8.dp
     ) {
@@ -382,7 +382,7 @@ fun NewAccountExampleCard(
                 rotationX = animatedRotationX.value
                 rotationY = animatedRotationY.value
             },
-        shape = RoundedCornerShape(15.dp),
+        shape = RoundedCornerShape(20.dp),
         backgroundColor = MaterialTheme.colors.background,
         elevation = 16.dp
     ) {
@@ -438,7 +438,7 @@ fun AddNewAccount(
 ) {
     DashedBox(
         modifier = Modifier
-            .clip(RoundedCornerShape(15.dp))
+            .clip(RoundedCornerShape(20.dp))
             .clickable { onClick() }
             .width((260 * scale).dp)
             .height((165 * scale).dp)

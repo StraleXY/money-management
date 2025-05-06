@@ -49,6 +49,8 @@ import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButto
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_bills.presentation.add_edit_bill.AddEditBillCard
 import com.theminimalismhub.moneymanagement.feature_bills.presentation.composables.BillCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
@@ -96,43 +98,38 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
                         title = stringResource(id = R.string.b_title),
                         hint = stringResource(id = R.string.b_hint)
                     )
-                    if(state.bills.isNotEmpty()) Column(
+                    if(state.bills.isNotEmpty()) Box(
                         modifier = Modifier
-                            .padding(horizontal = 22.dp)
                             .padding(bottom = 28.dp)
+                            .shadedBackground(Shade.DARK)
                     ) {
-                        Card(
-                            shape = RoundedCornerShape(15.dp),
-                            elevation = 8.dp
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 24.dp, bottom = 24.dp)
                         ) {
-                            Row(
+                            SpendingSegment(
                                 modifier = Modifier
-                                    .padding(vertical = 4.dp)
-                            ) {
-                                SpendingSegment(
-                                    modifier = Modifier
-                                        .weight(0.49f, true)
-                                        .height(125.dp),
-                                    title = "PAID",
-                                    amount = state.bills.count { it.bill.isLastMonthPaid }.toDouble(),
-                                    currency = "/ ${state.bills.size}"
-                                )
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Divider(
-                                    modifier = Modifier
-                                        .width(1.dp)
-                                        .height(125.dp)
-                                )
-                                Spacer(modifier = Modifier.width(16.dp))
-                                SpendingSegment(
-                                    modifier = Modifier
-                                        .weight(0.49f, true)
-                                        .height(125.dp),
-                                    title = "OWED",
-                                    amount = state.bills.sumOf { if (!it.bill.isLastMonthPaid) it.bill.amount else 0.0 }.toDouble(),
-                                    currency = state.currency
-                                )
-                            }
+                                    .weight(0.49f, true)
+                                    .height(125.dp),
+                                title = "PAID",
+                                amount = state.bills.count { it.bill.isLastMonthPaid }.toDouble(),
+                                currency = "/ ${state.bills.size}"
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Divider(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(124.dp)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            SpendingSegment(
+                                modifier = Modifier
+                                    .weight(0.49f, true)
+                                    .height(125.dp),
+                                title = "OWED",
+                                amount = state.bills.sumOf { if (!it.bill.isLastMonthPaid) it.bill.amount else 0.0 }.toDouble(),
+                                currency = state.currency
+                            )
                         }
                     }
                     if(state.bills.isEmpty()) ErrorBox(
@@ -173,7 +170,6 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
             )
 
             FloatingCard(
-                modifier = Modifier.padding(horizontal = 16.dp),
                 visible = state.billToPay != null,
                 header = {
                     AccountsList(
@@ -189,12 +185,14 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
                     onValueChange = { amount.change(it) },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(60.dp)
                         .padding(horizontal = 36.dp),
                     textStyle = MaterialTheme.typography.body1,
                     label = { Text(text = "Amount") },
                     isError = amount.hasError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
+                    shape = RoundedCornerShape(100)
                 )
                 ErrorText(
                     modifier = Modifier

@@ -3,7 +3,11 @@ package com.theminimalismhub.moneymanagement.core.composables
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -15,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.theminimalismhub.moneymanagement.R
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 
 @Composable
 fun CRUDButtons(
@@ -24,9 +30,26 @@ fun CRUDButtons(
     saveEnabled: Boolean = true
 ) {
     Row(
-        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .height(47.dp)
+            .padding(horizontal = 33.dp)
+            .fillMaxWidth()
+            .shadedBackground(Shade.LIGHT, RoundedCornerShape(100)),
+        horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.width(5.dp))
+        ActionChip(
+            text = stringResource(id = R.string.action_save),
+            icon = Icons.Default.Save,
+            textStyle = MaterialTheme.typography.button,
+            borderThickness = 0.dp,
+            backgroundStrength = 0.1f,
+            modifier = Modifier,
+            onClick = onSave,
+            enabled = saveEnabled
+        )
+        Spacer(modifier = Modifier.width(12.dp))
         HoldableActionButton(
             modifier = Modifier,
             text = stringResource(id = R.string.action_delete),
@@ -38,17 +61,6 @@ fun CRUDButtons(
             iconColor = MaterialTheme.colors.onBackground,
             onHold = onDelete,
             enabled = deleteEnabled
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        ActionChip(
-            text = stringResource(id = R.string.action_save),
-            icon = Icons.Default.Save,
-            textStyle = MaterialTheme.typography.button,
-            borderThickness = 0.dp,
-            backgroundStrength = 0f,
-            modifier = Modifier,
-            onClick = onSave,
-            enabled = saveEnabled
         )
     }
 }
