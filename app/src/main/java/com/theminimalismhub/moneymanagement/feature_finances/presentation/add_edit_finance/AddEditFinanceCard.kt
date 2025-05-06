@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -36,6 +37,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
+import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
@@ -100,8 +102,16 @@ fun AddEditFinanceCard(
                 cardSpacing = 0.dp,
                 onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
             )
+            DashedLine(
+                modifier = Modifier
+                    .offset(y = 17.dp)
+                    .zIndex(100f),
+                dashLength = 8.dp,
+                gapLength = 4.dp
+            )
         }
     ) {
+        Spacer(modifier = Modifier.height(8.dp))
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth(),

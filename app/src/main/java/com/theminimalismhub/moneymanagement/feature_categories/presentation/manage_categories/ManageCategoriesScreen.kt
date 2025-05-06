@@ -369,14 +369,16 @@ fun ToggleTracking(
             ) { onToggle(!toggled) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(
-            checked = toggled,
-            onCheckedChange = onToggle,
-            colors = CheckboxDefaults.colors(
-                checkedColor = MaterialTheme.colors.primary,
-                uncheckedColor = MaterialTheme.colors.primary
+        Box(modifier = Modifier.clip(RoundedCornerShape(100))) {
+            Checkbox(
+                checked = toggled,
+                onCheckedChange = onToggle,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = MaterialTheme.colors.primary,
+                    uncheckedColor = MaterialTheme.colors.primary
+                )
             )
-        )
+        }
         Column(horizontalAlignment = Alignment.Start) {
             Text(
                 text = action,
