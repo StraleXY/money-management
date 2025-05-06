@@ -30,6 +30,7 @@ class ManageAccountsViewModel @Inject constructor(
 
     private val _state = mutableStateOf(ManageAccountsState())
     val state: State<ManageAccountsState> = _state
+    var previouslySelectedAccountId: Int? = null
 
     val addEditFormState = FormState(
         fields = listOf(
@@ -96,12 +97,17 @@ class ManageAccountsViewModel @Inject constructor(
             }
             is ManageAccountsEvent.ToggleAddEdit -> {
                 viewModelScope.launch {
+                    if(!_state.value.isAddEditOpen) previouslySelectedAccountId = _state.value.selectedAccountId
                     _state.value = _state.value.copy(
                         isAddEditOpen = !_state.value.isAddEditOpen,
                         selectedAccountId = event.account?.accountId
                     )
                     if(event.account == null) {
-                        if(!_state.value.isAddEditOpen) delay(450)
+                        if(!_state.value.isAddEditOpen) {
+                            _state.value = _state.value.copy(selectedAccountId = previouslySelectedAccountId)
+                            previouslySelectedAccountId = null
+                            delay(450)
+                        }
                         addEditFormState.fields[0].change("")
                         addEditFormState.fields[1].change("")
                         addEditFormState.fields[2].change("")

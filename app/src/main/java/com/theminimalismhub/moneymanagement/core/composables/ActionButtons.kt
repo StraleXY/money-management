@@ -73,7 +73,7 @@ fun ActionButton(
 
 @Composable
 fun HoldableActionButton(
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.h4,
     icon: ImageVector,
@@ -95,6 +95,7 @@ fun HoldableActionButton(
 
     Row (
         modifier = modifier
+            .fillMaxWidth()
             .alpha(if(enabled) 1f else 0.5f)
             .customHoldClickEffect(
                 duration,
@@ -148,7 +149,7 @@ fun HoldableActionButton(
         Spacer(modifier = Modifier.width(if (circleColor != Color.Transparent) 16.dp else 4.dp))
         Text(
             text = text,
-            color = MaterialTheme.colors.onBackground,
+            color = iconColor,
             style = textStyle
         )
     }

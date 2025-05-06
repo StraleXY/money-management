@@ -162,6 +162,7 @@ fun ManageCategoriesScreen(
                     deleteEnabled =  state.currentId != null,
                     onDelete = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) }
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

@@ -34,6 +34,7 @@ fun AddEditAccountCard(
     form: FormState<TextFieldState>,
     currency: String,
     accountTypeStates: HashMap<AccountType, MutableState<Boolean>>,
+    isNew: Boolean,
     onTypeChanged: (AccountType) -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit,
@@ -162,7 +163,8 @@ fun AddEditAccountCard(
         Spacer(modifier = Modifier.height(24.dp))
         CRUDButtons(
             onSave = onSave,
-            onDelete = onDelete
+            onDelete = onDelete,
+            deleteEnabled = !isNew
         )
         Spacer(modifier = Modifier.height(8.dp))
     }

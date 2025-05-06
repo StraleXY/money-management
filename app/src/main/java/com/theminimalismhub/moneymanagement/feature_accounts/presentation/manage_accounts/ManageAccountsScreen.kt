@@ -23,12 +23,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.*
 import com.ramcosta.composedestinations.annotation.Destination
+import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
@@ -88,7 +90,6 @@ fun ManageAccountsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-
                 item {
                     Column(
                         modifier = Modifier
@@ -120,7 +121,6 @@ fun ManageAccountsScreen(
                         )
                     }
                 }
-
             }
             SlidingCard(
                 headerHeight = headerHeight,
@@ -159,6 +159,7 @@ fun ManageAccountsScreen(
                 form = vm.addEditFormState,
                 currency = state.currency,
                 accountTypeStates = state.accountTypeStates,
+                isNew = state.selectedAccountId == null,
                 onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) },
                 onSave = {
                     if(!vm.addEditFormState.validate()) return@AddEditAccountCard
