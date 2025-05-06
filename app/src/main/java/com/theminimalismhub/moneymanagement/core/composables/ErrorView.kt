@@ -104,7 +104,7 @@ fun DashedBox(
                 drawRoundRect(
                     color = strokeColor,
                     style = stroke,
-                    cornerRadius = CornerRadius(15.dp.toPx())
+                    cornerRadius = CornerRadius(20.dp.toPx())
                 )
             },
         contentAlignment = Alignment.Center

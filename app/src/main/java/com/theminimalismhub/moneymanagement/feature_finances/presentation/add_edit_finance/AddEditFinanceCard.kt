@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
@@ -45,9 +46,11 @@ import com.theminimalismhub.moneymanagement.feature_categories.presentation.mana
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
 import kotlinx.coroutines.delay
 import java.util.*
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AddEditFinanceCard(
     state: AddEditFinanceState,
@@ -68,25 +71,35 @@ fun AddEditFinanceCard(
     val amount: TextFieldState = form.getState("amount")
     val categoryListState = rememberLazyListState()
     val accountListState = rememberLazyListState()
+    val accountPagerState = rememberPagerState(
+        pageCount = state.accounts.filter { it.active }.size,
+        initialOffscreenLimit = 2,
+    )
 
     LaunchedEffect(state.selectedCategoryId) {
         if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
         categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
     }
     LaunchedEffect(state.selectedAccountId) {
-        if(state.selectedAccountId == null || state.accounts.isEmpty()) return@LaunchedEffect
-        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+        if(state.selectedAccountId == null || state.accounts.filter { it.active }.isEmpty()) return@LaunchedEffect
+        accountPagerState.scrollToPage(state.accounts.filter { it.active }.indexOf(state.accounts.filter { it.active }.first { it.accountId == state.selectedAccountId } ))
     }
 
     FloatingCard(
         visible = isOpen,
         header = {
-            AccountsList(
-                accounts = state.accounts,
-                states = state.accountStates,
+            SwipeableAccountsPager(
+                accounts = state.accounts.filter { it.active },
                 currency = state.currency,
-                listState = accountListState
-            ) { accountSelected(it) }
+                balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
+                pagerState = accountPagerState,
+                minAlpha = 0.5f,
+                initialCardScale = 1.025f,
+                selectedCardStartScale = 0.875f,
+                selectedCardScale = 1.085f,
+                cardSpacing = 0.dp,
+                onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
+            )
         }
     ) {
         LazyRow(

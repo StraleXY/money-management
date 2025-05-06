@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -321,6 +322,67 @@ fun AccountCardLarge(
                     .align(Alignment.BottomEnd)
                     .padding(end = 20.dp, bottom = 20.dp),
                 type = account.type
+            )
+        }
+    }
+}
+
+@Composable
+fun AccountCardSwipeable(
+    modifier: Modifier = Modifier,
+    account: Account,
+    balanceDelta: Double = 0.0,
+    currency: String = "RSD",
+    scale: Float = 1f
+) {
+
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        backgroundColor = MaterialTheme.colors.surface,
+        elevation = 8.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .width((280 * scale).dp)
+                .height((125 * scale).dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        modifier = Modifier.padding(start = 2.dp),
+                        text = account.name,
+                        style = MaterialTheme.typography.h4.copy(fontSize = 20.sp)
+                    )
+
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if(account.type == AccountType.CARD) {
+                        CardNumber(
+                            modifier = Modifier.scale(0.925f),
+                            lastDigits = account.description
+                        )
+                    }
+                    else AccountIcon(type = account.type)
+
+                }
+            }
+            Text(
+                modifier = Modifier
+                    .padding(start = 24.dp, bottom = 32.dp)
+                    .align(Alignment.BottomStart),
+                text = if(account.type == AccountType.CRYPTO) "${stringResource(id = R.string.crypto_balance_mask)} $currency" else "${Currencier.formatAmount(account.balance + balanceDelta)} $currency",
+                style = MaterialTheme.typography.body1.copy(
+                    fontFamily = economica,
+                    fontSize = 40.sp
+                ),
+                color = if(account.type != AccountType.CRYPTO && (account.balance + balanceDelta).toInt() < 0) MaterialTheme.colors.error else MaterialTheme.colors.onBackground
             )
         }
     }
