@@ -198,6 +198,7 @@ fun HomeScreen(
                                 currency = state.currency,
                                 collapsable = state.collapseCategories
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                         items(state.results) {
                             FinanceCard(
@@ -207,7 +208,7 @@ fun HomeScreen(
                                 currency = state.currency,
                                 onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
                     TranslucentOverlay(visible = state.isAddEditOpen)
