@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -33,9 +34,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.dsc.form_builder.TextFieldState
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
+import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
@@ -46,9 +51,11 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_ed
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsChips
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.ToggleChip
 
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AddEditBillCard(
     isOpen: Boolean,
@@ -59,7 +66,11 @@ fun AddEditBillCard(
     val state = vm.state.value
 
     val categoryListState = rememberLazyListState()
-    val accountListState = rememberLazyListState()
+//    val accountListState = rememberLazyListState()
+    val accountPagerState = rememberPagerState(
+        pageCount = state.accounts.filter { it.active }.size,
+        initialOffscreenLimit = 2,
+    )
 
     LaunchedEffect(state.selectedCategoryId) {
         Log.i("CATEGORY", "Changed to id: ${state.selectedCategoryId} | Is empty? ${state.categories.isEmpty()}")
@@ -68,7 +79,8 @@ fun AddEditBillCard(
     }
     LaunchedEffect(state.selectedAccountId) {
         if(state.selectedAccountId == null || state.accounts.isEmpty()) return@LaunchedEffect
-        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+//        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+        accountPagerState.scrollToPage(state.accounts.filter { it.active }.indexOf(state.accounts.filter { it.active }.first { it.accountId == state.selectedAccountId } ))
     }
 
     val focusManager = LocalFocusManager.current
@@ -79,7 +91,27 @@ fun AddEditBillCard(
 
     FloatingCard(
         visible = isOpen,
-        header = {}
+        header = {
+            SwipeableAccountsPager(
+                accounts = state.accounts.filter { it.active },
+                currency = state.currency,
+                balanceDelta = 0.0,
+                pagerState = accountPagerState,
+                minAlpha = 0.5f,
+                initialCardScale = 1.025f,
+                selectedCardStartScale = 0.875f,
+                selectedCardScale = 1.085f,
+                cardSpacing = 0.dp,
+                onAccountSelected = { idx -> vm.onEvent(AddEditBillEvent.AccountSelected(state.accounts.filter { it.active }[idx].accountId!!)) }
+            )
+            DashedLine(
+                modifier = Modifier
+                    .offset(y = 17.dp)
+                    .zIndex(100f),
+                dashLength = 8.dp,
+                gapLength = 4.dp
+            )
+        }
     ) {
         LazyRow(
             modifier = Modifier
@@ -102,12 +134,12 @@ fun AddEditBillCard(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        AccountsChips(
-            accounts = state.accounts,
-            states = state.accountStates,
-            listState = accountListState
-        ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
-        Spacer(modifier = Modifier.height(8.dp))
+//        AccountsChips(
+//            accounts = state.accounts,
+//            states = state.accountStates,
+//            listState = accountListState
+//        ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
+//        Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(
             modifier = Modifier

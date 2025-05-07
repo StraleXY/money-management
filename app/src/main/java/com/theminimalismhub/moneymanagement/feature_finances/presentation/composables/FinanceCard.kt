@@ -43,12 +43,13 @@ fun FinanceCard(
 ) {
     Column(modifier = modifier) {
         previousSegmentDate?.let {
-            if(showSeparator && previousSegmentDate != finance.getDay()) Divider(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 16.dp, bottom = 16.dp),
-                color = MaterialTheme.colors.secondaryVariant
-            )
+            if(showSeparator && previousSegmentDate != finance.getDay()) Spacer(modifier = Modifier.height(36.dp))
+//                Divider(
+//                modifier = Modifier
+//                    .padding(horizontal = 24.dp)
+//                    .padding(top = 16.dp, bottom = 16.dp),
+//                color = MaterialTheme.colors.secondaryVariant
+//            )
         }
         Row(
             modifier = Modifier
@@ -88,7 +89,7 @@ fun FinanceCard(
                             modifier = Modifier
                                 .widthIn(min = 23.dp)
                                 .height(23.dp)
-                                .background(if(finance.category?.color != null) Colorer.getAdjustedDarkColor(finance.category.color) else MaterialTheme.colors.onSurface, RoundedCornerShape(100))
+                                .background(if (finance.category?.color != null) Colorer.getAdjustedDarkColor(finance.category.color) else MaterialTheme.colors.onSurface, RoundedCornerShape(100))
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if(finance.finance.type == FinanceType.INCOME || finance.finance.type == FinanceType.TRANSACTION || !finance.finance.trackable) {
@@ -167,7 +168,7 @@ fun FinanceCard(
                 Text(
                     text = finance.getDay().toString(),
                     style = MaterialTheme.typography.body1.copy(
-                        fontSize = 20.sp
+                        fontSize = 21.sp
                     )
                 )
                 Text(

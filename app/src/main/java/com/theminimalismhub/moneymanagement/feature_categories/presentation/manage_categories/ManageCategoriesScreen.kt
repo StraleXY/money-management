@@ -82,7 +82,7 @@ fun ManageCategoriesScreen(
                     animateDpAsState(
                         targetValue = if (state.isAddEditOpen) 24.dp else
                             Dp(((LocalView.current.height - chipsHeight.value - headerHeight.value) / LocalDensity.current.density) / 2) - 32.dp - 6.dp,
-                        tween(if (state.isAddEditOpen) 250 else 350)
+                        tween(if (state.isAddEditOpen) 250 else 350, if(state.isAddEditOpen) 0 else 500)
                     ).value)
                 )
                 if(state.incomeCategories.isEmpty() && state.outcomeCategories.isEmpty()) ErrorBox(

@@ -90,7 +90,7 @@ class AddEditBillService(
             recurringType = RecurringType.MONTHLY
         )
         onEvent(AddEditBillEvent.CategorySelected(null))
-        onEvent(AddEditBillEvent.AccountSelected(null))
+        onEvent(AddEditBillEvent.AccountSelected(_state.value.accounts.find { it.primary }?.accountId ?: _state.value.accounts.first().accountId))
         formState.fields[0].change("")
         formState.fields[1].change("")
         formState.fields[2].change("")
