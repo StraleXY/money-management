@@ -72,7 +72,6 @@ fun AddEditFinanceCard(
     val name: TextFieldState = form.getState("name")
     val amount: TextFieldState = form.getState("amount")
     val categoryListState = rememberLazyListState()
-    val accountListState = rememberLazyListState()
     val accountPagerState = rememberPagerState(
         pageCount = state.accounts.filter { it.active }.size,
         initialOffscreenLimit = 2,
