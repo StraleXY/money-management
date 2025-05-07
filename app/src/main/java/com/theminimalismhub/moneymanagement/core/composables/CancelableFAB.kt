@@ -79,7 +79,7 @@ fun CancelableFAB(
             .alpha(
                 animateFloatAsState(
                     targetValue = if(isExpanded) 0f else 1f,
-                    tween(300, 250)
+                    tween(275, 275)
                 ).value
             )
             .scale(
