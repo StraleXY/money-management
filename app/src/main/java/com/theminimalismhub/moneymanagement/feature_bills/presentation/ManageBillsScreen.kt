@@ -166,7 +166,8 @@ fun ManageBillsScreen(vm: ManageBillsViewModel = hiltViewModel()) {
             TranslucentOverlay(visible = state.isAddEditOpen || state.billToPay != null)
             AddEditBillCard(
                 isOpen = state.isAddEditOpen,
-                vm = vm.addEditBillVM
+                vm = vm.addEditBillVM,
+                onCancel = { vm.onEvent(ManageBillsEvent.ToggleAddEdit(null)) }
             )
 
             FloatingCard(

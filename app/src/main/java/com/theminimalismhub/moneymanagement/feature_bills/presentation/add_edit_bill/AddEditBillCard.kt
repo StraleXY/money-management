@@ -41,6 +41,7 @@ import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
 import com.theminimalismhub.moneymanagement.feature_bills.domain.model.RecurringType
+import com.theminimalismhub.moneymanagement.feature_bills.presentation.ManageBillsEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsChips
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
@@ -51,7 +52,8 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.compos
 @Composable
 fun AddEditBillCard(
     isOpen: Boolean,
-    vm: AddEditBillService
+    vm: AddEditBillService,
+    onCancel: () -> Unit
 ) {
 
     val state = vm.state.value
@@ -227,9 +229,8 @@ fun AddEditBillCard(
                 vm.onEvent(AddEditBillEvent.AddBill)
             },
             deleteEnabled =  state.currentBillId != null,
-            onDelete = {
-                vm.onEvent(AddEditBillEvent.DeleteBill)
-            }
+            onDelete = { vm.onEvent(AddEditBillEvent.DeleteBill) },
+            onCancel = onCancel
         )
         Spacer(modifier = Modifier.height((9.5).dp))
     }

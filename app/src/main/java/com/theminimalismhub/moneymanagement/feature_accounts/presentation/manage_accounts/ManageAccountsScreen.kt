@@ -165,7 +165,8 @@ fun ManageAccountsScreen(
                     if(!vm.addEditFormState.validate()) return@AddEditAccountCard
                     vm.onEvent(ManageAccountsEvent.SaveAccount)
                 },
-                onDelete = { vm.onEvent(ManageAccountsEvent.DeleteAccount) }
+                onDelete = { vm.onEvent(ManageAccountsEvent.DeleteAccount) },
+                onCancel = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null)) }
             )
             TransactionCard(
                 isOpen = state.isTransactionOpen,
@@ -176,7 +177,8 @@ fun ManageAccountsScreen(
                 onTransaction = {
                     if(!vm.transactionFormState.validate()) return@TransactionCard
                     vm.onEvent(ManageAccountsEvent.ConfirmTransaction(it))
-                }
+                },
+                onCancel = { vm.onEvent(ManageAccountsEvent.ToggleTransaction)}
             )
         }
     }

@@ -38,6 +38,7 @@ fun AddEditAccountCard(
     onTypeChanged: (AccountType) -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit,
+    onCancel: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val name: TextFieldState = form.getState("name")
@@ -164,7 +165,8 @@ fun AddEditAccountCard(
         CRUDButtons(
             onSave = onSave,
             onDelete = onDelete,
-            deleteEnabled = !isNew
+            deleteEnabled = !isNew,
+            onCancel = onCancel
         )
         Spacer(modifier = Modifier.height((9.5).dp))
     }

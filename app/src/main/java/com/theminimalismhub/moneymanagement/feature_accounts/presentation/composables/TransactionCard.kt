@@ -9,12 +9,16 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.South
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
@@ -44,7 +48,8 @@ fun TransactionCard(
     form: FormState<TextFieldState>,
     accountFrom: Account?,
     accounts: List<Account>,
-    onTransaction: (Account) -> Unit
+    onTransaction: (Account) -> Unit,
+    onCancel: () -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -145,9 +150,32 @@ fun TransactionCard(
                 .padding(horizontal = 33.dp)
                 .fillMaxWidth()
                 .shadedBackground(Shade.LIGHT, RoundedCornerShape(100)),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            TextButton(
+                modifier = Modifier,
+                onClick = onCancel,
+                shape = RoundedCornerShape(100)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .alpha(0.8f)
+                            .rotate(45f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.action_cancel),
+                        style = MaterialTheme.typography.button,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
             Box(
                 modifier = Modifier
                     .fillMaxHeight()

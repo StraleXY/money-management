@@ -206,7 +206,8 @@ fun AddEditFinanceCard(
             onDelete = {
                 deleteFinance()
                 cardToggled(null)
-            }
+            },
+            onCancel = { cardToggled(null) }
         )
         Spacer(modifier = Modifier.height((9.5).dp))
     }

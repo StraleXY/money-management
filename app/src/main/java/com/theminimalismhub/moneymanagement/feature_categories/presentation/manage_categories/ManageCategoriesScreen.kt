@@ -160,7 +160,8 @@ fun ManageCategoriesScreen(
                 CRUDButtons(
                     onSave = { vm.onEvent(ManageCategoriesEvent.SaveCategory) },
                     deleteEnabled =  state.currentId != null,
-                    onDelete = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) }
+                    onDelete = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) },
+                    onCancel = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null)) }
                 )
                 Spacer(modifier = Modifier.height((9.5).dp))
             }
