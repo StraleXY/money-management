@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 11,
-    "identityHash": "0703755866d6bc9b547bb2a3df71b9a4",
+    "identityHash": "a7bc107a55c03ee24608e1de1f191228",
     "entities": [
       {
         "tableName": "Category",
@@ -57,7 +57,7 @@
       },
       {
         "tableName": "Account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `balance` REAL NOT NULL, `active` INTEGER NOT NULL, `accountId` INTEGER, `deleted` INTEGER NOT NULL DEFAULT 0, `primary` INTEGER NOT NULL DEFAULT 0, `type` TEXT NOT NULL DEFAULT 'CASH', `description` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`accountId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `balance` REAL NOT NULL, `active` INTEGER NOT NULL, `accountId` INTEGER, `deleted` INTEGER NOT NULL DEFAULT 0, `primary` INTEGER NOT NULL DEFAULT 0, `type` TEXT NOT NULL DEFAULT 'CASH', `description` TEXT NOT NULL DEFAULT '', `labels` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`accountId`))",
         "fields": [
           {
             "fieldPath": "name",
@@ -107,6 +107,13 @@
           {
             "fieldPath": "description",
             "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "labels",
+            "columnName": "labels",
             "affinity": "TEXT",
             "notNull": true,
             "defaultValue": "''"
@@ -258,12 +265,92 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "RecommendedFinance",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recommendedId` INTEGER, `placeName` TEXT NOT NULL, `accountLabel` TEXT NOT NULL, `amount` REAL NOT NULL, `currencyStr` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `type` TEXT NOT NULL, `financeCategoryId` INTEGER, `financeAccountId` INTEGER, `trackable` INTEGER NOT NULL, `financeItemId` INTEGER, PRIMARY KEY(`recommendedId`))",
+        "fields": [
+          {
+            "fieldPath": "recommendedId",
+            "columnName": "recommendedId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "placeName",
+            "columnName": "placeName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountLabel",
+            "columnName": "accountLabel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currencyStr",
+            "columnName": "currencyStr",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "financeCategoryId",
+            "columnName": "financeCategoryId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "financeAccountId",
+            "columnName": "financeAccountId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "trackable",
+            "columnName": "trackable",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "financeItemId",
+            "columnName": "financeItemId",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "recommendedId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0703755866d6bc9b547bb2a3df71b9a4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a7bc107a55c03ee24608e1de1f191228')"
     ]
   }
 }

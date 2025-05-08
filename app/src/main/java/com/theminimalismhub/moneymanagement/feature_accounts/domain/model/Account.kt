@@ -15,7 +15,8 @@ data class Account(
     @ColumnInfo(name = "deleted", defaultValue = "0") val deleted: Boolean,
     @ColumnInfo(name = "primary", defaultValue = "0") val primary: Boolean,
     @ColumnInfo(name = "type", defaultValue = "CASH") val type: AccountType,
-    @ColumnInfo(name = "description", defaultValue = "") val description: String = ""
+    @ColumnInfo(name = "description", defaultValue = "") val description: String = "",
+    @ColumnInfo(name = "labels", defaultValue = "") val labels: String = ""
 ) : Serializable
 
 
