@@ -5,6 +5,7 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.RecommendedFinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -54,13 +55,12 @@ class PaymentNotificationListener : NotificationListenerService() {
     private fun makePayment(price: Double, cardLabel: String, item: String) {
         Log.d("Payment", "Spent $price RSD using card: '$cardLabel' for: $item")
         serviceScope.launch {
-            useCases.add(FinanceItem(
-                name = item,
+            useCases.add(RecommendedFinanceItem(
+                placeName = item,
+                accountLabel = cardLabel,
                 amount = price,
-                timestamp = System.currentTimeMillis(),
-                type = FinanceType.OUTCOME,
-                financeCategoryId = 1,
-                financeAccountId = 1
+                currencyStr = "RSD", // TODO Parse the currency from google wallet notification
+                timestamp = System.currentTimeMillis()
             ))
         }
     }

@@ -5,8 +5,9 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import java.util.Calendar
 import java.util.Date
+import javax.inject.Inject
 
-class GetTotal(
+class GetTotal @Inject constructor(
     private val repo: FinanceRepo,
 ) {
     suspend operator fun invoke(range: Pair<Long, Long>, type: FinanceType, categoryId: Int?, accountId: Int?, tracked: List<Boolean>) : Double {

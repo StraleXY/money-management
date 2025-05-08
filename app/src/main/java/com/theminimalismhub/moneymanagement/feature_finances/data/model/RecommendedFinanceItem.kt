@@ -10,7 +10,7 @@ data class RecommendedFinanceItem(
     @PrimaryKey val recommendedId: Int? = null,
     val placeName: String,
     val accountLabel: String,
-    val amount: Float,
+    val amount: Double,
     val currencyStr: String,
     val timestamp: Long,
     val type: FinanceType = FinanceType.OUTCOME,

@@ -4,8 +4,9 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class GetFinances(
+class GetFinances @Inject constructor(
     private val repo: FinanceRepo
 ) {
     operator fun invoke(range: Pair<Long, Long>, categoryId: Int?, accountId: Int?, types: List<FinanceType>, tracked: List<Boolean>) : Flow<List<Finance>> {

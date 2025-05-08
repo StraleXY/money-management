@@ -11,8 +11,9 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.compos
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
 import java.util.*
+import javax.inject.Inject
 
-class GetTotalPerDay constructor(
+class GetTotalPerDay @Inject constructor(
     private val repo: FinanceRepo,
     private val categoryRepo: CategoryRepo
 ) {

@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.data.repository
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_finances.data.data_source.FinanceDao
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.RecommendedFinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
@@ -45,7 +46,15 @@ class FinanceRepoImpl constructor(
         return dao.insertFinance(item)
     }
 
+    override suspend fun insertRecommended(item: RecommendedFinanceItem): Long {
+        return dao.insertRecommended(item)
+    }
+
     override suspend fun delete(id: Int) {
         dao.deleteFinance(id)
+    }
+
+    override suspend fun deleteRecommended(id: Int) {
+        dao.deleteRecommended(id)
     }
 }

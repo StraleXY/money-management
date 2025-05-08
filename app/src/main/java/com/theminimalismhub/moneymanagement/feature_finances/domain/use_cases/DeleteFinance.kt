@@ -1,8 +1,9 @@
 package com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases
 
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
+import javax.inject.Inject
 
-class DeleteFinance constructor(
+class DeleteFinance @Inject constructor(
     private val repo: FinanceRepo
 ) {
     suspend operator fun invoke(id: Int) {

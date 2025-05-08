@@ -3,9 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.GetAccounts
 import javax.inject.Inject
 
-data class HomeUseCases @Inject constructor(
-    val getFinances: GetFinances,
-    val getTotalPerDay: GetTotalPerDay,
-    val getAccounts: GetAccounts,
-    val getTotal: GetTotal
+data class PaymentListenerUseCases @Inject constructor(
+    val addFinance: AddFinance,
+    val getAccounts: GetAccounts
 )
