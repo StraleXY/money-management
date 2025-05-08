@@ -11,6 +11,6 @@ class DeleteFinance @Inject constructor(
     }
 
     suspend fun recommended(id: Int) {
-        repo.delete(id)
+        repo.deleteRecommended(id)
     }
 }

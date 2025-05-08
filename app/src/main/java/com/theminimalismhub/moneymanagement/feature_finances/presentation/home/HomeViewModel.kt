@@ -12,6 +12,9 @@ import com.theminimalismhub.jobmanagerv2.utils.Dater
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
@@ -54,6 +57,7 @@ class HomeViewModel @Inject constructor(
             filterOutcomeByAccount = preferences.getFilterOutcomeByAccount(),
             swipeableNavigation = preferences.getSwipeableNavigation()
         )
+        getCategories()
         initDateRange()
         initAverages()
         getFinances()
@@ -68,7 +72,7 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.ToggleAddEditCard -> {
                 _state.value = _state.value.copy(isAddEditOpen = !_state.value.isAddEditOpen)
                 if(!_state.value.isAddEditOpen) return
-                addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance))
+                addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance, event.recommended))
             }
             is HomeEvent.RangeChanged -> {
                 toggleCategoryBar(_state.value.selectedCategoryId)
@@ -99,7 +103,6 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(showLineGraph = !_state.value.showLineGraph)
                 preferences.setShowLineGraph(_state.value.showLineGraph)
             }
-
             is HomeEvent.DisplayTypeChanged -> {
                 _state.value = _state.value.copy(selectedCategoryId = null)
                 selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
@@ -112,7 +115,36 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(displayTracked = event.tracked)
                 getFinances()
             }
+            is HomeEvent.DeleteRecommendedFinance -> {
+                viewModelScope.launch { useCases.deleteFinance.recommended(event.id) }
+            }
+            is HomeEvent.PayRecommendedFinance -> {
+                val account = event.recommended.account ?: _state.value.accounts.first { it.primary }
+                val category = event.recommended.category ?: _state.value.categories.first { it.type == event.recommended.recommended.type }
+                onEvent(HomeEvent.ToggleAddEditCard(Finance(
+                    finance = FinanceItem(
+                        name = event.recommended.recommended.placeName,
+                        amount = event.recommended.recommended.amount,
+                        timestamp = event.recommended.recommended.timestamp,
+                        type = event.recommended.recommended.type,
+                        financeCategoryId = category.categoryId,
+                        financeAccountId = account.accountId!!
+                    ),
+                    category = category,
+                    account = account,
+                    accountTo = null
+                ), event.recommended))
+            }
         }
+    }
+
+    // Get Categories
+    private var getCategoriesJob: Job? = null
+    private fun getCategories() {
+        getCategoriesJob?.cancel()
+        getCategoriesJob = useCases.getCategories()
+            .onEach { _state.value = _state.value.copy(categories = it) }
+            .launchIn(viewModelScope)
     }
 
     // Finances

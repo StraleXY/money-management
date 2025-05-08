@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,22 +42,27 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Recomm
 
 @Composable
 fun RecommendedCard(
+    modifier: Modifier = Modifier,
     recommended: RecommendedFinance,
     onDelete: (Int) -> Unit,
     onPay: (RecommendedFinance) -> Unit
 ) {
     DashedBox(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 24.dp)
-            .fillMaxWidth(),
-        widthPx = 4f,
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(36.dp))
+            .clickable {
+                onPay(recommended)
+            },
+        widthPx = 7f,
         onPx = 23f,
         radius = 36.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 10.dp, end = 24.dp, top = 6.dp, bottom = 7.dp),
+                .padding(start = 11.dp, end = 24.dp, top = 6.dp, bottom = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

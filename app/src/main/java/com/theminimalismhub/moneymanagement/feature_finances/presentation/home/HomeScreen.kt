@@ -120,7 +120,8 @@ fun HomeScreen(
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = 84.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                     ) {
                         item {
 //                            Box(modifier = Modifier.height(32.dp).shadedBackground(Shade.LIGHT)) { }
@@ -200,20 +201,29 @@ fun HomeScreen(
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
-                        items(state.recommended) {
-                            RecommendedCard(
-                                recommended = it,
-                                onDelete = {},
-                                onPay = {}
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
                         item {
-                            if(state.recommended.isNotEmpty()) Spacer(modifier = Modifier.height(24.dp))
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateContentSize(tween(200))
+                            ) {
+                                state.recommended.forEach {
+                                    RecommendedCard(
+                                        modifier = Modifier.animateItemPlacement(tween(200)),
+                                        recommended = it,
+                                        onDelete = { vm.onEvent(HomeEvent.DeleteRecommendedFinance(it)) },
+                                        onPay = { vm.onEvent(HomeEvent.PayRecommendedFinance(it)) }
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                if(state.recommended.isNotEmpty()) Spacer(modifier = Modifier.height(24.dp))
+                            }
                         }
                         items(state.results) {
                             FinanceCard(
-                                modifier = Modifier.padding(horizontal = 4.dp),
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                                    .animateItemPlacement(tween(200)),
                                 finance = it,
                                 previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
                                 currency = state.currency,
