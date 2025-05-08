@@ -75,8 +75,8 @@ val Typography = Typography(
     subtitle2 = TextStyle(
         fontFamily = titilium,
         fontWeight = FontWeight.ExtraLight,
-        fontSize = 15.sp,
-        lineHeight = 18.sp
+        fontSize = 14.sp,
+        lineHeight = 17.sp
     ),
     button = TextStyle(
         fontFamily = FontFamily.SansSerif,
