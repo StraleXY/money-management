@@ -17,6 +17,6 @@ data class RecommendedFinance(
         parentColumn = "financeAccountId",
         entityColumn = "accountId"
     )
-    val account: Account
+    val account: Account?
 
 )

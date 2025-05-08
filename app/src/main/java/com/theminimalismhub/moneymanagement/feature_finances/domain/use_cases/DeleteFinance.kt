@@ -9,4 +9,8 @@ class DeleteFinance @Inject constructor(
     suspend operator fun invoke(id: Int) {
         repo.delete(id)
     }
+
+    suspend fun recommended(id: Int) {
+        repo.delete(id)
+    }
 }

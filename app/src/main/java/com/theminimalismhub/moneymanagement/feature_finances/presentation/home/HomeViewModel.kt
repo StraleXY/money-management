@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import android.util.Log
 import androidx.compose.material.Colors
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +39,6 @@ class HomeViewModel @Inject constructor(
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
-//    private var selectedCategoryId: Int? = null
     val rangeService = RangePickerService()
     private var selectedAccountId: Int? = null
 
@@ -57,6 +57,7 @@ class HomeViewModel @Inject constructor(
         initDateRange()
         initAverages()
         getFinances()
+        getRecommended()
         getAccounts()
     }
     fun onEvent(event: HomeEvent) {
@@ -117,10 +118,6 @@ class HomeViewModel @Inject constructor(
     // Finances
     private var getFinancesJob: Job? = null
     private fun getFinances(updateQuickSpending: Boolean = true) {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-//        val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
-//        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
-
         val types: MutableList<FinanceType> = _state.value.displayTypes.toMutableList()
         val tracked: MutableList<Boolean> = _state.value.displayTracked.toMutableList()
 
@@ -131,6 +128,16 @@ class HomeViewModel @Inject constructor(
                 if(_state.value.selectedCategoryId == null) getCategoryTotals()
                 if(updateQuickSpending) updateQuickSpending()
                 getGraphData()
+            }
+            .launchIn(viewModelScope)
+    }
+    private var getRecommendedJob: Job? = null
+    private fun getRecommended() {
+        getRecommendedJob?.cancel()
+        getRecommendedJob = useCases.getFinances.recommended()
+            .onEach {
+                _state.value = _state.value.copy(recommended = it)
+                Log.d("Recommended", "$it")
             }
             .launchIn(viewModelScope)
     }

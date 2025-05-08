@@ -5,12 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
 import java.util.Currency
 
 data class HomeState(
     val isAddEditOpen: Boolean = false,
     val results: List<Finance> = emptyList(),
+    val recommended: List<RecommendedFinance> = emptyList(),
 
     val dateRange: Pair<Long, Long> = Pair(System.currentTimeMillis(), System.currentTimeMillis()),
     val isToday: Boolean = true,

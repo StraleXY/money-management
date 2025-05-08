@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.theminimalismhub.jobmanagerv2.utils.Dater
+import com.theminimalismhub.moneymanagement.core.composables.CircleIcon
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
@@ -81,26 +82,7 @@ fun BillCard(
                 ) {
                     Row {
                         Spacer(modifier = Modifier.width(22.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .offset(y = (1.5).dp)
-                                .alpha(0.85f)
-                                .border(
-                                    (1.5).dp,
-                                    MaterialTheme.colors.background,
-                                    RoundedCornerShape(19.dp)
-                                )
-                                .background(Color.Transparent),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = getAccountIcon(bill.account.type),
-                                contentDescription = "Account Type Icon",
-                                tint = MaterialTheme.colors.background,
-                                modifier = Modifier.size(14.dp)
-                            )
-                        }
+                        CircleIcon(icon = getAccountIcon(bill.account.type))
                         Spacer(modifier = Modifier.width(2.dp))
                     }
                 }

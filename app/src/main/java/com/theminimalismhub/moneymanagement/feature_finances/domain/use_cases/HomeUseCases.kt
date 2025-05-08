@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases
 
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.GetAccounts
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import javax.inject.Inject
 
 data class HomeUseCases @Inject constructor(

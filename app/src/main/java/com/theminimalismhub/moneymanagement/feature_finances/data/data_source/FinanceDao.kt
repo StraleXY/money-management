@@ -78,7 +78,7 @@ interface FinanceDao {
 
     // Recommended Finance Items
     @Transaction
-    @Query("SELECT * FROM recommendedfinance WHERE financeItemId == null ORDER BY timestamp ASC")
+    @Query("SELECT * FROM recommendedfinance WHERE financeItemId IS NULL ORDER BY timestamp ASC")
     fun getAllRecommended(): Flow<List<RecommendedFinance>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

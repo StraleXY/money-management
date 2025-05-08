@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.theminimalismhub.moneymanagement.core.composables.CircleIcon
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
@@ -44,12 +45,6 @@ fun FinanceCard(
     Column(modifier = modifier) {
         previousSegmentDate?.let {
             if(showSeparator && previousSegmentDate != finance.getDay()) Spacer(modifier = Modifier.height(36.dp))
-//                Divider(
-//                modifier = Modifier
-//                    .padding(horizontal = 24.dp)
-//                    .padding(top = 16.dp, bottom = 16.dp),
-//                color = MaterialTheme.colors.secondaryVariant
-//            )
         }
         Row(
             modifier = Modifier
@@ -65,13 +60,6 @@ fun FinanceCard(
             Row(
                 horizontalArrangement = Arrangement.Start
             ) {
-//                Box(
-//                    modifier = Modifier
-//                        .width(5.dp)
-//                        .height(54.dp)
-//                        .background(if(finance.category?.color != null) Colorer.getAdjustedDarkColor(finance.category.color) else MaterialTheme.colors.onSurface, RoundedCornerShape(100))
-//                )
-//                Spacer(modifier = Modifier.width(16.dp))
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
@@ -94,57 +82,20 @@ fun FinanceCard(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if(finance.finance.type == FinanceType.INCOME || finance.finance.type == FinanceType.TRANSACTION || !finance.finance.trackable) {
                                     Spacer(modifier = Modifier.width(22.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .offset(y = (1.5).dp)
-                                            .alpha(0.85f)
-                                            .border(
-                                                (1.5).dp,
-                                                MaterialTheme.colors.background,
-                                                RoundedCornerShape(19.dp)
-                                            )
-                                            .background(Color.Transparent),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector =
-                                            if(!finance.finance.trackable) Icons.Default.MobiledataOff
-                                            else when (finance.finance.type) {
-                                                FinanceType.INCOME -> Icons.Default.ArrowDownward
-                                                FinanceType.TRANSACTION -> Icons.Default.SyncAlt
-                                                else -> Icons.Default.QuestionMark
-                                            },
-                                            contentDescription = "Finance type icon",
-                                            tint = MaterialTheme.colors.background,
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                    }
+                                    CircleIcon(icon =
+                                        if(!finance.finance.trackable) Icons.Default.MobiledataOff
+                                        else when (finance.finance.type) {
+                                            FinanceType.INCOME -> Icons.Default.ArrowDownward
+                                            FinanceType.TRANSACTION -> Icons.Default.SyncAlt
+                                            else -> Icons.Default.QuestionMark
+                                        }
+                                    )
                                     Spacer(modifier = Modifier.width(2.dp))
                                 }
                                 if(finance.account.type == AccountType.CRYPTO && finance.finance.type != FinanceType.TRANSACTION) {
                                     if(!(finance.finance.type == FinanceType.INCOME || finance.finance.type == FinanceType.TRANSACTION || !finance.finance.trackable)) Spacer(modifier = Modifier.width(22.dp))
                                     else Spacer(modifier = Modifier.width(1.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .offset(y = (1.5).dp)
-                                            .alpha(0.85f)
-                                            .border(
-                                                (1.5).dp,
-                                                MaterialTheme.colors.background,
-                                                RoundedCornerShape(19.dp)
-                                            )
-                                            .background(Color.Transparent),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.CurrencyBitcoin,
-                                            contentDescription = "Finance type icon",
-                                            tint = MaterialTheme.colors.background,
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                    }
+                                    CircleIcon(icon = Icons.Default.CurrencyBitcoin)
                                     Spacer(modifier = Modifier.width(2.dp))
                                 }
                             }

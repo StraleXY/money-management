@@ -14,6 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -61,22 +63,21 @@ class PaymentNotificationListener : NotificationListenerService() {
     private fun makePayment(price: Double, cardLabel: String, item: String) {
         Log.d("Payment", "Spent $price RSD using card: '$cardLabel' for: $item")
         serviceScope.launch {
-            useCases.getAccounts().collect { accounts ->
-                val account: Account? = accounts.firstOrNull { account ->
-                    account.labels.split(",")
-                        .map { it.trim().lowercase() }
-                        .contains(cardLabel.trim().lowercase())
-                    && !account.deleted
-                }
-                useCases.addFinance(RecommendedFinanceItem(
-                    placeName = item,
-                    accountLabel = cardLabel,
-                    amount = price,
-                    currencyStr = "RSD", // TODO Parse the currency from google wallet notification
-                    timestamp = System.currentTimeMillis(),
-                    financeAccountId = account?.accountId
-                ))
+            val accounts: List<Account> = useCases.getAccounts().first()
+            val account: Account? = accounts.firstOrNull { account ->
+                account.labels.split(",")
+                    .map { it.trim().lowercase() }
+                    .contains(cardLabel.trim().lowercase())
+                && !account.deleted
             }
+            useCases.addFinance(RecommendedFinanceItem(
+                placeName = item,
+                accountLabel = cardLabel,
+                amount = price,
+                currencyStr = "RSD", // TODO Parse the currency from google wallet notification
+                timestamp = System.currentTimeMillis(),
+                financeAccountId = account?.accountId
+            ))
         }
     }
 }

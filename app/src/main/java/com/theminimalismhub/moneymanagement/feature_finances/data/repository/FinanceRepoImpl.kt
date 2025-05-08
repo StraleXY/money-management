@@ -5,6 +5,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.data_source.Fi
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.RecommendedFinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,7 @@ class FinanceRepoImpl constructor(
         if (categoryId == null) return dao.getAll(range.first, range.second, types, tracked)
         return dao.getAll(range.first, range.second, tracked, categoryId)
     }
+
     override fun getAll(range: Pair<Long, Long>, categoryId: Int?, accountId: Int, types: List<FinanceType>, tracked: List<Boolean>): Flow<List<Finance>> {
         if (categoryId == null) return dao.getAll(range.first, range.second, accountId, types)
         return dao.getAll(range.first, range.second, tracked, categoryId, accountId)
@@ -24,6 +26,10 @@ class FinanceRepoImpl constructor(
 
     override fun getAll(range: Pair<Long, Long>, accountId: Int, types: List<FinanceType>): Flow<List<Finance>> {
         return dao.getAll(range.first, range.second, accountId, types)
+    }
+
+    override fun getAllRecommended(): Flow<List<RecommendedFinance>> {
+        return dao.getAllRecommended()
     }
 
     override fun getPerCategory(range: Pair<Long, Long>, type: FinanceType, accountId: Int?, tracked: List<Boolean>): Flow<List<CategoryAmount>> {

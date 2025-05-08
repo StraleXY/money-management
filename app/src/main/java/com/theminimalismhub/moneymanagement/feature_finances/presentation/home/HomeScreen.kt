@@ -200,6 +200,17 @@ fun HomeScreen(
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
+                        items(state.recommended) {
+                            RecommendedCard(
+                                recommended = it,
+                                onDelete = {},
+                                onPay = {}
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        item {
+                            if(state.recommended.isNotEmpty()) Spacer(modifier = Modifier.height(24.dp))
+                        }
                         items(state.results) {
                             FinanceCard(
                                 modifier = Modifier.padding(horizontal = 4.dp),
@@ -229,88 +240,4 @@ fun HomeScreen(
             }
         }
     )
-}
-
-@Composable
-private fun MainAppActions(
-    navigator: DestinationsNavigator
-) {
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.Start,
-    ) {
-        item {
-            ActionChip(
-                text = "ACCOUNTS",
-                icon = Icons.Default.AccountBalance,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageAccountsScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "BILLS",
-                icon = Icons.Default.Receipt,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageBillsScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "YEARLY REPORT",
-                icon = Icons.Default.BarChart,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ReportScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "CATEGORIES",
-                icon = Icons.Default.Category,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageCategoriesScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "SETTINGS",
-                icon = Icons.Default.Settings,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(SettingsScreenDestination())
-                }
-            )
-        }
-    }
-    Spacer(modifier = Modifier.width(16.dp))
 }
