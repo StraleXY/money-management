@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_e
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
@@ -12,6 +13,7 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +37,7 @@ class AddEditFinanceService(
     private var outcomeCategories: List<Category> = emptyList()
     private var initialAccountId: Int? = null
     private var initialAmount: Double = 0.0
+    private var selectedRecommendedFinance: RecommendedFinance? = null
 
     init {
         getCategories()
@@ -58,6 +61,7 @@ class AddEditFinanceService(
         when(event) {
             is AddEditFinanceEvent.ToggleAddEditCard -> {
                 if(event.finance == null) {
+                    selectedRecommendedFinance = null
                     _state.value = _state.value.copy(
                         currentType = FinanceType.OUTCOME,
                         currentFinanceId = null
@@ -69,6 +73,7 @@ class AddEditFinanceService(
                     initialAccountId = null
                     initialAmount = 0.0
                 } else {
+                    selectedRecommendedFinance = event.recommended
                     selectCategoryType(event.finance.category!!.type)
                     event.finance.finance.financeCategoryId?.let { onEvent(AddEditFinanceEvent.CategorySelected(it)) }
                     _state.value = _state.value.copy(
@@ -118,7 +123,7 @@ class AddEditFinanceService(
             }
             is AddEditFinanceEvent.AddFinance -> {
                 scope.launch {
-                    useCases.add(
+                    val financeId = useCases.add(
                         FinanceItem(
                             name = formState.fields[0].value,
                             amount = (formState.fields[1].value).toDouble(),
@@ -130,6 +135,7 @@ class AddEditFinanceService(
                             trackable = _state.value.currentTrackable
                         )
                     )
+                    handleRecommendedFinance(financeId)
                     if (_state.value.currentFinanceId == null) useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
                     else if (_state.value.currentFinanceId != null && initialAccountId == _state.value.selectedAccountId) {
                         useCases.updateAccountBalance(if (_state.value.currentType == FinanceType.OUTCOME) -((formState.fields[1].value).toDouble() - initialAmount) else ((formState.fields[1].value).toDouble() - initialAmount), _state.value.selectedAccountId!!)
@@ -137,7 +143,6 @@ class AddEditFinanceService(
                     else if (_state.value.currentFinanceId != null && initialAccountId != _state.value.selectedAccountId) {
                         useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) initialAmount else -initialAmount, initialAccountId!!)
                         useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
-
                     }
                 }
             }
@@ -179,7 +184,6 @@ class AddEditFinanceService(
             }
             .launchIn(scope)
     }
-
     fun setAccounts(accounts: List<Account>) {
         _state.value = _state.value.copy(
             accounts = accounts,
@@ -187,6 +191,11 @@ class AddEditFinanceService(
         )
         accounts.forEach { account ->
             account.accountId?.let { id -> _state.value.accountStates[id] = mutableStateOf(account.accountId == _state.value.selectedAccountId) }
+        }
+    }
+    private suspend fun handleRecommendedFinance(financeId: Int) {
+        selectedRecommendedFinance?.let {
+            useCases.add(it.copy(recommended = it.recommended.copy(financeItemId = financeId)).recommended)
         }
     }
 }

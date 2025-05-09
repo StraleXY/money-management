@@ -45,7 +45,8 @@ class ManageAccountsViewModel @Inject constructor(
             TextFieldState(
                 name = "description",
                 validators = listOf(Validators.Custom("This field is required") { value -> !(_state.value.currentType == AccountType.CARD && value.toString().isEmpty()) }),
-            )
+            ),
+            TextFieldState(name = "labels")
         )
     )
     val transactionFormState = FormState(
@@ -53,7 +54,6 @@ class ManageAccountsViewModel @Inject constructor(
             TextFieldState(
                 name = "amount",
                 validators = listOf(
-//                    Validators.MinValue(0, "Amount must be higher than 0"),
                     Validators.Required(),
                     Validators.Custom("You can't transfer more than you have.")
                         { value -> try { value.toString().toDouble() } catch (ex: java.lang.NumberFormatException) { 0.0 } <= (_state.value.selectedAccount?.balance ?: 0.0) }
@@ -111,11 +111,13 @@ class ManageAccountsViewModel @Inject constructor(
                         addEditFormState.fields[0].change("")
                         addEditFormState.fields[1].change("")
                         addEditFormState.fields[2].change("")
+                        addEditFormState.fields[3].change("")
                         selectType(AccountType.CARD)
                     } else {
                         addEditFormState.fields[0].change(event.account.name)
                         addEditFormState.fields[1].change(event.account.balance.toInt().toString())
                         addEditFormState.fields[2].change(event.account.description)
+                        addEditFormState.fields[3].change(event.account.labels)
                         selectType(event.account.type)
                     }
                 }
@@ -128,7 +130,8 @@ class ManageAccountsViewModel @Inject constructor(
                         selectedAccount = _state.value.selectedAccount?.copy(
                             name = addEditFormState.fields[0].value,
                             balance = addEditFormState.fields[1].value.toDouble(),
-                            description = addEditFormState.fields[2].value
+                            description = addEditFormState.fields[2].value,
+                            labels = addEditFormState.fields[3].value
                         )
                     )
                     useCases.add(Account(
@@ -139,7 +142,8 @@ class ManageAccountsViewModel @Inject constructor(
                         primary = _state.value.selectedAccount?.primary ?: false,
                         type = _state.value.currentType,
                         description =_state.value.selectedAccount!!.description,
-                        deleted = _state.value.selectedAccount?.deleted ?: false
+                        deleted = _state.value.selectedAccount?.deleted ?: false,
+                        labels = _state.value.selectedAccount!!.labels
                     ))
                     _state.value.selectedAccount?.let { onEvent(ManageAccountsEvent.CardSelected(it)) }
                     onEvent(ManageAccountsEvent.ToggleAddEdit(null))

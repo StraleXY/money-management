@@ -97,7 +97,7 @@ fun ManageAccountsScreen(
                             .graphicsLayer {
                                 translationY = -(scroll.value.toFloat() * 1.2f)
                                     .coerceAtLeast(0f)
-                                    .coerceAtMost(430f)
+                                    .coerceAtMost(564f)
                             }
                     ) {
                         ScreenHeader(

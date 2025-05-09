@@ -5,8 +5,9 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 import com.theminimalismhub.moneymanagement.feature_categories.domain.repository.CategoryRepo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class GetCategories(
+class GetCategories @Inject constructor(
     private val repo: CategoryRepo
 ) {
     operator fun invoke() : Flow<List<Category>> {

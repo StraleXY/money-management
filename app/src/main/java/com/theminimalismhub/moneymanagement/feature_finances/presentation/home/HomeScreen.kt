@@ -120,7 +120,8 @@ fun HomeScreen(
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = 84.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                     ) {
                         item {
 //                            Box(modifier = Modifier.height(32.dp).shadedBackground(Shade.LIGHT)) { }
@@ -200,9 +201,29 @@ fun HomeScreen(
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateContentSize(tween(200))
+                            ) {
+                                state.recommended.forEach {
+                                    RecommendedCard(
+                                        modifier = Modifier.animateItemPlacement(tween(200)),
+                                        recommended = it,
+                                        onDelete = { vm.onEvent(HomeEvent.DeleteRecommendedFinance(it)) },
+                                        onPay = { vm.onEvent(HomeEvent.PayRecommendedFinance(it)) }
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                if(state.recommended.isNotEmpty()) Spacer(modifier = Modifier.height(24.dp))
+                            }
+                        }
                         items(state.results) {
                             FinanceCard(
-                                modifier = Modifier.padding(horizontal = 4.dp),
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                                    .animateItemPlacement(tween(200)),
                                 finance = it,
                                 previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
                                 currency = state.currency,
@@ -229,88 +250,4 @@ fun HomeScreen(
             }
         }
     )
-}
-
-@Composable
-private fun MainAppActions(
-    navigator: DestinationsNavigator
-) {
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.Start,
-    ) {
-        item {
-            ActionChip(
-                text = "ACCOUNTS",
-                icon = Icons.Default.AccountBalance,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageAccountsScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "BILLS",
-                icon = Icons.Default.Receipt,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageBillsScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "YEARLY REPORT",
-                icon = Icons.Default.BarChart,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ReportScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "CATEGORIES",
-                icon = Icons.Default.Category,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageCategoriesScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "SETTINGS",
-                icon = Icons.Default.Settings,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(SettingsScreenDestination())
-                }
-            )
-        }
-    }
-    Spacer(modifier = Modifier.width(16.dp))
 }

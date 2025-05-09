@@ -4,12 +4,19 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.RecommendedFinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.PaymentListenerUseCases
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
@@ -20,12 +27,13 @@ import kotlin.math.roundToInt
 class PaymentNotificationListener : NotificationListenerService() {
 
     @Inject
-    lateinit var useCases: AddEditFinanceUseCases
+    lateinit var useCases: PaymentListenerUseCases
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private object Wallets {
         const val GOOGLE = "com.google.android.apps.walletnfcrel"
+        const val DEBUG = "com.samsung.android.app.smartcapture"
     }
 
     override fun onListenerConnected() {
@@ -40,6 +48,7 @@ class PaymentNotificationListener : NotificationListenerService() {
     }
 
     private fun processNotification(sbn: StatusBarNotification) {
+//        if (sbn.packageName == Wallets.DEBUG) makePayment(400.0, "The VISA", "Luksuzni Gric")
         if (sbn.packageName != Wallets.GOOGLE) return
         val extras = sbn.notification.extras
         val text = extras.get("android.text")
@@ -48,19 +57,26 @@ class PaymentNotificationListener : NotificationListenerService() {
         val priceRaw = tokens[0]
         val price = priceRaw.filter { c -> c.isDigit() || c == '.' || c == ',' }.toDouble().roundToInt()
         val cardLabel = tokens[1]
-//        makePayment(price.toDouble(), cardLabel, place)
+        makePayment(price.toDouble(), cardLabel, place)
     }
 
     private fun makePayment(price: Double, cardLabel: String, item: String) {
         Log.d("Payment", "Spent $price RSD using card: '$cardLabel' for: $item")
         serviceScope.launch {
-            useCases.add(FinanceItem(
-                name = item,
+            val accounts: List<Account> = useCases.getAccounts().first()
+            val account: Account? = accounts.firstOrNull { account ->
+                account.labels.split(",")
+                    .map { it.trim().lowercase() }
+                    .contains(cardLabel.trim().lowercase())
+                && !account.deleted
+            }
+            useCases.addFinance(RecommendedFinanceItem(
+                placeName = item,
+                accountLabel = cardLabel,
                 amount = price,
+                currencyStr = "RSD", // TODO Parse the currency from google wallet notification
                 timestamp = System.currentTimeMillis(),
-                type = FinanceType.OUTCOME,
-                financeCategoryId = 1,
-                financeAccountId = 1
+                financeAccountId = account?.accountId
             ))
         }
     }

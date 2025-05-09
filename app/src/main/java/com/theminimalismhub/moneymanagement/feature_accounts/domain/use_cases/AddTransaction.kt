@@ -5,8 +5,9 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Accoun
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.repository.AccountRepo
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
+import javax.inject.Inject
 
-class AddTransaction constructor(
+class AddTransaction @Inject constructor(
     private val financeRepo: FinanceRepo,
     private val accountRepo: AccountRepo
 ) {
