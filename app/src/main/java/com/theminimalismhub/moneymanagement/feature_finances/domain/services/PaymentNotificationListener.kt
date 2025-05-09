@@ -48,19 +48,52 @@ class PaymentNotificationListener : NotificationListenerService() {
     }
 
     private fun processNotification(sbn: StatusBarNotification) {
-//        if (sbn.packageName == Wallets.DEBUG) makePayment(400.0, "The VISA", "Luksuzni Gric")
+//        if (sbn.packageName == Wallets.DEBUG) makePayment(parseLocalizedPrice("3,777"), "The VISA", "Univerexport")
         if (sbn.packageName != Wallets.GOOGLE) return
         val extras = sbn.notification.extras
         val text = extras.get("android.text")
         val tokens = text.toString().split(" with ")
         val place = extras.get("android.title").toString().lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
         val priceRaw = tokens[0]
-        val price = priceRaw.filter { c -> c.isDigit() || c == '.' || c == ',' }.toDouble().roundToInt()
+        val price = parseLocalizedPrice(priceRaw)
         val cardLabel = tokens[1]
-        makePayment(price.toDouble(), cardLabel, place)
+        makePayment(price, cardLabel, place)
+        super.cancelNotification(sbn.key)
     }
 
-    private fun makePayment(price: Double, cardLabel: String, item: String) {
+    fun parseLocalizedPrice(price: String): Double? {
+
+        val cleanPrice = price.replace("\\s".toRegex(), "").filter { c -> c.isDigit() || c == '.' || c == ',' }
+
+        return try {
+            val normalized = when {
+                // Format like 1,000.00
+                cleanPrice.contains(",") && cleanPrice.contains(".") && cleanPrice.indexOf(",") < cleanPrice.indexOf(".") -> {
+                    cleanPrice.replace(",", "")
+                }
+                // Format like 1.000,00
+                cleanPrice.contains(".") && cleanPrice.contains(",") &&
+                        cleanPrice.indexOf(".") < cleanPrice.indexOf(",") -> {
+                    cleanPrice.replace(".", "").replace(",", ".")
+                }
+                // Format like 3,459
+                cleanPrice.contains(",") -> {
+                    cleanPrice.replace(",", "")
+                }
+                // Format like 3459
+                cleanPrice.matches("\\d+".toRegex()) -> {
+                    cleanPrice
+                }
+                else -> cleanPrice
+            }
+            normalized.toDouble()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+
+    private fun makePayment(price: Double?, cardLabel: String, item: String) {
         Log.d("Payment", "Spent $price RSD using card: '$cardLabel' for: $item")
         serviceScope.launch {
             val accounts: List<Account> = useCases.getAccounts().first()
@@ -73,7 +106,7 @@ class PaymentNotificationListener : NotificationListenerService() {
             useCases.addFinance(RecommendedFinanceItem(
                 placeName = item,
                 accountLabel = cardLabel,
-                amount = price,
+                amount = price ?: 0.0,
                 currencyStr = "RSD", // TODO Parse the currency from google wallet notification
                 timestamp = System.currentTimeMillis(),
                 financeAccountId = account?.accountId
