@@ -6,6 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.theminimalismhub.moneymanagement.core.utils.Shade
 import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
@@ -14,10 +15,10 @@ import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 fun ScreenHeader(
     modifier: Modifier = Modifier,
     title: String,
-    hint: String? = null,
-    hasBackground: Boolean = false
+    spacerHeight: Dp = 24.dp,
+    hint: String? = null
 ) {
-    Column(modifier = if(!hasBackground) modifier else modifier.shadedBackground(Shade.MID)) {
+    Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = title,
@@ -36,7 +37,7 @@ fun ScreenHeader(
                     .alpha(0.65f)
                     .padding(horizontal = 27.dp)
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(spacerHeight))
         }
     }
 }

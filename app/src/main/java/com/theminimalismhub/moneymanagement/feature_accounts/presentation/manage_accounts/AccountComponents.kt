@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalIndication
@@ -27,6 +28,8 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,6 +39,8 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.android.material.math.MathUtils
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import kotlin.math.absoluteValue
@@ -108,37 +113,40 @@ fun AccountActions(
     onSetPrimary: () -> Unit,
     onTransaction: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        CircularActionButton(
-            icon = Icons.Default.SyncAlt,
-            action = "Transfer",
-            enabled = enabled
-        ) { onTransaction() }
-        CircularActionButton(
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
             modifier = Modifier
-                .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
-            icon = Icons.Default.CreditScore,
-            action = "Set As Primary",
-            enabled = enabled && !(account?.primary ?: true)
-        ) { onSetPrimary() }
-        CircularActionButton(
-            modifier = Modifier,
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            CircularActionButton(
+                icon = Icons.Default.SyncAlt,
+                action = "Transfer",
+                enabled = enabled
+            ) { onTransaction() }
+            CircularActionButton(
+                modifier = Modifier
+                    .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
+                icon = Icons.Default.CreditScore,
+                action = "Set As Primary",
+                enabled = enabled && !(account?.primary ?: true)
+            ) { onSetPrimary() }
+            CircularActionButton(
+                modifier = Modifier,
 //                .alpha(animateFloatAsState(targetValue = if(account?.primary == false) 1f else 0.65f, tween(150)).value),
-            icon = if(account?.active != false) Icons.Default.RemoveShoppingCart else Icons.Default.AddShoppingCart,
-            action = if(account?.active != false) "Disable" else "Enable",
-            enabled = enabled,
-            onClick = onToggleActivate
-        )
-        DashedCircularActionButton(
-            icon = Icons.Default.EditNote,
-            action = "Edit Account",
-            enabled = enabled
-        ) { onToggleEdit() }
+                icon = if(account?.active != false) Icons.Default.RemoveShoppingCart else Icons.Default.AddShoppingCart,
+                action = if(account?.active != false) "Disable" else "Enable",
+                enabled = enabled,
+                onClick = onToggleActivate
+            )
+            DashedCircularActionButton(
+                icon = Icons.Default.EditNote,
+                action = "Edit Account",
+                enabled = enabled
+            ) { onToggleEdit() }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
     }
-    Spacer(modifier = Modifier.height(24.dp))
 }
 
 @Composable

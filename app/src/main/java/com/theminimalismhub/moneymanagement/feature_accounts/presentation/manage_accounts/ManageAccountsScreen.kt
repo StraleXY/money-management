@@ -71,6 +71,9 @@ import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountsPageContainer
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AddEditAccountCard
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.TransactionCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
@@ -91,156 +94,107 @@ fun ManageAccountsScreen(
     isAddNew: Boolean = false,
     vm: ManageAccountsViewModel = hiltViewModel()
 ) {
-    val density = LocalDensity.current
-    val pageHeight = with(LocalDensity.current) { LocalView.current.height.toDp() }
-    val pagerHeight = 240.dp
-    val headerHeight = 100.dp
-    val accountButtonsHeight = 140.dp
-    fun topSectionHeight() : Dp = headerHeight + pagerHeight + accountButtonsHeight
-    val height = pageHeight - pagerHeight
-    val swipeState = rememberSwipeableState(initialValue = PanelState.Expanded)
-    val anchors = with(LocalDensity.current) { mapOf(topSectionHeight().toPx() to PanelState.Expanded, pagerHeight.toPx() to PanelState.Collapsed) }
-    fun calcFraction(offset: Float): Int {
-        var fractionF = 0f
-        with(density) {
-            fractionF = (offset - topSectionHeight().toPx()) / (pagerHeight.toPx() - topSectionHeight().toPx())
-        }
-        return (fractionF * 100).roundToInt().coerceIn(0, 100)
-    }
-    fun calcHeaderOffset(offset: Int): Int {
-        var final: Int = 0
-        with(density) {
-            val fraction = (offset - topSectionHeight().toPx()) / (pagerHeight.toPx() - topSectionHeight().toPx())
-            Log.d("Accounts", "Fraction: $fraction")
-            final = (headerHeight * fraction).toPx().roundToInt()
-        }
-        return final
-    }
-    val listState: LazyListState = rememberLazyListState()
 
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
+    val state = vm.state.value
+    val scaffoldState = rememberScaffoldState()
 
+    val pagerState = rememberPagerState(
+        pageCount = state.accounts.size,
+        initialOffscreenLimit = 2,
+    )
 
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                val currentOffset = swipeState.offset.value
-                return if (delta < 0 && currentOffset > anchors.keys.min()) {
-                    // User scrolls up, collapse the sheet
-                    swipeState.performDrag(delta).toOffset()
-                } else Offset.Zero
-            }
-
-            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                return if (delta > 0 && listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
-                    // User scrolls down and list is at top, expand the sheet
-                    swipeState.performDrag(delta).toOffset()
-                } else Offset.Zero
-            }
-
-            override suspend fun onPreFling(available: Velocity): Velocity {
-                swipeState.performFling(available.y)
-                return if(swipeState.currentValue == PanelState.Collapsed) Velocity(0f, available.y / 3 * 2) else available
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                swipeState.performFling(available.y)
-                return Velocity.Zero
-            }
-        }
-    }
-
-
-    Box(
-        Modifier
-            .fillMaxSize()
+    Scaffold(
+        floatingActionButton = { CancelableFAB(isExpanded = state.isAddEditOpen || state.isTransactionOpen) {
+            if (state.isTransactionOpen) vm.onEvent(ManageAccountsEvent.ToggleTransaction)
+            else vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null))
+        } },
+        scaffoldState = scaffoldState,
     ) {
-        Column(
-            modifier = Modifier.offset { IntOffset(x = 0, y = -calcHeaderOffset(swipeState.offset.value.roundToInt())) }
-        ) {
-            Header()
-            AccountsPager()
-            AccountButtons()
-        }
-        Box(
-            Modifier
-                .offset { IntOffset(x = 0, y = swipeState.offset.value.roundToInt()) }
-                .fillMaxWidth()
-                .height(height)
-                .background(Color.DarkGray)
-                .nestedScroll(nestedScrollConnection)
-                .swipeable(
-                    state = swipeState,
-                    anchors = anchors,
-                    thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                    orientation = Orientation.Vertical
+        AccountsPageContainer(
+            header = {
+                ScreenHeader(
+                    title = "Manage Accounts",
+                    hint = "Track your balance across multiple accounts!",
+                    spacerHeight = 0.dp
                 )
-        ) {
-            LazyColumn(
-                state = listState
-            ) {
-                item {
-                    AccountStats()
-                }
-                items(20) {
-                    Transaction()
+            },
+            accountsPager = {
+                Spacer(modifier = Modifier.height(24.dp))
+                AccountsPager(
+                    accounts = state.accounts,
+                    pagerState = pagerState,
+                    currency = state.currency,
+                    onAccountSelected = { if(state.accounts.size > it) vm.onEvent(ManageAccountsEvent.CardSelected(state.accounts[it])) }
+                )
+            },
+            accountButtons = {
+                AccountActions(
+                    enabled = !pagerState.isScrollInProgress,
+                    account = state.selectedAccount,
+                    onToggleActivate = { vm.onEvent(ManageAccountsEvent.ToggleActive) },
+                    onToggleEdit = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit(state.selectedAccount)) },
+                    onSetPrimary = { vm.onEvent(ManageAccountsEvent.PrimarySelected) },
+                    onTransaction = { vm.onEvent(ManageAccountsEvent.ToggleTransaction) }
+                )
+            },
+            accountStats = {
+                AccountStats(
+                    income = state.results.filter { it.finance.type == FinanceType.INCOME && it.finance.financeAccountId == state.selectedAccountId }.sumOf { it.finance.amount },
+                    outcome = state.results.filter { it.finance.type == FinanceType.OUTCOME && it.finance.financeAccountId == state.selectedAccountId }.sumOf { it.finance.amount },
+                    inTransaction = state.results.filter { it.finance.type == FinanceType.TRANSACTION && it.finance.financeAccountId == state.selectedAccountId }.sumOf { it.finance.amount },
+                    outTransaction = state.results.filter { it.finance.type == FinanceType.TRANSACTION && it.finance.financeAccountIdFrom == state.selectedAccountId }.sumOf { it.finance.amount },
+                    currency = state.currency
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            },
+            items = {
+                state.results.filter { it.finance.type == FinanceType.TRANSACTION && it.finance.financeAccountId == state.selectedAccountId }.forEach {
+                    FinanceCard(
+                        finance = it,
+                        previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
+                        currency = state.currency,
+                        onEdit = { }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-        }
-    }
+        )
 
-
-}
-
-@Composable
-fun Header() {
-    PlaceholderItem(100.dp, Color.Gray,"Header")
-}
-
-@Composable
-fun AccountsPager() {
-    PlaceholderItem(240.dp, Color.White, "Accounts")
-}
-
-@Composable
-fun AccountButtons() {
-    PlaceholderItem(140.dp, Color.Gray, "Account Buttons")
-}
-
-@Composable
-fun AccountStats() {
-    PlaceholderItem(140.dp, Color.DarkGray, "Account Stats")
-}
-
-@Composable
-fun Transaction() {
-    PlaceholderItem(50.dp, Color.Black, "Transaction")
-}
-
-@Composable
-fun PlaceholderItem(
-    height: Dp,
-    color: Color,
-    text: String
-) {
-    Column(
-        modifier = Modifier
-            .height(height)
-            .fillMaxWidth()
-            .background(color),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            modifier = Modifier.padding(horizontal = 20.dp),
-            text = text,
-            style = MaterialTheme.typography.h4,
-            color = if(color == Color.White) Color.Black else Color.White
+        TranslucentOverlay(visible = state.isAddEditOpen ||state.isTransactionOpen)
+        AddEditAccountCard(
+            isOpen = state.isAddEditOpen,
+            type = state.currentType,
+            form = vm.addEditFormState,
+            currency = state.currency,
+            accountTypeStates = state.accountTypeStates,
+            isNew = state.selectedAccountId == null,
+            onTypeChanged = { vm.onEvent(ManageAccountsEvent.TypeChanged(it)) },
+            onSave = {
+                if(!vm.addEditFormState.validate()) return@AddEditAccountCard
+                vm.onEvent(ManageAccountsEvent.SaveAccount)
+            },
+            onDelete = { vm.onEvent(ManageAccountsEvent.DeleteAccount) },
+            onCancel = { vm.onEvent(ManageAccountsEvent.ToggleAddEdit(null)) }
+        )
+        TransactionCard(
+            isOpen = state.isTransactionOpen,
+            form = vm.transactionFormState,
+            accountFrom = state.selectedAccount,
+            currency = state.currency,
+            accounts = state.accounts.filter { account -> account.accountId != state.selectedAccount?.accountId },
+            onTransaction = {
+                if(!vm.transactionFormState.validate()) return@TransactionCard
+                vm.onEvent(ManageAccountsEvent.ConfirmTransaction(it))
+            },
+            onCancel = { vm.onEvent(ManageAccountsEvent.ToggleTransaction)}
         )
     }
+
 }
 
+
 //// OLD
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 @OptIn(ExperimentalPagerApi::class)
 fun ManageAccountsScreenOLD(
@@ -444,14 +398,12 @@ fun AccountStats(
     outTransaction: Double,
     currency: String
 ) {
-    Card(
+    Box(
         modifier = Modifier
+            .shadedBackground(Shade.MID)
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        shape = RoundedCornerShape(20.dp),
-        elevation = 16.dp
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
+        Row(modifier = Modifier.padding(horizontal = 20.dp, vertical = 32.dp)) {
             SpendingSegment(
                 modifier = Modifier
                     .weight(0.49f, true)
