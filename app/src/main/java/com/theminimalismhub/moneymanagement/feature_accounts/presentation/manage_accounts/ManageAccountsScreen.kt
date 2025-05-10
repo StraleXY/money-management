@@ -48,13 +48,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -76,6 +81,7 @@ enum class PanelState {
     Collapsed,
     Expanded
 }
+fun Float.toOffset() = Offset(0f, this)
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
@@ -111,13 +117,40 @@ fun ManageAccountsScreen(
         return final
     }
     val listState: LazyListState = rememberLazyListState()
-    LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
-        if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0 &&
-            swipeState.currentValue != PanelState.Expanded
-        ) {
-            swipeState.animateTo(PanelState.Expanded)
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+
+
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val currentOffset = swipeState.offset.value
+                return if (delta < 0 && currentOffset > anchors.keys.min()) {
+                    // User scrolls up, collapse the sheet
+                    swipeState.performDrag(delta).toOffset()
+                } else Offset.Zero
+            }
+
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                return if (delta > 0 && listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
+                    // User scrolls down and list is at top, expand the sheet
+                    swipeState.performDrag(delta).toOffset()
+                } else Offset.Zero
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                swipeState.performFling(available.y)
+                return if(swipeState.currentValue == PanelState.Collapsed) Velocity(0f, available.y / 3 * 2) else available
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                swipeState.performFling(available.y)
+                return Velocity.Zero
+            }
         }
     }
+
 
     Box(
         Modifier
@@ -136,6 +169,7 @@ fun ManageAccountsScreen(
                 .fillMaxWidth()
                 .height(height)
                 .background(Color.DarkGray)
+                .nestedScroll(nestedScrollConnection)
                 .swipeable(
                     state = swipeState,
                     anchors = anchors,
@@ -144,8 +178,7 @@ fun ManageAccountsScreen(
                 )
         ) {
             LazyColumn(
-                state = listState,
-                userScrollEnabled = calcFraction(swipeState.offset.value) == 100
+                state = listState
             ) {
                 item {
                     AccountStats()
