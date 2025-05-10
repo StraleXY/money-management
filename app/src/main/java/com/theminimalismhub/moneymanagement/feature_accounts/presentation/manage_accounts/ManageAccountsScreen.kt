@@ -3,20 +3,47 @@ package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manag
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
+import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.rememberSwipeableState
+import androidx.compose.material.swipeable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -24,15 +51,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.room.util.TableInfo
-import com.google.accompanist.pager.*
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
-import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
@@ -43,30 +68,84 @@ import com.theminimalismhub.moneymanagement.feature_accounts.presentation.compos
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.TransactionCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.FinanceCard
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SpendingSegment
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
+import kotlin.math.roundToInt
+
+enum class PanelState {
+    Collapsed,
+    Expanded
+}
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 @Destination(style = BaseTransition::class)
 fun ManageAccountsScreen(
     isAddNew: Boolean = false,
     vm: ManageAccountsViewModel = hiltViewModel()
 ) {
+    val density = LocalDensity.current
+    val pageHeight = with(LocalDensity.current) { LocalView.current.height.toDp() }
+    val pagerHeight = 240.dp
+    val headerHeight = 100.dp
+    val accountButtonsHeight = 140.dp
+    fun topSectionHeight() : Dp = headerHeight + pagerHeight + accountButtonsHeight
+    val height = pageHeight - pagerHeight
+    val swipeState = rememberSwipeableState(initialValue = PanelState.Expanded)
+    val anchors = with(LocalDensity.current) { mapOf(topSectionHeight().toPx() to PanelState.Expanded, pagerHeight.toPx() to PanelState.Collapsed) }
 
-    val state = vm.state.value
-    LazyColumn {
-        item { Header() }
-        stickyHeader { AccountsPager() }
-        item {
-            AccountButtons()
-            AccountStats()
+    fun calcHeaderOffset(offset: Int): Int {
+        var final: Int = 0
+        with(density) {
+            val fraction = (offset - topSectionHeight().toPx()) / (pagerHeight.toPx() - topSectionHeight().toPx())
+            Log.d("Accounts", "Fraction: $fraction")
+            final = (headerHeight * fraction).toPx().roundToInt()
         }
-        items(20) {
-            Transaction()
-        }
-
+        return final
     }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.offset { IntOffset(x = 0, y = -calcHeaderOffset(swipeState.offset.value.roundToInt())) }
+        ) {
+            Header()
+            AccountsPager()
+            AccountButtons()
+        }
+        Box(
+            Modifier
+                .offset { IntOffset(x = 0, y = swipeState.offset.value.roundToInt()) }
+                .fillMaxWidth()
+                .height(height)
+                .background(Color.DarkGray)
+                .swipeable(
+                    state = swipeState,
+                    anchors = anchors,
+                    thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                    orientation = Orientation.Vertical
+                )
+        ) {
+//            LazyColumn {
+//                item {
+//                    AccountStats()
+//                }
+//                items(20) {
+//                    Transaction()
+//                }
+//            }
+            Text(
+                "Swipeable Panel",
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp),
+                color = Color.White
+            )
+        }
+    }
+
+
 }
 
 @Composable
@@ -321,7 +400,9 @@ fun AccountStats(
     currency: String
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
         shape = RoundedCornerShape(20.dp),
         elevation = 16.dp
     ) {
