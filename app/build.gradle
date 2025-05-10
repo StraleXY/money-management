@@ -53,8 +53,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        freeCompilerArgs += "-Xcontext-receivers"
         jvmTarget = '1.8'
+        freeCompilerArgs += "-Xcontext-receivers"
     }
     buildFeatures {
         compose true

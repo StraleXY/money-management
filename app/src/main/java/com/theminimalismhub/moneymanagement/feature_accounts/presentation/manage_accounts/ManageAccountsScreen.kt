@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_accounts.presentation.manag
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.room.util.TableInfo
 import com.google.accompanist.pager.*
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theminimalismhub.moneymanagement.R
@@ -44,10 +46,80 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.compos
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 @Destination(style = BaseTransition::class)
 fun ManageAccountsScreen(
+    isAddNew: Boolean = false,
+    vm: ManageAccountsViewModel = hiltViewModel()
+) {
+
+    val state = vm.state.value
+    LazyColumn {
+        item { Header() }
+        stickyHeader { AccountsPager() }
+        item {
+            AccountButtons()
+            AccountStats()
+        }
+        items(20) {
+            Transaction()
+        }
+
+    }
+}
+
+@Composable
+fun Header() {
+    PlaceholderItem(100.dp, Color.Gray,"Header")
+}
+
+@Composable
+fun AccountsPager() {
+    PlaceholderItem(240.dp, Color.White, "Accounts")
+}
+
+@Composable
+fun AccountButtons() {
+    PlaceholderItem(140.dp, Color.Gray, "Account Buttons")
+}
+
+@Composable
+fun AccountStats() {
+    PlaceholderItem(140.dp, Color.DarkGray, "Account Stats")
+}
+
+@Composable
+fun Transaction() {
+    PlaceholderItem(50.dp, Color.Black, "Transaction")
+}
+
+@Composable
+fun PlaceholderItem(
+    height: Dp,
+    color: Color,
+    text: String
+) {
+    Column(
+        modifier = Modifier
+            .height(height)
+            .fillMaxWidth()
+            .background(color),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 20.dp),
+            text = text,
+            style = MaterialTheme.typography.h4,
+            color = if(color == Color.White) Color.Black else Color.White
+        )
+    }
+}
+
+//// OLD
+@Composable
+@OptIn(ExperimentalPagerApi::class)
+fun ManageAccountsScreenOLD(
     isAddNew: Boolean = false,
     vm: ManageAccountsViewModel = hiltViewModel()
 ) {
