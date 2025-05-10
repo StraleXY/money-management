@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -92,7 +94,13 @@ fun ManageAccountsScreen(
     val height = pageHeight - pagerHeight
     val swipeState = rememberSwipeableState(initialValue = PanelState.Expanded)
     val anchors = with(LocalDensity.current) { mapOf(topSectionHeight().toPx() to PanelState.Expanded, pagerHeight.toPx() to PanelState.Collapsed) }
-
+    fun calcFraction(offset: Float): Int {
+        var fractionF = 0f
+        with(density) {
+            fractionF = (offset - topSectionHeight().toPx()) / (pagerHeight.toPx() - topSectionHeight().toPx())
+        }
+        return (fractionF * 100).roundToInt().coerceIn(0, 100)
+    }
     fun calcHeaderOffset(offset: Int): Int {
         var final: Int = 0
         with(density) {
@@ -101,6 +109,14 @@ fun ManageAccountsScreen(
             final = (headerHeight * fraction).toPx().roundToInt()
         }
         return final
+    }
+    val listState: LazyListState = rememberLazyListState()
+    LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
+        if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0 &&
+            swipeState.currentValue != PanelState.Expanded
+        ) {
+            swipeState.animateTo(PanelState.Expanded)
+        }
     }
 
     Box(
@@ -127,21 +143,17 @@ fun ManageAccountsScreen(
                     orientation = Orientation.Vertical
                 )
         ) {
-//            LazyColumn {
-//                item {
-//                    AccountStats()
-//                }
-//                items(20) {
-//                    Transaction()
-//                }
-//            }
-            Text(
-                "Swipeable Panel",
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(16.dp),
-                color = Color.White
-            )
+            LazyColumn(
+                state = listState,
+                userScrollEnabled = calcFraction(swipeState.offset.value) == 100
+            ) {
+                item {
+                    AccountStats()
+                }
+                items(20) {
+                    Transaction()
+                }
+            }
         }
     }
 
