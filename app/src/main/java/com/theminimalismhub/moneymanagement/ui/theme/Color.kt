@@ -16,7 +16,7 @@ val SecondaryVariantDark = Color(0xFF383838)
 val SecondaryVariantLight = Color(0xFFe5e5e5)
 
 val Error = Color(0xFFdb4c46)
-val SurfaceDark = Color(0xFF141414)
+val SurfaceDark = Color(0xFF212121)
 val SurfaceLight = Color(0xFFFAFAFA)
 
 val Black = Color.Black
