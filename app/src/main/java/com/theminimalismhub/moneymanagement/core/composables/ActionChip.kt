@@ -75,7 +75,7 @@ fun ActionChip(
                     tint = textColor,
                     modifier = Modifier
                         .padding(start = 13.dp)
-                        .padding(end = 9.dp)
+                        .padding(end = 8.dp)
                         .size(20.dp)
                         .alpha(0.8f)
                 )

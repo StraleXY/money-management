@@ -3,7 +3,9 @@ package com.theminimalismhub.moneymanagement.feature_finances.data.data_source
 import androidx.room.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.RecommendedFinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
 
@@ -73,4 +75,16 @@ interface FinanceDao {
     @Transaction
     @Query("DELETE FROM finance WHERE id = :id")
     suspend fun deleteFinance(id: Int)
+
+    // Recommended Finance Items
+    @Transaction
+    @Query("SELECT * FROM recommendedfinance WHERE financeItemId IS NULL ORDER BY timestamp ASC")
+    fun getAllRecommended(): Flow<List<RecommendedFinance>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecommended(recommended: RecommendedFinanceItem): Long
+
+    @Transaction
+    @Query("DELETE FROM recommendedfinance WHERE recommendedId = :id")
+    suspend fun deleteRecommended(id: Int)
 }

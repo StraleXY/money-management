@@ -2,7 +2,7 @@ package com.theminimalismhub.moneymanagement.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val BackgroundDark = Color(0xff090909)
+val BackgroundDark = Color(0xff020202)
 val BackgroundLight = Color(0xffffffff)
 
 val PrimaryDark = Color(0xfffafafa)

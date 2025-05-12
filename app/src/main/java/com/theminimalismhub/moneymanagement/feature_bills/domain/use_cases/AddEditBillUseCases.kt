@@ -4,8 +4,9 @@ import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.Ge
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases.UpdateAccountBalance
 import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.GetCategories
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddFinance
+import javax.inject.Inject
 
-data class AddEditBillUseCases(
+data class AddEditBillUseCases @Inject constructor(
     val getCategories: GetCategories,
     val getAccounts: GetAccounts,
     val add: AddBill,

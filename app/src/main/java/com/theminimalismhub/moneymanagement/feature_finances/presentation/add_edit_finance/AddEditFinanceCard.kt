@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -28,23 +29,30 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
+import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
 import kotlinx.coroutines.delay
 import java.util.*
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AddEditFinanceCard(
     state: AddEditFinanceState,
@@ -64,29 +72,45 @@ fun AddEditFinanceCard(
     val name: TextFieldState = form.getState("name")
     val amount: TextFieldState = form.getState("amount")
     val categoryListState = rememberLazyListState()
-    val accountListState = rememberLazyListState()
+    val accountPagerState = rememberPagerState(
+        pageCount = state.accounts.filter { it.active }.size,
+        initialOffscreenLimit = 2,
+    )
 
     LaunchedEffect(state.selectedCategoryId) {
         if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
         categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
     }
     LaunchedEffect(state.selectedAccountId) {
-        if(state.selectedAccountId == null || state.accounts.isEmpty()) return@LaunchedEffect
-        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+        if(state.selectedAccountId == null || state.accounts.filter { it.active }.isEmpty()) return@LaunchedEffect
+        accountPagerState.scrollToPage(state.accounts.filter { it.active }.indexOf(state.accounts.filter { it.active }.first { it.accountId == state.selectedAccountId } ))
     }
 
     FloatingCard(
-        modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
         header = {
-            AccountsList(
-                accounts = state.accounts,
-                states = state.accountStates,
+            SwipeableAccountsPager(
+                accounts = state.accounts.filter { it.active },
                 currency = state.currency,
-                listState = accountListState
-            ) { accountSelected(it) }
+                balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
+                pagerState = accountPagerState,
+                minAlpha = 0.5f,
+                initialCardScale = 1.025f,
+                selectedCardStartScale = 0.875f,
+                selectedCardScale = 1.085f,
+                cardSpacing = 0.dp,
+                onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
+            )
+            DashedLine(
+                modifier = Modifier
+                    .offset(y = 17.dp)
+                    .zIndex(100f),
+                dashLength = 8.dp,
+                gapLength = 4.dp
+            )
         }
     ) {
+        Spacer(modifier = Modifier.height(8.dp))
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -125,12 +149,14 @@ fun AddEditFinanceCard(
             onValueChange = { name.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Name") },
             isError = name.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -145,12 +171,14 @@ fun AddEditFinanceCard(
             onValueChange = { amount.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Amount") },
             isError = amount.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -177,9 +205,10 @@ fun AddEditFinanceCard(
             onDelete = {
                 deleteFinance()
                 cardToggled(null)
-            }
+            },
+            onCancel = { cardToggled(null) }
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height((9.5).dp))
     }
 }
 
@@ -226,6 +255,7 @@ fun MDatePicker(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { mDatePickerDialog.show() }
+            .height(60.dp)
             .padding(horizontal = 36.dp),
         textStyle = MaterialTheme.typography.body1,
         label = { Text(text = "Date") },
@@ -238,7 +268,8 @@ fun MDatePicker(
             }
         },
         enabled = false,
-        colors = TextFieldDefaults.outlinedTextFieldColors(disabledTextColor = MaterialTheme.colors.onBackground)
+        colors = TextFieldDefaults.outlinedTextFieldColors(disabledTextColor = MaterialTheme.colors.onBackground),
+        shape = RoundedCornerShape(100)
     )
 }
 

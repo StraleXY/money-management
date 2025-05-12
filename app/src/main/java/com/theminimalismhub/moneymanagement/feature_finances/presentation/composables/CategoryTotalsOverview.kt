@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.compo
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -21,6 +22,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.core.composables.ErrorNoData
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBar
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryBarState
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
@@ -39,15 +42,10 @@ fun CategoryTotalsOverview(
     fun toggleShowAmount() {
         showAmount = if(showAmount < totalPerCategory.size) totalPerCategory.size else collapsedCount
     }
-    Card(
-        shape = RoundedCornerShape(15.dp),
+    Box(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .fillMaxWidth(),
-        backgroundColor =
-            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
-            else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
-        elevation = 4.dp
+            .fillMaxWidth()
+            .shadedBackground(Shade.DARK),
     ) {
         Box(
             modifier = Modifier

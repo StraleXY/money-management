@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -10,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -41,6 +43,7 @@ import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -52,11 +55,11 @@ fun ManageCategoriesScreen(
     vm: ManageCategoriesViewModel = hiltViewModel()
 ) {
 
+    val view = LocalView.current
+    val density = LocalDensity.current
+
     val state = vm.state.value
     val scaffoldState = rememberScaffoldState()
-
-    val chipsHeight = remember { mutableStateOf(0f) }
-    val headerHeight = remember { mutableStateOf(0f) }
 
     BackHandler(enabled = state.isAddEditOpen) {
         vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null))
@@ -69,44 +72,42 @@ fun ManageCategoriesScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            Column(
+            LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ScreenHeader(
-                    title = stringResource(id = R.string.cs_title),
-                    hint = stringResource(id = R.string.cs_hint),
-                    modifier = Modifier.onSizeChanged { headerHeight.value = it.height.toFloat() }
-                )
-                Spacer(modifier = Modifier.height(
-                    animateDpAsState(
-                        targetValue = if (state.isAddEditOpen) 24.dp else
-                            Dp(((LocalView.current.height - chipsHeight.value - headerHeight.value) / LocalDensity.current.density) / 2) - 32.dp - 6.dp,
-                        tween(if (state.isAddEditOpen) 250 else 350)
-                    ).value)
-                )
-                if(state.incomeCategories.isEmpty() && state.outcomeCategories.isEmpty()) ErrorBox(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    text = "No Categories",
-                    hint = "You need at least one income and one outcome category in order to use the app!"
-                )
-                CategoryContainer(
-                    chipsHeight = chipsHeight,
-                    categories = state.incomeCategories,
-                    icon = Icons.Default.ArrowDownward,
-                    onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
-                )
-                Spacer(modifier = Modifier.height(if(state.incomeCategories.isNotEmpty()) 16.dp else 0.dp))
-                CategoryContainer(
-                    chipsHeight = chipsHeight,
-                    categories = state.outcomeCategories,
-                    icon = Icons.Default.ArrowUpward,
-                    onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
-                )
+                item {
+                    ScreenHeader(
+                        title = stringResource(id = R.string.cs_title),
+                        hint = stringResource(id = R.string.cs_hint)
+                    )
+                    if(state.incomeCategories.isEmpty() && state.outcomeCategories.isEmpty()) ErrorBox(
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        text = "No Categories",
+                        hint = "You need at least one income and one outcome category in order to use the app!"
+                    )
+                    Column(
+                        modifier = Modifier.heightIn(min = Dp((view.height / density.density)) - 264.dp),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        CategoryContainer(
+                            categories = state.incomeCategories,
+                            icon = Icons.Default.ArrowDownward,
+                            onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
+                        )
+                        Spacer(modifier = Modifier.height(if(state.incomeCategories.isNotEmpty()) 16.dp else 0.dp))
+                        CategoryContainer(
+                            categories = state.outcomeCategories,
+                            icon = Icons.Default.ArrowUpward,
+                            onClick = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(it)) }
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                }
             }
             TranslucentOverlay(visible = state.isAddEditOpen)
             FloatingCard(
-                modifier = Modifier.padding(horizontal = 16.dp),
                 visible = state.isAddEditOpen,
                 header = {
                     Card(
@@ -114,7 +115,7 @@ fun ManageCategoriesScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 32.dp),
                         elevation = Dp(8f),
-                        shape = RoundedCornerShape(15.dp)
+                        shape = RoundedCornerShape(20.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
@@ -161,8 +162,10 @@ fun ManageCategoriesScreen(
                 CRUDButtons(
                     onSave = { vm.onEvent(ManageCategoriesEvent.SaveCategory) },
                     deleteEnabled =  state.currentId != null,
-                    onDelete = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) }
+                    onDelete = { vm.onEvent(ManageCategoriesEvent.DeleteCategory) },
+                    onCancel = { vm.onEvent(ManageCategoriesEvent.ToggleAddEditCard(null)) }
                 )
+                Spacer(modifier = Modifier.height((9.5).dp))
             }
         }
     }
@@ -171,20 +174,13 @@ fun ManageCategoriesScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CategoryContainer(
-    chipsHeight: MutableState<Float>,
     categories: List<Category>,
     icon: ImageVector,
     onClick: (Category) -> Unit
 ) {
-    val containerHeight = remember { mutableStateOf(0f) }
     FlowRow(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .onSizeChanged {
-                if (it.height == 0) return@onSizeChanged
-                chipsHeight.value += (it.height.toFloat() - containerHeight.value)
-                containerHeight.value = it.height.toFloat()
-            }
             .fillMaxWidth(),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Center,
@@ -370,14 +366,16 @@ fun ToggleTracking(
             ) { onToggle(!toggled) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(
-            checked = toggled,
-            onCheckedChange = onToggle,
-            colors = CheckboxDefaults.colors(
-                checkedColor = MaterialTheme.colors.primary,
-                uncheckedColor = MaterialTheme.colors.primary
+        Box(modifier = Modifier.clip(RoundedCornerShape(100))) {
+            Checkbox(
+                checked = toggled,
+                onCheckedChange = onToggle,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = MaterialTheme.colors.primary,
+                    uncheckedColor = MaterialTheme.colors.primary
+                )
             )
-        )
+        }
         Column(horizontalAlignment = Alignment.Start) {
             Text(
                 text = action,

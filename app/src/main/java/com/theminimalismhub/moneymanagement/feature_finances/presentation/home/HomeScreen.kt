@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,8 @@ import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageBillsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
@@ -75,6 +78,7 @@ fun HomeScreen(
             if(MaterialTheme.colors.isLight) Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.secondaryVariant.toArgb(), (1 * 255L).toInt()))
             else Color(ColorUtils.setAlphaComponent(MaterialTheme.colors.surface.toArgb(), (1f * 255L).toInt())),
         frontLayerElevation = 8.dp,
+        frontLayerShape = RoundedCornerShape(0),
         gesturesEnabled = !state.isAddEditOpen,
         appBar = {
             ScreenHeader(
@@ -116,23 +120,23 @@ fun HomeScreen(
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = 84.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                     ) {
                         item {
-                            Spacer(modifier = Modifier.height(32.dp))
+//                            Box(modifier = Modifier.height(32.dp).shadedBackground(Shade.LIGHT)) { }
                             if(!state.swipeableNavigation) {
                                 RangePicker(
                                     rangeService = vm.rangeService,
                                     isToday = state.isToday
                                 ) { range, today -> vm.onEvent(HomeEvent.RangeChanged(range, today)) }
                                 QuickSpendingOverviewCompact(
-                                    modifier = Modifier.padding(horizontal = 20.dp),
                                     exampleDate = "Spent",
                                     amount = state.quickSpendingAmount,
                                     average = state.dailyAverage,
                                     rangeLength = vm.rangeService.rangeLength,
                                     limit = state.limit,
-                                    limitHidden = state.itemsTypeStates[2]!!.value,
+                                    limitHidden = !state.displayTypes.contains(FinanceType.OUTCOME),
                                     currency = state.currency,
                                     selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                                 )
@@ -144,18 +148,14 @@ fun HomeScreen(
                                 amount = state.quickSpendingAmount,
                                 average = state.dailyAverage,
                                 limit = state.limit,
-                                limitHidden = state.itemsTypeStates[2]!!.value,
+                                limitHidden = !state.displayTypes.contains(FinanceType.OUTCOME),
                                 currency = state.currency,
                                 selectedCategory = state.totalPerCategory.find { it.categoryId == state.selectedCategoryId }
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            ItemsTypeSelector(
-                                modifier = Modifier
-                                    .padding(horizontal = 20.dp),
-                                itemsTypeStates = state.itemsTypeStates,
-                                itemToggled = { idx -> vm.onEvent(HomeEvent.ItemTypeSelected(idx)) }
+                            ItemTypeSelectorV2(
+                                onTypeChanged = { vm.onEvent(HomeEvent.DisplayTypeChanged(it)) },
+                                onTrackedChanged = { vm.onEvent(HomeEvent.DisplayTrackedChanged(it)) }
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
                             AnimatedVisibility(
                                 visible = state.itemsTypeStates[2]!!.value && state.filterIncomeByAccount || state.itemsTypeStates.filter { it.key != 2 }.any { it.value.value } && state.filterOutcomeByAccount,
                                 enter = expandVertically(tween(400))
@@ -165,16 +165,10 @@ fun HomeScreen(
                                         + fadeOut(tween(300))
                                         + shrinkVertically(tween(450, 250))
                             ) {
-                                Card(
+                                Box(
                                     modifier = Modifier
-                                        .padding(horizontal = 20.dp)
-                                        .padding(bottom = 8.dp)
-                                        .fillMaxWidth(),
-                                    shape = RoundedCornerShape(15.dp),
-                                    backgroundColor =
-                                    if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
-                                    else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
-                                    elevation = 4.dp
+                                        .fillMaxWidth()
+                                        .shadedBackground(Shade.DARK),
                                 ) {
                                     AccountsChips(
                                         spacing = 8.dp,
@@ -194,8 +188,6 @@ fun HomeScreen(
                                         + shrinkVertically(tween(450, 250))
                             ) {
                                 GraphSpendingOverview(
-                                    modifier = Modifier
-                                        .padding(horizontal = 20.dp),
                                     earningsPerTimePeriod = state.earningsPerTimePeriod,
                                     maxEarnings = state.maxEarnings,
                                     limit = state.limit
@@ -207,16 +199,37 @@ fun HomeScreen(
                                 currency = state.currency,
                                 collapsable = state.collapseCategories
                             ) { vm.onEvent(HomeEvent.CategoryClicked(it)) }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateContentSize(tween(200))
+                            ) {
+                                state.recommended.forEach {
+                                    RecommendedCard(
+                                        modifier = Modifier.animateItemPlacement(tween(200)),
+                                        recommended = it,
+                                        onDelete = { vm.onEvent(HomeEvent.DeleteRecommendedFinance(it)) },
+                                        onPay = { vm.onEvent(HomeEvent.PayRecommendedFinance(it)) }
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                if(state.recommended.isNotEmpty()) Spacer(modifier = Modifier.height(24.dp))
+                            }
                         }
                         items(state.results) {
                             FinanceCard(
-                                modifier = Modifier.padding(horizontal = 4.dp),
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                                    .animateItemPlacement(tween(200)),
                                 finance = it,
                                 previousSegmentDate = state.results.getOrNull(state.results.indexOf(it) - 1)?.getDay(),
                                 currency = state.currency,
                                 onEdit = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) }
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
                     TranslucentOverlay(visible = state.isAddEditOpen)
@@ -237,161 +250,4 @@ fun HomeScreen(
             }
         }
     )
-}
-
-@Composable
-private fun MainAppActions(
-    navigator: DestinationsNavigator
-) {
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.Start,
-    ) {
-        item {
-            ActionChip(
-                text = "ACCOUNTS",
-                icon = Icons.Default.AccountBalance,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageAccountsScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "BILLS",
-                icon = Icons.Default.Receipt,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageBillsScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "YEARLY REPORT",
-                icon = Icons.Default.BarChart,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ReportScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "CATEGORIES",
-                icon = Icons.Default.Category,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(ManageCategoriesScreenDestination())
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ActionChip(
-                text = "SETTINGS",
-                icon = Icons.Default.Settings,
-                textStyle = MaterialTheme.typography.button,
-                borderThickness = 1.dp,
-                accentColor = MaterialTheme.colors.primaryVariant,
-                backgroundStrength = 0f,
-                modifier = Modifier
-                    .padding(bottom = 12.dp),
-                onClick = {
-                    navigator.navigate(SettingsScreenDestination())
-                }
-            )
-        }
-    }
-    Spacer(modifier = Modifier.width(16.dp))
-}
-
-@Composable
-private fun ItemsTypeSelector(
-    modifier: Modifier = Modifier,
-    itemsTypeStates: Map<Int, MutableState<Boolean>>,
-    itemToggled: (Int) -> Unit
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        backgroundColor =
-            if(MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), 0.03f))
-            else MaterialTheme.colors.surface.copy(1f, 0.1f, 0.1f, 0.1f),
-        elevation = 4.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            ToggleChip(
-                name = "MIXED OVERVIEW",
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_mobiledata_off_24),
-                        contentDescription = "MIXED VIEW"
-                    )
-                },
-                toggled = itemsTypeStates[0]!!.value,
-                onSelected = { itemToggled(0) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ToggleChip(
-                name = "OUTCOME ITEMS",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowUpward,
-                        contentDescription = "OUTCOME ITEMS"
-                    )
-                },
-                toggled = itemsTypeStates[1]!!.value,
-                onSelected = { itemToggled(1) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ToggleChip(
-                name = "INCOME ITEMS",
-                icon = {
-                    Icon(
-                        modifier = Modifier.rotate(180f),
-                        imageVector = Icons.Default.ArrowUpward,
-                        contentDescription = "INCOME ITEMS"
-                    )
-                },
-                toggled = itemsTypeStates[2]!!.value,
-                onSelected = { itemToggled(2) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ToggleChip(
-                name = "UNTRACKED ITEMS",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.MobiledataOff,
-                        contentDescription = "UNTRACKED ITEMS"
-                    )
-                },
-                toggled = itemsTypeStates[3]!!.value,
-                onSelected = { itemToggled(3) }
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-        }
-    }
 }

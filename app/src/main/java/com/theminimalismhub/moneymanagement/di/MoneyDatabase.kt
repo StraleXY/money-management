@@ -13,25 +13,29 @@ import com.theminimalismhub.moneymanagement.feature_categories.data.data_source.
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.data_source.FinanceDao
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.RecommendedFinanceItem
 
 @Database(
     entities = [
         Category::class,
         Account::class,
         FinanceItem::class,
-        BillItem::class
+        BillItem::class,
+        RecommendedFinanceItem::class
     ],
-    version = 9,
+    version = 11,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(1, 2),  // account: primary
-        AutoMigration(2, 3),  // account: extra fields
-        AutoMigration(3, 4),  // account: deleted
-        AutoMigration(4, 5),  // finance item: accountTo
-        AutoMigration(5, 6),  // finance item: category can be null
+        AutoMigration(1, 2),                                   // account: primary
+        AutoMigration(2, 3),                                   // account: extra fields
+        AutoMigration(3, 4),                                   // account: deleted
+        AutoMigration(4, 5),                                   // finance item: accountTo
+        AutoMigration(5, 6),                                   // finance item: category can be null
         AutoMigration(6, 7, spec = From6To7Migration::class),  // finance item: renamed financeTo to financeFrom
-        AutoMigration(7, 8),  // add: trackable flag to category and finance item
-        AutoMigration(8, 9), // add: BillItem
+        AutoMigration(7, 8),                                   // add: trackable flag to category and finance item
+        AutoMigration(8, 9),                                   // add: BillItem
+        AutoMigration(9, 10),                                  // add: RecommendedFinanceItem
+        AutoMigration(10, 11)                                  // add: Labels to Account
     ]
 )
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {

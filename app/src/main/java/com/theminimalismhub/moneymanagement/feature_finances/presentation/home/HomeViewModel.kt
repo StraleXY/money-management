@@ -1,8 +1,10 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.home
 
+import android.util.Log
 import androidx.compose.material.Colors
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +12,9 @@ import com.theminimalismhub.jobmanagerv2.utils.Dater
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.HomeUseCases
 import com.theminimalismhub.moneymanagement.feature_finances.domain.utils.RangePickerService
@@ -37,7 +42,6 @@ class HomeViewModel @Inject constructor(
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
-//    private var selectedCategoryId: Int? = null
     val rangeService = RangePickerService()
     private var selectedAccountId: Int? = null
 
@@ -53,9 +57,11 @@ class HomeViewModel @Inject constructor(
             filterOutcomeByAccount = preferences.getFilterOutcomeByAccount(),
             swipeableNavigation = preferences.getSwipeableNavigation()
         )
+        getCategories()
         initDateRange()
         initAverages()
         getFinances()
+        getRecommended()
         getAccounts()
     }
     fun onEvent(event: HomeEvent) {
@@ -66,7 +72,7 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.ToggleAddEditCard -> {
                 _state.value = _state.value.copy(isAddEditOpen = !_state.value.isAddEditOpen)
                 if(!_state.value.isAddEditOpen) return
-                addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance))
+                addEditService.onEvent(AddEditFinanceEvent.ToggleAddEditCard(event.finance, event.recommended))
             }
             is HomeEvent.RangeChanged -> {
                 toggleCategoryBar(_state.value.selectedCategoryId)
@@ -97,15 +103,56 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(showLineGraph = !_state.value.showLineGraph)
                 preferences.setShowLineGraph(_state.value.showLineGraph)
             }
+            is HomeEvent.DisplayTypeChanged -> {
+                _state.value = _state.value.copy(selectedCategoryId = null)
+                selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
+                _state.value = _state.value.copy(displayTypes = event.types)
+                getFinances()
+            }
+            is HomeEvent.DisplayTrackedChanged -> {
+                _state.value = _state.value.copy(selectedCategoryId = null)
+                selectedAccountId?.let { toggleAccountPreview(selectedAccountId!!) }
+                _state.value = _state.value.copy(displayTracked = event.tracked)
+                getFinances()
+            }
+            is HomeEvent.DeleteRecommendedFinance -> {
+                viewModelScope.launch { useCases.deleteFinance.recommended(event.id) }
+            }
+            is HomeEvent.PayRecommendedFinance -> {
+                val account = event.recommended.account ?: _state.value.accounts.first { it.primary }
+                val category = event.recommended.category ?: _state.value.categories.first { it.type == event.recommended.recommended.type }
+                onEvent(HomeEvent.ToggleAddEditCard(Finance(
+                    finance = FinanceItem(
+                        name = event.recommended.recommended.placeName,
+                        amount = event.recommended.recommended.amount,
+                        timestamp = event.recommended.recommended.timestamp,
+                        type = event.recommended.recommended.type,
+                        financeCategoryId = category.categoryId,
+                        financeAccountId = account.accountId!!
+                    ),
+                    category = category,
+                    account = account,
+                    accountTo = null
+                ), event.recommended))
+            }
         }
+    }
+
+    // Get Categories
+    private var getCategoriesJob: Job? = null
+    private fun getCategories() {
+        getCategoriesJob?.cancel()
+        getCategoriesJob = useCases.getCategories()
+            .onEach { _state.value = _state.value.copy(categories = it) }
+            .launchIn(viewModelScope)
     }
 
     // Finances
     private var getFinancesJob: Job? = null
     private fun getFinances(updateQuickSpending: Boolean = true) {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val types: MutableList<FinanceType> = if(idx == 0 || idx == 3) mutableListOf(FinanceType.OUTCOME, FinanceType.INCOME) else if (idx == 1) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
-        val tracked: MutableList<Boolean> = if(idx == 0) mutableListOf(true, false) else if (idx == 1 || idx == 2) mutableListOf(true) else mutableListOf(false)
+        val types: MutableList<FinanceType> = _state.value.displayTypes.toMutableList()
+        val tracked: MutableList<Boolean> = _state.value.displayTracked.toMutableList()
+
         getFinancesJob?.cancel()
         getFinancesJob = useCases.getFinances(_state.value.dateRange, _state.value.selectedCategoryId, selectedAccountId, types, tracked)
             .onEach { finance ->
@@ -116,9 +163,18 @@ class HomeViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
     }
+    private var getRecommendedJob: Job? = null
+    private fun getRecommended() {
+        getRecommendedJob?.cancel()
+        getRecommendedJob = useCases.getFinances.recommended()
+            .onEach {
+                _state.value = _state.value.copy(recommended = it)
+                Log.d("Recommended", "$it")
+            }
+            .launchIn(viewModelScope)
+    }
     private fun updateQuickSpending() {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val types: MutableList<FinanceType> = if(idx == 2) mutableListOf(FinanceType.INCOME) else mutableListOf(FinanceType.OUTCOME)
+        val types: MutableList<FinanceType> = if(_state.value.displayTypes.contains(FinanceType.OUTCOME)) mutableListOf(FinanceType.OUTCOME) else mutableListOf(FinanceType.INCOME)
         _state.value = _state.value.copy(
             quickSpendingAmount = _state.value.results.sumOf { if (types.contains(it.finance.type)) it.finance.amount else 0.0 }
         )
@@ -138,8 +194,7 @@ class HomeViewModel @Inject constructor(
         }
     }
     private fun getCategoryTotals() {
-        val idx = _state.value.itemsTypeStates.filter { it.value.value }.entries.first().key
-        val type: FinanceType = if(idx == 2) FinanceType.INCOME else FinanceType.OUTCOME
+        val type: FinanceType = if(_state.value.displayTypes.contains(FinanceType.OUTCOME)) FinanceType.OUTCOME else FinanceType.INCOME
         val bars: MutableList<CategoryAmount> = mutableListOf()
         _state.value.results.filter{ it.finance.type == type }.groupBy { it.category!!.categoryId }.forEach {
             bars.add(
@@ -179,7 +234,7 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(
             earningsPerTimePeriod = useCases.getTotalPerDay(
                 range = _state.value.dateRange,
-                type = if(_state.value.itemsTypeStates.filter { it.value.value }.entries.first().key == 2) FinanceType.INCOME else FinanceType.OUTCOME,
+                type = if(_state.value.displayTypes.contains(FinanceType.OUTCOME)) FinanceType.OUTCOME else FinanceType.INCOME,
                 items = _state.value.results,
                 color =
                     if(_state.value.selectedCategoryId == null) colors.onSurface.toArgb()

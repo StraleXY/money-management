@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
@@ -32,31 +34,43 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.dsc.form_builder.TextFieldState
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
+import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
 import com.theminimalismhub.moneymanagement.feature_bills.domain.model.RecurringType
+import com.theminimalismhub.moneymanagement.feature_bills.presentation.ManageBillsEvent
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsChips
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.ToggleChip
 
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AddEditBillCard(
     isOpen: Boolean,
-    vm: AddEditBillService
+    vm: AddEditBillService,
+    onCancel: () -> Unit
 ) {
 
     val state = vm.state.value
 
     val categoryListState = rememberLazyListState()
-    val accountListState = rememberLazyListState()
+//    val accountListState = rememberLazyListState()
+    val accountPagerState = rememberPagerState(
+        pageCount = state.accounts.filter { it.active }.size,
+        initialOffscreenLimit = 2,
+    )
 
     LaunchedEffect(state.selectedCategoryId) {
         Log.i("CATEGORY", "Changed to id: ${state.selectedCategoryId} | Is empty? ${state.categories.isEmpty()}")
@@ -65,7 +79,8 @@ fun AddEditBillCard(
     }
     LaunchedEffect(state.selectedAccountId) {
         if(state.selectedAccountId == null || state.accounts.isEmpty()) return@LaunchedEffect
-        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+//        accountListState.animateScrollToItem(state.accounts.indexOf(state.accounts.first { it.accountId == state.selectedAccountId } ))
+        accountPagerState.scrollToPage(state.accounts.filter { it.active }.indexOf(state.accounts.filter { it.active }.first { it.accountId == state.selectedAccountId } ))
     }
 
     val focusManager = LocalFocusManager.current
@@ -75,9 +90,28 @@ fun AddEditBillCard(
     val amount: TextFieldState  = vm.formState.getState("amount")
 
     FloatingCard(
-        modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
-        header = {}
+        header = {
+            SwipeableAccountsPager(
+                accounts = state.accounts.filter { it.active },
+                currency = state.currency,
+                balanceDelta = 0.0,
+                pagerState = accountPagerState,
+                minAlpha = 0.5f,
+                initialCardScale = 1.025f,
+                selectedCardStartScale = 0.875f,
+                selectedCardScale = 1.085f,
+                cardSpacing = 0.dp,
+                onAccountSelected = { idx -> vm.onEvent(AddEditBillEvent.AccountSelected(state.accounts.filter { it.active }[idx].accountId!!)) }
+            )
+            DashedLine(
+                modifier = Modifier
+                    .offset(y = 17.dp)
+                    .zIndex(100f),
+                dashLength = 8.dp,
+                gapLength = 4.dp
+            )
+        }
     ) {
         LazyRow(
             modifier = Modifier
@@ -100,12 +134,12 @@ fun AddEditBillCard(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        AccountsChips(
-            accounts = state.accounts,
-            states = state.accountStates,
-            listState = accountListState
-        ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
-        Spacer(modifier = Modifier.height(8.dp))
+//        AccountsChips(
+//            accounts = state.accounts,
+//            states = state.accountStates,
+//            listState = accountListState
+//        ) { vm.onEvent(AddEditBillEvent.AccountSelected(it)) }
+//        Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(
             modifier = Modifier
@@ -136,12 +170,14 @@ fun AddEditBillCard(
             onValueChange = { time.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Due Day") },
             isError = time.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -157,12 +193,14 @@ fun AddEditBillCard(
                 onValueChange = { interval.change(it) },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(60.dp)
                     .padding(horizontal = 36.dp),
                 textStyle = MaterialTheme.typography.body1,
                 label = { Text(text = "Interval [Days]") },
                 isError = interval.hasError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+                keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                shape = RoundedCornerShape(100)
             )
         }
         ErrorText(
@@ -178,12 +216,14 @@ fun AddEditBillCard(
             onValueChange = { name.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Name") },
             isError = name.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -198,12 +238,14 @@ fun AddEditBillCard(
             onValueChange = { amount.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Amount") },
             isError = amount.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onNext = { focusManager.clearFocus(true) })
+            keyboardActions = KeyboardActions(onNext = { focusManager.clearFocus(true) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -219,10 +261,9 @@ fun AddEditBillCard(
                 vm.onEvent(AddEditBillEvent.AddBill)
             },
             deleteEnabled =  state.currentBillId != null,
-            onDelete = {
-                vm.onEvent(AddEditBillEvent.DeleteBill)
-            }
+            onDelete = { vm.onEvent(AddEditBillEvent.DeleteBill) },
+            onCancel = onCancel
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height((9.5).dp))
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -73,7 +74,7 @@ fun ActionButton(
 
 @Composable
 fun HoldableActionButton(
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.h4,
     icon: ImageVector,
@@ -148,7 +149,7 @@ fun HoldableActionButton(
         Spacer(modifier = Modifier.width(if (circleColor != Color.Transparent) 16.dp else 4.dp))
         Text(
             text = text,
-            color = MaterialTheme.colors.onBackground,
+            color = iconColor,
             style = textStyle
         )
     }

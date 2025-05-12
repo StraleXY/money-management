@@ -2,8 +2,9 @@ package com.theminimalismhub.moneymanagement.feature_accounts.domain.use_cases
 
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.repository.AccountRepo
+import javax.inject.Inject
 
-class AddAccount constructor(
+class AddAccount @Inject constructor(
     private val repo: AccountRepo
 ) {
 

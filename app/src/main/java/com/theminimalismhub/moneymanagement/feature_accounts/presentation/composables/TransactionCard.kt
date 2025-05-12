@@ -1,18 +1,24 @@
 package com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.South
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
@@ -28,6 +34,8 @@ import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
@@ -40,7 +48,8 @@ fun TransactionCard(
     form: FormState<TextFieldState>,
     accountFrom: Account?,
     accounts: List<Account>,
-    onTransaction: (Account) -> Unit
+    onTransaction: (Account) -> Unit,
+    onCancel: () -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -49,7 +58,6 @@ fun TransactionCard(
     var accountTo by remember { mutableStateOf(if(accounts.isNotEmpty()) accounts[0] else null) }
 
     FloatingCard(
-        modifier = Modifier.padding(horizontal = 16.dp),
         visible = isOpen,
         header = {
             Column(
@@ -95,12 +103,14 @@ fun TransactionCard(
             onValueChange = { name.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Name") },
             isError = name.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -115,12 +125,14 @@ fun TransactionCard(
             onValueChange = { amount.change(it) },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(60.dp)
                 .padding(horizontal = 36.dp),
             textStyle = MaterialTheme.typography.body1,
             label = { Text(text = "Amount") },
             isError = amount.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) })
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
+            shape = RoundedCornerShape(100)
         )
         ErrorText(
             modifier = Modifier
@@ -131,17 +143,61 @@ fun TransactionCard(
         )
         if(!amount.hasError) Spacer(modifier = Modifier.height(4.dp))
         Spacer(modifier = Modifier.height(24.dp))
-        HoldableActionButton(
-            modifier = Modifier,
-            text = stringResource(id = R.string.ma_confirm_transaction),
-            icon = Icons.Default.Check,
-            textStyle = MaterialTheme.typography.button,
-            duration = 2500,
-            circleColor = Color.Transparent,
-            alternatedColor = MaterialTheme.colors.primary,
-            iconColor = MaterialTheme.colors.onBackground,
-            onHold = { onTransaction(accountTo!!) }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier
+                .height(47.dp)
+                .padding(horizontal = 33.dp)
+                .fillMaxWidth()
+                .shadedBackground(Shade.LIGHT, RoundedCornerShape(100)),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row {
+                Spacer(modifier = Modifier.width(2.dp))
+                TextButton(
+                    modifier = Modifier,
+                    onClick = onCancel,
+                    shape = RoundedCornerShape(100)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(26.dp)
+                                .alpha(0.8f)
+                                .rotate(45f)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(id = R.string.action_cancel),
+                            style = MaterialTheme.typography.button,
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colors.primary, RoundedCornerShape(100))
+            ) {
+                HoldableActionButton(
+                    modifier = Modifier
+                        .padding(start = 9.dp, end = 14.dp)
+                        .align(Alignment.Center),
+                    text = stringResource(id = R.string.ma_confirm_transaction),
+                    icon = Icons.Default.Check,
+                    textStyle = MaterialTheme.typography.button,
+                    duration = 2500,
+                    circleColor = Color.Transparent,
+                    alternatedColor = MaterialTheme.colors.onPrimary,
+                    iconColor = MaterialTheme.colors.onPrimary,
+                    onHold = { onTransaction(accountTo!!) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height((9.5).dp))
     }
 }

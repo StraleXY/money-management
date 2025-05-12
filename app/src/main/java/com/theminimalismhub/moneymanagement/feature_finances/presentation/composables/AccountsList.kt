@@ -6,13 +6,22 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.calculateCurrentOffsetForPage
+import com.google.android.material.math.MathUtils
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
+import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardMini
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountChip
+import kotlin.math.absoluteValue
 
 @Composable
 fun AccountsList(
@@ -20,9 +29,9 @@ fun AccountsList(
     accounts: List<Account>,
     states: HashMap<Int, MutableState<Boolean>>,
     listState: LazyListState = rememberLazyListState(),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 32.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
     currency: String = "RSD",
-    spacing: Dp = 16.dp,
+    spacing: Dp = 12.dp,
     selectionChanged: (Int) -> Unit
 ) {
     LazyRow(
