@@ -45,6 +45,7 @@ fun ActionChip(
     backgroundTint: Color = MaterialTheme.colors.secondaryVariant,
     borderThickness: Dp = 1.dp,
     backgroundStrength: Float = 0.15f,
+    elevationEnabled: Boolean = true,
     borderStrength: Float = 0.8f,
     icon: ImageVector? = null,
     enabled: Boolean = true,
@@ -57,7 +58,7 @@ fun ActionChip(
             .alpha(animatedAlpha.value),
         shape = RoundedCornerShape(30.dp),
         border = if(borderThickness == 0.dp) null else BorderStroke(borderThickness, Color(ColorUtils.blendARGB(Color.Black.toArgb(), borderColor.toArgb(), borderStrength))),
-        elevation = Dp(if(backgroundStrength == 0f) 0f else 6f),
+        elevation = Dp(if(!elevationEnabled || backgroundStrength == 0f) 0f else 6f),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -101,6 +102,7 @@ fun SelectableChip(
     label: String,
     icon: ImageVector? = null,
     selected: Boolean = false,
+    elevationEnabled: Boolean = true,
     onClick: () -> Unit
 ) {
     val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
@@ -113,6 +115,7 @@ fun SelectableChip(
         backgroundColor = backgroundColor.value,
         borderThickness = 0.dp,
         onClick = onClick,
+        elevationEnabled = elevationEnabled,
         backgroundStrength = 1f,
         icon = icon
     )
