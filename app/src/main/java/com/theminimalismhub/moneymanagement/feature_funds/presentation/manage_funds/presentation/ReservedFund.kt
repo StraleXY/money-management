@@ -59,7 +59,6 @@ fun ReservedFund(
 
     CouponContainer(
         segmentsCount = 9,
-        strokeColor = MaterialTheme.colors.secondaryVariant,
         accentColor = accentColor,
         accentText = "Odeća"
     ) {
@@ -120,7 +119,7 @@ fun CouponContainer(
     strokeWidth: Dp = 2.dp,
     accentWidth: Dp = 60.dp,
     surfaceColor: Color = MaterialTheme.colors.surface,
-    strokeColor: Color = MaterialTheme.colors.surface,
+    strokeColor: Color = MaterialTheme.colors.secondaryVariant,
     backgroundColor: Color = MaterialTheme.colors.background,
     accentColor: Color = MaterialTheme.colors.secondaryVariant,
     accentText: String = "",
@@ -131,6 +130,7 @@ fun CouponContainer(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .height(segmentSize * 1.5f * segmentsCount + (segmentSize / 2))
             .padding(horizontal = 24.dp)
     ) {
         Canvas(
