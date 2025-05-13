@@ -70,7 +70,7 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         vm.init()
-        navigator.navigate(ManageFundsScreenDestination()) // TODO Remove after testing
+//        navigator.navigate(ManageFundsScreenDestination())
     }
 
     val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)

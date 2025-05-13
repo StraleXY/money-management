@@ -4,15 +4,18 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.BudgetCard
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.ReservedFund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.SavingsFund
@@ -21,7 +24,7 @@ import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_fu
 @Destination(style = BaseTransition::class)
 @Composable
 fun ManageFundsScreen(
-
+    vm: ManageFundsViewModel = hiltViewModel()
 ) {
 
     Scaffold(
@@ -39,9 +42,11 @@ fun ManageFundsScreen(
 
             ReservedFund()
             Spacer(modifier = Modifier.height(12.dp))
-            SavingsFund()
+            BudgetCard(
+                colorsTest = vm.state.value.categories.filter { listOf("Food", "Glovo", "Market", "Pekara").contains(it.name) }.map { Colorer.getAdjustedDarkColor(it.color, MaterialTheme.colors.isLight) }
+            )
             Spacer(modifier = Modifier.height(12.dp))
-            BudgetCard()
+            SavingsFund()
         }
     }
 }

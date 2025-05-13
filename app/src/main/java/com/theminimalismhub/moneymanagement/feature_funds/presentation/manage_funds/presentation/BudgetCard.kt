@@ -35,10 +35,10 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 
 @Composable
 fun BudgetCard(
-
+    colorsTest: List<Color> = listOf()
 ) {
     CreditCardColored(
-        colors = listOf(Color.Yellow)
+        colors = colorsTest
     ) {
         Column(
             modifier = Modifier
@@ -63,7 +63,7 @@ fun BudgetCard(
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
-                    text = Currencier.formatAmount(4740),
+                    text = Currencier.formatAmount(16540),
                     style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Medium),
                     color = MaterialTheme.colors.onBackground
                 )
@@ -92,7 +92,7 @@ fun BudgetCard(
                         modifier = Modifier
                             .padding(bottom = 4.dp)
                             .alpha(0.6f),
-                        text = "${Currencier.formatAmount(5000)} RSD",
+                        text = "${Currencier.formatAmount(24000)} RSD",
                         style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Medium, fontSize = 24.sp),
                         color = MaterialTheme.colors.onBackground
                     )
@@ -112,7 +112,7 @@ fun BudgetCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Coffee",
+                    text = "Food",
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Black),
                     color = MaterialTheme.colors.onBackground
                 )
@@ -126,6 +126,7 @@ fun CreditCardColored(
     modifier: Modifier = Modifier,
     strokeColor: Color = MaterialTheme.colors.secondaryVariant,
     surfaceColor: Color = MaterialTheme.colors.surface,
+    bottomSurfaceColor: Color = MaterialTheme.colors.background,
     stripHeight: Dp = 48.dp,
     colors: List<Color> = listOf(),
     content: @Composable BoxScope.() -> Unit
@@ -134,8 +135,7 @@ fun CreditCardColored(
     val height: Dp = 200.dp
     val radius: Dp = 16.dp
     val outerStrokeWidth: Dp = 2.dp
-    val innerStrokeWidth: Dp = 2.dp
-    val bottomOffset: Dp = 46.dp
+    val bottomOffset: Dp = 48.dp
 
     Box(
         modifier = modifier
@@ -157,25 +157,17 @@ fun CreditCardColored(
                 size = Size(widthPx, heightPx)
             )
             drawRoundRect(
+                color = bottomSurfaceColor,
+                topLeft = Offset(0f, heightPx - stripHeight.toPx() / 2 - bottomOffset.toPx()),
+                cornerRadius = CornerRadius(radius.toPx(), radius.toPx()),
+                size = Size(widthPx, stripHeight.toPx() / 2 + bottomOffset.toPx()),
+            )
+            drawRoundRect(
                 color = strokeColor,
                 topLeft = Offset(0f, 0f),
                 cornerRadius = CornerRadius(radius.toPx(), radius.toPx()),
                 size = Size(widthPx, heightPx),
                 style = Stroke(width = outerStrokeWidth.toPx())
-            )
-            drawLine(
-                color = strokeColor,
-                start = Offset(0f, heightPx - bottomOffset.toPx() - stripHeight.toPx() - innerStrokeWidth.toPx() / 2),
-                end = Offset(widthPx, heightPx - bottomOffset.toPx() - stripHeight.toPx() - innerStrokeWidth.toPx() / 2),
-                strokeWidth = innerStrokeWidth.toPx(),
-                cap = StrokeCap.Butt
-            )
-            drawLine(
-                color = strokeColor,
-                start = Offset(0f, heightPx - bottomOffset.toPx() + innerStrokeWidth.toPx() / 2),
-                end = Offset(widthPx, heightPx - bottomOffset.toPx() + innerStrokeWidth.toPx() / 2),
-                strokeWidth = innerStrokeWidth.toPx(),
-                cap = StrokeCap.Butt
             )
         }
         Canvas(
@@ -189,7 +181,23 @@ fun CreditCardColored(
             val heightPx = this.size.height
 
             drawRect(
-                color = Color.Gray,
+                color = Color.Black,
+                topLeft = Offset(outerStrokeWidth.toPx() / 2, 0f),
+                size = Size(widthPx - outerStrokeWidth.toPx(), heightPx),
+            )
+        }
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(stripHeight)
+                .offset(y = height - stripHeight - bottomOffset)
+                .blur(if (colors.size == 1) 8.dp else if(colors.size == 2) 224.dp else 100.dp, BlurredEdgeTreatment.Rectangle)
+        ) {
+            val widthPx = this.size.width
+            val heightPx = this.size.height
+
+            drawRect(
+                color = Color.Black,
                 topLeft = Offset(outerStrokeWidth.toPx() / 2, 0f),
                 size = Size(widthPx - outerStrokeWidth.toPx(), heightPx),
             )
@@ -219,7 +227,7 @@ fun CreditCardColored(
                 color = Color.Black,
                 topLeft = Offset(outerStrokeWidth.toPx() / 2, 0f),
                 size = Size(widthPx - outerStrokeWidth.toPx(), heightPx),
-                alpha = 0.35f
+                alpha = 0.25f
             )
         }
         content()
