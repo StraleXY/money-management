@@ -20,11 +20,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +32,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -48,7 +43,7 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 fun SavingsFund(
 
 ) {
-    DoubleLineCard() {
+    DoubleLineCard {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -63,14 +58,14 @@ fun SavingsFund(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    modifier = Modifier.padding(bottom = 4.dp).alpha(0.7f),
+                    modifier = Modifier.padding(bottom = 4.dp).alpha(0.5f),
                     text = "/",
                     style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Normal),
                     color = MaterialTheme.colors.onBackground
                 )
                 Spacer(modifier = Modifier.width(2.dp))
                 Text(
-                    modifier = Modifier.padding(bottom = 6.dp).alpha(0.7f),
+                    modifier = Modifier.padding(bottom = 6.dp).alpha(0.6f),
                     text = "${Currencier.formatAmount(100000)} RSD",
                     style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Medium, fontSize = 24.sp),
                     color = MaterialTheme.colors.onBackground
@@ -96,18 +91,19 @@ fun SavingsFund(
 }
 
 @Composable
-fun DoubleLineCard(
+private fun DoubleLineCard(
     modifier: Modifier = Modifier,
-    outerStrokeWidth: Dp = 2.dp,
-    innerStrokeWidth: Dp = 3.dp,
-    outerRadius: Dp = 16.dp,
-    innerRadius: Dp = 8.dp,
     outerSurfaceColor: Color = MaterialTheme.colors.background,
     innerSurfaceColor: Color = MaterialTheme.colors.surface,
     outerStrokeColor: Color = MaterialTheme.colors.secondaryVariant,
     innerStrokeColor: Color = MaterialTheme.colors.secondary,
     content: @Composable BoxScope.() -> Unit
 ) {
+
+    val outerStrokeWidth: Dp = 2.dp
+    val innerStrokeWidth: Dp = 3.dp
+    val outerRadius: Dp = 16.dp
+    val innerRadius: Dp = 8.dp
 
     Box(
         modifier = modifier
@@ -122,7 +118,6 @@ fun DoubleLineCard(
         ) {
             val widthPx = this.size.width
             val heightPx = this.size.height
-            val strokePadding = 8.dp.toPx()
 
             drawRoundRect(
                 color = outerSurfaceColor,

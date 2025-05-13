@@ -13,6 +13,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.BudgetCard
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.ReservedFund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.SavingsFund
 
@@ -39,6 +40,8 @@ fun ManageFundsScreen(
             ReservedFund()
             Spacer(modifier = Modifier.height(12.dp))
             SavingsFund()
+            Spacer(modifier = Modifier.height(12.dp))
+            BudgetCard()
         }
     }
 }
