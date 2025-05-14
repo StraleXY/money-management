@@ -1,13 +1,10 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
-import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
@@ -18,7 +15,6 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.Ad
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -77,7 +73,7 @@ class AddEditFinanceService(
                     selectCategoryType(event.finance.category!!.type)
                     event.finance.finance.financeCategoryId?.let { onEvent(AddEditFinanceEvent.CategorySelected(it)) }
                     _state.value = _state.value.copy(
-                        currentFinanceId = event.finance.finance.id,
+                        currentFinanceId = event.finance.finance.financeId,
                         currentType = event.finance.finance.type,
                         timestamp = event.finance.finance.timestamp,
                         selectedAccountId = event.finance.finance.financeAccountId,
@@ -129,7 +125,7 @@ class AddEditFinanceService(
                             amount = (formState.fields[1].value).toDouble(),
                             timestamp = _state.value.timestamp,
                             type = _state.value.currentType,
-                            id = _state.value.currentFinanceId,
+                            financeId = _state.value.currentFinanceId,
                             financeCategoryId = _state.value.selectedCategoryId!!,
                             financeAccountId = _state.value.selectedAccountId!!,
                             trackable = _state.value.currentTrackable
