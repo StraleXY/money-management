@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class ManageFundsViewModel @Inject constructor(
@@ -38,12 +39,12 @@ class ManageFundsViewModel @Inject constructor(
                 viewModelScope.launch {
                     val id = useCases.addFund(Fund(
                         item = FundItem(
-                            name = "New Glasses",
+                            name = "Test Reservation",
                             type = FundType.RESERVATION,
-                            amount = 35000.0
+                            amount = Random(System.currentTimeMillis()).nextDouble(5000.0, 50000.0)
                         ),
-                        categories = _state.value.categories.filter { it.name == "Odeća" },
-                        accounts = _state.value.accounts.filter { it.primary }
+                        categories = listOf(_state.value.categories.random()),
+                        accounts = listOf(_state.value.accounts.random())
                     ))
                     Log.d("Fund", "Inserted a fund with id: $id")
                 }

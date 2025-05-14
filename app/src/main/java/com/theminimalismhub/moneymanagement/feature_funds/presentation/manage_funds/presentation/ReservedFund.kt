@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,26 +52,31 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountChip
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 
 @Composable
 fun ReservedFund(
-
+    amount: Double,
+    item: String,
+    accountName: String,
+    accountIcon: ImageVector,
+    categoryName: String,
+    categoryColor: Color,
+    currency: String = "RSD"
 ) {
-    val accentColor = Colorer.getAdjustedDarkColor(-3538953)
-
     CouponContainer(
         segmentsCount = 9,
-        accentColor = accentColor,
-        accentText = "Odeća"
+        accentColor = categoryColor,
+        accentText = categoryName
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 36.dp, top = 32.dp, bottom = 32.dp, end = 72.dp),
+                .padding(start = 36.dp, top = 30.dp, bottom = 30.dp, end = 72.dp),
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = "${Currencier.formatAmount(35000)} RSD",
+                    text = "${Currencier.formatAmount(amount.toInt())} $currency",
                     style = MaterialTheme.typography.h2.copy(
                         fontWeight = FontWeight.Medium
                     ),
@@ -94,15 +101,15 @@ fun ReservedFund(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     modifier = Modifier.alpha(1f),
-                    text = "New Glasses",
+                    text = item,
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Black),
                     color = MaterialTheme.colors.onBackground
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
             SelectableChip(
-                label = "Visa",
-                icon = getAccountIcon(AccountType.CARD),
+                label = accountName,
+                icon = accountIcon,
                 onClick = {},
                 selected = true,
                 elevationEnabled = false
