@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_funds.data.repository
 
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
+import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_funds.data.data_source.FundDao
 import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundAccountCrossRef
@@ -20,7 +21,7 @@ class FundRepoImpl (
         return dao.getFunds()
     }
 
-    override suspend fun insert(item: FundItem, categories: List<Category>, accounts: List<Account>, finances: List<Finance>) {
+    override suspend fun insert(item: FundItem, categories: List<Category>, accounts: List<Account>, finances: List<FinanceItem>) : Int {
         val fundId: Int = if(item.fundId == null) {
             dao.insertFund(item).toInt()
         } else {
@@ -45,8 +46,9 @@ class FundRepoImpl (
         finances.forEach { f ->
             dao.insertFinanceRef(FundFinanceCrossRef(
                 fundId = fundId,
-                financeId = f.finance.financeId!!
+                financeId = f.financeId!!
             ))
         }
+        return fundId
     }
 }

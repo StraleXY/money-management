@@ -19,17 +19,17 @@ data class Fund(
         entityColumn = "categoryId",
         associateBy = Junction(FundCategoryCrossRef::class)
     )
-    val categories: List<Category>,
+    val categories: List<Category> = emptyList(),
     @Relation(
         parentColumn = "fundId",
         entityColumn = "accountId",
         associateBy = Junction(FundAccountCrossRef::class)
     )
-    val accounts: List<Account>,
+    val accounts: List<Account> = emptyList(),
     @Relation(
         parentColumn = "fundId",
         entityColumn = "financeId",
         associateBy = Junction(FundFinanceCrossRef::class)
     )
-    val finances: List<FinanceItem>
+    val finances: List<FinanceItem> = emptyList()
 ) : Serializable

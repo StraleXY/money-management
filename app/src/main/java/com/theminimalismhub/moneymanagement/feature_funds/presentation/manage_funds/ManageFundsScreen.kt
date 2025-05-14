@@ -4,8 +4,12 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -40,6 +44,16 @@ fun ManageFundsScreen(
                 spacerHeight = 48.dp
             )
 
+            Button(
+                modifier = Modifier.offset(x = 24.dp),
+                onClick = {vm.onEvent(ManageFundsEvent.SaveFund)}
+            ) {
+                Text(
+                    text = "ADD TEST FUND",
+                    style = MaterialTheme.typography.button
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
             ReservedFund()
             Spacer(modifier = Modifier.height(12.dp))
             BudgetCard(
