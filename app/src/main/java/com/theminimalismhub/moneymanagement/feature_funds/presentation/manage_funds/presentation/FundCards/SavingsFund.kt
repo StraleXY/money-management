@@ -1,4 +1,4 @@
-package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation
+package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -41,9 +41,9 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 
 @Composable
 fun SavingsFund(
-
+    modifier: Modifier = Modifier
 ) {
-    DoubleLineCard {
+    DoubleLineCard(modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -109,7 +109,6 @@ private fun DoubleLineCard(
         modifier = modifier
             .fillMaxWidth()
             .height(170.dp)
-            .padding(horizontal = 24.dp)
     ) {
 
         Canvas(

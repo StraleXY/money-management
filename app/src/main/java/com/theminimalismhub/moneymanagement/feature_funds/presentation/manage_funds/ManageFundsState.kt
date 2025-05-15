@@ -7,5 +7,7 @@ import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 data class ManageFundsState(
     val categories: List<Category> = emptyList(),
     val accounts: List<Account> = emptyList(),
-    val funds: List<Fund> = emptyList()
+    val funds: List<Fund> = emptyList(),
+    val focusedFund: Fund? = null,
+    val isAddEditOpen: Boolean = false
 )

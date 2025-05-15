@@ -1,4 +1,4 @@
-package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation
+package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,9 +35,11 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 
 @Composable
 fun BudgetFund(
+    modifier: Modifier = Modifier,
     colorsTest: List<Color> = listOf()
 ) {
     CreditCardColored(
+        modifier = modifier,
         colors = colorsTest
     ) {
         Column(
@@ -140,7 +143,6 @@ fun CreditCardColored(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .padding(horizontal = 24.dp)
     ) {
         Canvas(
             modifier = modifier
@@ -174,15 +176,15 @@ fun CreditCardColored(
                 .fillMaxWidth()
                 .height(stripHeight)
                 .offset(y = height - stripHeight - bottomOffset)
-                .blur(if (colors.size == 1) 24.dp else if(colors.size == 2) 250.dp else 124.dp, BlurredEdgeTreatment.Rectangle)
+                .blur(if (colors.isEmpty()) 0.dp else if (colors.size == 1) 24.dp else if(colors.size == 2) 250.dp else 124.dp, BlurredEdgeTreatment.Rectangle)
         ) {
             val widthPx = this.size.width
             val heightPx = this.size.height
 
             drawRect(
                 color = Color.Black,
-                topLeft = Offset(outerStrokeWidth.toPx() / 2, 0f),
-                size = Size(widthPx - outerStrokeWidth.toPx(), heightPx),
+                topLeft = Offset(outerStrokeWidth.toPx(), 0f),
+                size = Size(widthPx - outerStrokeWidth.toPx() * 2, heightPx),
             )
         }
         Canvas(
@@ -190,7 +192,7 @@ fun CreditCardColored(
                 .fillMaxWidth()
                 .height(stripHeight)
                 .offset(y = height - stripHeight - bottomOffset)
-                .blur(if (colors.size == 1) 8.dp else if(colors.size == 2) 224.dp else 100.dp, BlurredEdgeTreatment.Rectangle)
+                .blur(if (colors.isEmpty()) 0.dp else if (colors.size == 1) 8.dp else if(colors.size == 2) 224.dp else 100.dp, BlurredEdgeTreatment.Rectangle)
         ) {
             val widthPx = this.size.width
             val heightPx = this.size.height
@@ -202,6 +204,13 @@ fun CreditCardColored(
             )
 
             val count = colors.size
+            if (count == 0) {
+                drawRect(
+                    color = strokeColor,
+                    topLeft = Offset(outerStrokeWidth.toPx() / 2, 0f),
+                    size = Size(widthPx - outerStrokeWidth.toPx(), heightPx),
+                )
+            }
             if (count == 1) {
                 drawRect(
                     color = colors.first(),
@@ -209,7 +218,7 @@ fun CreditCardColored(
                     size = Size(widthPx - outerStrokeWidth.toPx(), heightPx),
                 )
             }
-            if (count <= 1)return@Canvas
+            if (count <= 0)return@Canvas
 
             val radius = (widthPx / count) * 1.25f
             val spacing = widthPx / count

@@ -35,6 +35,9 @@ class ManageFundsViewModel @Inject constructor(
 
     fun onEvent(event: ManageFundsEvent) {
         when (event) {
+            is ManageFundsEvent.ToggleAddEdit -> {
+                _state.value = _state.value.copy(isAddEditOpen = !_state.value.isAddEditOpen)
+            }
             is ManageFundsEvent.SaveFund -> {
                 viewModelScope.launch {
                     val id = useCases.addFund(Fund(
