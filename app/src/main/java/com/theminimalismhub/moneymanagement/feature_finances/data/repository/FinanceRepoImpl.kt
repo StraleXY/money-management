@@ -10,7 +10,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.F
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import kotlinx.coroutines.flow.Flow
 
-class FinanceRepoImpl constructor(
+class FinanceRepoImpl (
     private val dao: FinanceDao
 ) : FinanceRepo {
 

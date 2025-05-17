@@ -66,14 +66,14 @@ interface FinanceDao {
     suspend fun getSpending(from: Long, to: Long, categoryId: Int, accountId: Int, type: FinanceType, tracked: List<Boolean>): Double
 
     @Transaction
-    @Query("SELECT * FROM finance WHERE id = :id")
+    @Query("SELECT * FROM finance WHERE financeId = :id")
     suspend fun getFinanceById(id: Int): Finance?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFinance(finance: FinanceItem): Long
 
     @Transaction
-    @Query("DELETE FROM finance WHERE id = :id")
+    @Query("DELETE FROM finance WHERE financeId = :id")
     suspend fun deleteFinance(id: Int)
 
     // Recommended Finance Items

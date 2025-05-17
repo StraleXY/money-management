@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.*
 import com.theminimalismhub.moneymanagement.core.composables.ColorWheel.HSVColor
