@@ -108,7 +108,7 @@ private fun DoubleLineCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(170.dp)
+            .height(200.dp)
     ) {
 
         Canvas(
