@@ -36,7 +36,11 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 @Composable
 fun BudgetFund(
     modifier: Modifier = Modifier,
-    colorsTest: List<Color> = listOf()
+    colorsTest: List<Color> = listOf(),
+    recurring: String? = null,
+    remaining: Double? = null,
+    amount: Double? = null,
+    name: String? = null
 ) {
     CreditCardColored(
         modifier = modifier,
@@ -53,8 +57,8 @@ fun BudgetFund(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    modifier = Modifier,
-                    text = "MONTHLY",
+                    modifier = Modifier.alpha(if(recurring.isNullOrEmpty()) 0.35f else 1f),
+                    text = recurring ?: "RECURRING",
                     style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Black)
                 )
             }
@@ -65,9 +69,10 @@ fun BudgetFund(
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
-                    text = Currencier.formatAmount(16540),
+                    modifier = Modifier.alpha(if(remaining == null) 0.35f else 1f),
+                    text = if(remaining != null) Currencier.formatAmount(remaining) else "Remaining",
                     style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colors.onBackground
+                    color = colors.onBackground
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
@@ -76,7 +81,7 @@ fun BudgetFund(
                         .alpha(0.5f),
                     text = "/",
                     style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.ExtraLight),
-                    color = MaterialTheme.colors.onBackground
+                    color = colors.onBackground
                 )
                 Spacer(modifier = Modifier.width(2.dp))
                 Column(
@@ -88,15 +93,15 @@ fun BudgetFund(
                             .alpha(0f),
                         text = "Left Of",
                         style = MaterialTheme.typography.subtitle2,
-                        color = MaterialTheme.colors.onBackground
+                        color = colors.onBackground
                     )
                     Text(
                         modifier = Modifier
                             .padding(bottom = 4.dp)
-                            .alpha(0.6f),
-                        text = "${Currencier.formatAmount(24000)} RSD",
+                            .alpha(if(amount == null) 0.35f else 0.6f),
+                        text = if(amount != null) "${Currencier.formatAmount(amount)} RSD" else "Amount",
                         style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Medium, fontSize = 24.sp),
-                        color = MaterialTheme.colors.onBackground
+                        color = colors.onBackground
                     )
                 }
             }
@@ -114,9 +119,10 @@ fun BudgetFund(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Food",
+                    modifier = Modifier.alpha(if(name.isNullOrEmpty()) 0.35f else 1f),
+                    text = name ?: "Items",
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Black),
-                    color = MaterialTheme.colors.onBackground
+                    color = colors.onBackground
                 )
             }
         }

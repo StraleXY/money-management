@@ -30,13 +30,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
-import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
-import kotlin.math.roundToInt
+import kotlin.math.max
 
 @Composable
 fun ActionChip(
     modifier: Modifier = Modifier.padding(5.dp),
     text: String,
+    contentAlpha: Float = 1f,
     textStyle: TextStyle = MaterialTheme.typography.body1,
     textColor: Color = MaterialTheme.colors.onBackground,
     accentColor: Color = textColor,
@@ -78,7 +78,7 @@ fun ActionChip(
                         .padding(start = 13.dp)
                         .padding(end = 8.dp)
                         .size(20.dp)
-                        .alpha(0.8f)
+                        .alpha(max(0.2f, contentAlpha - 0.2f))
                 )
             }
             Text(
@@ -88,7 +88,8 @@ fun ActionChip(
                     .padding(vertical = 8.dp)
                     .padding(bottom = 1.dp)
                     .padding(end = if (icon != null) 16.dp else 32.dp)
-                    .padding(start = if (icon != null) 0.dp else 32.dp),
+                    .padding(start = if (icon != null) 0.dp else 32.dp)
+                    .alpha(contentAlpha),
                 textAlign = TextAlign.Center,
                 style = textStyle
             )
@@ -100,6 +101,7 @@ fun ActionChip(
 fun SelectableChip(
     modifier: Modifier = Modifier.widthIn(60.dp, 180.dp),
     label: String,
+    contentAlpha: Float = 1f,
     icon: ImageVector? = null,
     selected: Boolean = false,
     elevationEnabled: Boolean = true,
@@ -111,6 +113,7 @@ fun SelectableChip(
     ActionChip(
         modifier = modifier,
         text = label,
+        contentAlpha = contentAlpha,
         textColor = textColor.value,
         backgroundColor = backgroundColor.value,
         borderThickness = 0.dp,

@@ -34,6 +34,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
@@ -680,6 +681,6 @@ fun getAccountIcon(type: AccountType) : ImageVector {
         AccountType.HELP -> Icons.Default.SupervisorAccount
         AccountType.INSURANCE -> Icons.Default.MonitorHeart
         AccountType.CRYPTO -> Icons.Default.CurrencyBitcoin
-        AccountType.UNKNOWN -> Icons.Default.QuestionMark
+        AccountType.UNKNOWN -> Icons.Default.AccountBalance
     }
 }

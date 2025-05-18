@@ -41,7 +41,10 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 
 @Composable
 fun SavingsFund(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    amount: Double? = null,
+    saved: Double? = null,
+    name: String? = null
 ) {
     DoubleLineCard(modifier = modifier) {
         Column(
@@ -52,7 +55,8 @@ fun SavingsFund(
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = Currencier.formatAmount(25000),
+                    modifier = Modifier.alpha(if(saved == null) 0.35f else 1f),
+                    text = if(saved != null) Currencier.formatAmount(saved) else "Saved",
                     style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Medium),
                     color = MaterialTheme.colors.onBackground
                 )
@@ -65,8 +69,8 @@ fun SavingsFund(
                 )
                 Spacer(modifier = Modifier.width(2.dp))
                 Text(
-                    modifier = Modifier.padding(bottom = 6.dp).alpha(0.6f),
-                    text = "${Currencier.formatAmount(100000)} RSD",
+                    modifier = Modifier.padding(bottom = 6.dp).alpha(if(amount == null) 0.35f else 0.6f),
+                    text = if(amount != null) "${Currencier.formatAmount(amount)} RSD" else "Amount",
                     style = MaterialTheme.typography.h2.copy(fontWeight = FontWeight.Medium, fontSize = 24.sp),
                     color = MaterialTheme.colors.onBackground
                 )
@@ -80,7 +84,8 @@ fun SavingsFund(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Vacation",
+                    modifier = Modifier.alpha(if(name.isNullOrEmpty()) 0.35f else 1f),
+                    text = name ?: "Item",
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Black),
                     color = MaterialTheme.colors.onBackground
                 )

@@ -65,7 +65,7 @@ fun FundSelectorPager(
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        
+
         Row(
             modifier = Modifier
                 .padding(start = 24.dp)
@@ -113,7 +113,7 @@ fun FundSelectorPager(
                         DisplayFundCard(
                             fund = Fund(
                                 item = FundItem(
-                                    name = "Unknown",
+                                    name = "",
                                     type = FundType.get(idx)!!,
                                     amount = 0.0
                                 )

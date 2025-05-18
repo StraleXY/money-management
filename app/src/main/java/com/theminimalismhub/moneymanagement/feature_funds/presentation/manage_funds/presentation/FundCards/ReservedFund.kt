@@ -41,11 +41,11 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 @Composable
 fun ReservedFund(
     modifier: Modifier = Modifier,
-    amount: Double,
-    item: String,
-    accountName: String,
+    amount: Double? = null,
+    item: String? = null,
+    accountName: String? = null,
     accountIcon: ImageVector,
-    categoryName: String,
+    categoryName: String? = null,
     categoryColor: Color,
     currency: String = "RSD"
 ) {
@@ -62,7 +62,8 @@ fun ReservedFund(
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = "${Currencier.formatAmount(amount.toInt())} $currency",
+                    modifier = Modifier.alpha(if(amount == null) 0.35f else 1f),
+                    text = if(amount != null) "${Currencier.formatAmount(amount.toInt())} $currency" else "Amount",
                     style = MaterialTheme.typography.h2.copy(
                         fontWeight = FontWeight.Medium
                     ),
@@ -86,15 +87,16 @@ fun ReservedFund(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    modifier = Modifier.alpha(1f),
-                    text = item,
+                    modifier = Modifier.alpha(if(accountName.isNullOrEmpty()) 0.35f else 1f),
+                    text = item ?: "Item Name",
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Black),
                     color = MaterialTheme.colors.onBackground
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
             SelectableChip(
-                label = accountName,
+                label = accountName ?: "Account Name",
+                contentAlpha = if(accountName.isNullOrEmpty()) 0.4f else 1f,
                 icon = accountIcon,
                 onClick = {},
                 selected = true,
@@ -115,7 +117,7 @@ fun CouponContainer(
     strokeColor: Color = MaterialTheme.colors.secondaryVariant,
     backgroundColor: Color = MaterialTheme.colors.background,
     accentColor: Color = MaterialTheme.colors.secondaryVariant,
-    accentText: String = "",
+    accentText: String? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     var width by remember { mutableStateOf(0.dp) }
@@ -245,7 +247,8 @@ fun CouponContainer(
             }
         }
         RotatedRibbonLabel(
-            text = accentText,
+            text = accentText ?: "Category",
+            textAlpha = if(accentText.isNullOrEmpty()) 0.35f else 1f,
             width = width,
             accentWidth = accentWidth,
             segmentSize = segmentSize,
@@ -261,7 +264,8 @@ fun RotatedRibbonLabel(
     width: Dp,
     accentWidth: Dp,
     segmentSize: Dp,
-    segmentsCount: Int
+    segmentsCount: Int,
+    textAlpha: Float = 1f
 ) {
     val height = segmentSize * 1.5f * segmentsCount + (segmentSize / 2)
     val labelMinWidth = height // so the text fits diagonally
@@ -281,7 +285,9 @@ fun RotatedRibbonLabel(
                 .padding(vertical = 4.dp)
         ) {
             Text(
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .alpha(textAlpha),
                 text = text,
                 style = MaterialTheme.typography.h4.copy(
                     fontWeight = FontWeight.Bold,
