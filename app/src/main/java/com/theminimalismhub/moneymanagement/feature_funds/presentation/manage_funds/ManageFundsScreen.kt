@@ -77,7 +77,8 @@ fun ManageFundsScreen(
         TranslucentOverlay(vm.state.value.isAddEditOpen)
         AddEditFundCard(
             isOpen = vm.state.value.isAddEditOpen,
-            accounts = vm.state.value.accounts
+            accounts = vm.state.value.accounts,
+            form = vm.addEditFormState
         )
     }
 }

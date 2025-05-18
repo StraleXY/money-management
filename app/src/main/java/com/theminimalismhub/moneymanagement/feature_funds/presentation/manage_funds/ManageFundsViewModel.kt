@@ -5,6 +5,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dsc.form_builder.FormState
+import com.dsc.form_builder.TextFieldState
+import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.FundType
 import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundItem
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
@@ -24,6 +27,19 @@ class ManageFundsViewModel @Inject constructor(
 
     private val _state = mutableStateOf(ManageFundsState())
     val state: State<ManageFundsState> = _state
+
+    val addEditFormState = FormState(
+        fields = listOf(
+            TextFieldState(
+                name = "name",
+                validators = listOf(Validators.Required()),
+            ),
+            TextFieldState(
+                name = "amount",
+                validators = listOf(Validators.Required(), Validators.MinValue(0, "Amount must be higher than 0")),
+            )
+        )
+    )
 
     init { init() }
 
