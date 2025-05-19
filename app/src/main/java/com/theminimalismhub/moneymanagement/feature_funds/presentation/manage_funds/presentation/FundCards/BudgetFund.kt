@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
+import com.theminimalismhub.moneymanagement.core.enums.RecurringType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 
 @Composable
@@ -244,5 +251,32 @@ fun CreditCardColored(
             )
         }
         content()
+    }
+}
+
+@Composable
+fun RecurringTypeSelector(
+    modifier: Modifier = Modifier,
+    selectedRecurringType: RecurringType?,
+    listState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 32.dp),
+    spacing: Dp = 8.dp,
+    onRecurringTypeSelected: (RecurringType) -> Unit
+) {
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        contentPadding = contentPadding,
+        horizontalArrangement = Arrangement.Start,
+        state = listState
+    ) {
+        items(RecurringType.values()) { type ->
+            SelectableChip(
+                label = type.label,
+                selected = selectedRecurringType == type
+            ) { onRecurringTypeSelected(type) }
+            Spacer(modifier = Modifier.width(spacing))
+        }
     }
 }

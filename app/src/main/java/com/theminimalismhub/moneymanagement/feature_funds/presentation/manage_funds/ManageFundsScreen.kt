@@ -86,7 +86,9 @@ fun ManageFundsScreen(
             onAccountIdsSelected = { vm.onEvent(ManageFundsEvent.SelectAccounts(it)) },
             categories = vm.state.value.categories,
             selectedCategories = vm.state.value.sCategories,
-            onCategoryIdsSelected = { vm.onEvent(ManageFundsEvent.SelectCategories(it)) }
+            onCategoryIdsSelected = { vm.onEvent(ManageFundsEvent.SelectCategories(it)) },
+            selectedRecurring = vm.state.value.sRecurring,
+            onRecurringSelected = { vm.onEvent(ManageFundsEvent.SelectRecurring(it)) }
         )
     }
 }

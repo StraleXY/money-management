@@ -19,7 +19,7 @@ fun DisplayFundCard(
     when(fund.item.type) {
         FundType.BUDGET -> BudgetFund(
             modifier = modifier,
-            recurring = fund.item.recurringType?.toString()?.uppercase(),
+            recurring = fund.item.recurringType?.label?.uppercase(),
             remaining = fund.item.amount.takeIf { it > 0.0 },
             amount = fund.item.amount.takeIf { it > 0.0 },
             name = fund.item.name.ifEmpty { null },

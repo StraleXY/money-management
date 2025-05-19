@@ -9,6 +9,7 @@ import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
 import com.theminimalismhub.moneymanagement.core.enums.FundType
+import com.theminimalismhub.moneymanagement.core.enums.RecurringType
 import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundItem
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_funds.domain.use_cases.ManageFundsUseCases
@@ -69,8 +70,9 @@ class ManageFundsViewModel @Inject constructor(
             }
             is ManageFundsEvent.SelectFundType -> {
                 _state.value = _state.value.copy(sFundType = event.type)
-                onEvent(ManageFundsEvent.SelectCategories(emptyList()))
-                onEvent(ManageFundsEvent.SelectAccounts(emptyList()))
+                onEvent(ManageFundsEvent.SelectAccounts())
+                onEvent(ManageFundsEvent.SelectCategories())
+                onEvent(ManageFundsEvent.SelectRecurring())
             }
             is ManageFundsEvent.SelectAccounts -> {
                 _state.value = _state.value.copy(sAccounts = _state.value.accounts.filter { event.ids.contains(it.accountId) })
@@ -78,7 +80,9 @@ class ManageFundsViewModel @Inject constructor(
             is ManageFundsEvent.SelectCategories -> {
                 _state.value = _state.value.copy(sCategories = _state.value.categories.filter { event.ids.contains(it.categoryId) })
             }
-
+            is ManageFundsEvent.SelectRecurring -> {
+                _state.value = _state.value.copy(sRecurring = event.recurring)
+            }
         }
     }
 

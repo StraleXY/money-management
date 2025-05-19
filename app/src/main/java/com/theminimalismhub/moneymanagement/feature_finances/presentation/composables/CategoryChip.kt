@@ -103,8 +103,5 @@ fun CategoryChipsSelectable(
             )
             Spacer(modifier = Modifier.width(spacing))
         }
-        item {
-            Spacer(modifier = Modifier.height(12.dp))
-        }
     }
 }

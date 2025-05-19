@@ -39,6 +39,7 @@ import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.material.math.MathUtils
 import com.theminimalismhub.moneymanagement.core.enums.FundType
+import com.theminimalismhub.moneymanagement.core.enums.RecurringType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundItem
@@ -56,6 +57,7 @@ fun FundSelectorPager(
     amount: Double,
     accounts: List<Account>,
     categories: List<Category>,
+    recurring: RecurringType?,
     minAlpha: Float = 1f,
     initialCardScale: Float = 1.05f,
     selectedCardScale: Float = 1.15f,
@@ -128,7 +130,8 @@ fun FundSelectorPager(
                                 item = FundItem(
                                     name = name,
                                     amount = amount,
-                                    type = FundType.get(idx)!!
+                                    type = FundType.get(idx)!!,
+                                    recurringType = recurring
                                 ),
                                 accounts = accounts,
                                 categories = categories

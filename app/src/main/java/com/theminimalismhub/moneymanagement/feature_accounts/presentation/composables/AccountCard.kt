@@ -110,12 +110,15 @@ fun SelectableAccountChipLarge(
     clicked: () -> Unit
 ) {
 
+    val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
+    val textColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.background else MaterialTheme.colors.onBackground, tween(durationMillis = 250))
+//            .border(if(selected) 0.dp else 2.dp, color = if(selected) Color.Transparent else MaterialTheme.colors.secondaryVariant, RoundedCornerShape(100))
+
     Box(
         modifier = modifier
             .height(64.dp)
             .clip(RoundedCornerShape(100))
-            .background(animateColorAsState(if(selected) getShadedColor(Shade.LIGHT) else getShadedColor(Shade.DARK), tween(200)).value)
-            .border(if(selected) 0.dp else 2.dp, color = if(selected) Color.Transparent else MaterialTheme.colors.secondaryVariant, RoundedCornerShape(100))
+            .background(backgroundColor.value)
             .clickable { clicked() }
     ) {
         Row(
@@ -127,20 +130,21 @@ fun SelectableAccountChipLarge(
             AccountIcon(
                 modifier = Modifier.scale(1f),
                 type = account.type,
-                color = MaterialTheme.colors.onBackground
+                color = textColor.value
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
                     modifier = Modifier.offset(y = 2.dp),
                     text = account.name,
-                    style = MaterialTheme.typography.h4
+                    style = MaterialTheme.typography.h4,
+                    color = textColor.value
                 )
                 Text(
                     modifier = Modifier.offset(y = -2.dp),
                     text = if(account.type == AccountType.CRYPTO) "${stringResource(id = R.string.crypto_balance_mask)} $currency" else "${Currencier.formatAmount(account.balance)} $currency",
                     style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.secondary
+                    color = textColor.value
                 )
             }
         }

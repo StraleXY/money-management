@@ -26,11 +26,13 @@ import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.VerticalAnimatedVisibility
 import com.theminimalismhub.moneymanagement.core.enums.FundType
+import com.theminimalismhub.moneymanagement.core.enums.RecurringType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsChipsSelectable
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChipsSelectable
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.RecurringTypeSelector
 
 @Composable
 fun AddEditFundCard(
@@ -43,6 +45,8 @@ fun AddEditFundCard(
     categories: List<Category>,
     selectedCategories: List<Category>,
     onCategoryIdsSelected: (List<Int>) -> Unit,
+    selectedRecurring: RecurringType?,
+    onRecurringSelected: (RecurringType) -> Unit,
     form: FormState<TextFieldState>
 ) {
 
@@ -58,6 +62,7 @@ fun AddEditFundCard(
                 amount = amount.value.toDoubleOrNull() ?: 0.0,
                 accounts = selectedAccounts,
                 categories = selectedCategories,
+                recurring = selectedRecurring,
                 onTypeFundSelected = { onTypeFundSelected(it) }
             )
         }
@@ -78,6 +83,13 @@ fun AddEditFundCard(
                 selectedCategories = selectedCategories,
                 multiple = fundType == FundType.BUDGET,
                 selectionChanged = { onCategoryIdsSelected(it) }
+            )
+        }
+
+        VerticalAnimatedVisibility(visible = fundType == FundType.BUDGET) {
+            RecurringTypeSelector(
+                selectedRecurringType = selectedRecurring,
+                onRecurringTypeSelected = onRecurringSelected
             )
         }
 
