@@ -23,6 +23,7 @@ import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.AddEditFundCard
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayFundCard
 
@@ -77,8 +78,15 @@ fun ManageFundsScreen(
         TranslucentOverlay(vm.state.value.isAddEditOpen)
         AddEditFundCard(
             isOpen = vm.state.value.isAddEditOpen,
+            form = vm.addEditFormState,
+            fundType = vm.state.value.sFundType,
+            onTypeFundSelected = { vm.onEvent(ManageFundsEvent.SelectFundType(it)) },
             accounts = vm.state.value.accounts,
-            form = vm.addEditFormState
+            selectedAccounts = vm.state.value.sAccounts,
+            onAccountIdsSelected = { vm.onEvent(ManageFundsEvent.SelectAccounts(it)) },
+            categories = vm.state.value.categories,
+            selectedCategories = vm.state.value.sCategories,
+            onCategoryIdsSelected = { vm.onEvent(ManageFundsEvent.SelectCategories(it)) }
         )
     }
 }

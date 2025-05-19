@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,6 +13,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.traceEventEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
@@ -22,14 +24,25 @@ import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
+import com.theminimalismhub.moneymanagement.core.composables.VerticalAnimatedVisibility
+import com.theminimalismhub.moneymanagement.core.enums.FundType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
+import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance.ErrorText
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsChipsSelectable
+import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChipsSelectable
 
 @Composable
 fun AddEditFundCard(
     isOpen: Boolean,
+    fundType: FundType,
+    onTypeFundSelected: (FundType) -> Unit,
     accounts: List<Account>,
+    selectedAccounts: List<Account>,
+    onAccountIdsSelected: (List<Int>) -> Unit,
+    categories: List<Category>,
+    selectedCategories: List<Category>,
+    onCategoryIdsSelected: (List<Int>) -> Unit,
     form: FormState<TextFieldState>
 ) {
 
@@ -41,16 +54,33 @@ fun AddEditFundCard(
         visible = isOpen,
         header = {
             FundSelectorPager(
-
+                name = name.value,
+                amount = amount.value.toDoubleOrNull() ?: 0.0,
+                accounts = selectedAccounts,
+                categories = selectedCategories,
+                onTypeFundSelected = { onTypeFundSelected(it) }
             )
         }
     ) {
         Spacer(modifier = Modifier.height(8.dp))
-        AccountsChipsSelectable(
-            accounts = accounts,
-            selectionChanged = { selected -> Log.d("Account Selection", selected.toString())}
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        VerticalAnimatedVisibility(visible = fundType == FundType.RESERVATION) {
+            AccountsChipsSelectable(
+                accounts = accounts,
+                selectedAccounts = selectedAccounts,
+                multiple = fundType == FundType.BUDGET,
+                selectionChanged = { onAccountIdsSelected(it) }
+            )
+        }
+
+        VerticalAnimatedVisibility(visible = fundType != FundType.SAVINGS) {
+            CategoryChipsSelectable(
+                categories = categories,
+                selectedCategories = selectedCategories,
+                multiple = fundType == FundType.BUDGET,
+                selectionChanged = { onCategoryIdsSelected(it) }
+            )
+        }
+
         OutlinedTextField(
             value = name.value,
             onValueChange = { name.change(it) },

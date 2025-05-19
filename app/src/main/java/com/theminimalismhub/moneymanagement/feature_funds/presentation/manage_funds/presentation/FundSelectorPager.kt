@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,8 @@ import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.material.math.MathUtils
 import com.theminimalismhub.moneymanagement.core.enums.FundType
+import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
+import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundItem
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayFundCard
@@ -48,11 +52,16 @@ import kotlin.math.max
 @Composable
 fun FundSelectorPager(
     modifier: Modifier = Modifier,
+    name: String,
+    amount: Double,
+    accounts: List<Account>,
+    categories: List<Category>,
     minAlpha: Float = 1f,
     initialCardScale: Float = 1.05f,
     selectedCardScale: Float = 1.15f,
     selectedCardStartScale: Float = 0.95f,
     cardSpacing: Dp = 0.dp,
+    onTypeFundSelected: (FundType) -> Unit
 ) {
 
     val pagerState = rememberPagerState(3, 0)
@@ -63,6 +72,10 @@ fun FundSelectorPager(
         "Reservation",
         "Savings"
     )
+
+    LaunchedEffect(pagerState.currentPage) {
+        onTypeFundSelected(FundType.get(pagerState.currentPage) ?: FundType.BUDGET)
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -113,10 +126,12 @@ fun FundSelectorPager(
                         DisplayFundCard(
                             fund = Fund(
                                 item = FundItem(
-                                    name = "",
-                                    type = FundType.get(idx)!!,
-                                    amount = 0.0
-                                )
+                                    name = name,
+                                    amount = amount,
+                                    type = FundType.get(idx)!!
+                                ),
+                                accounts = accounts,
+                                categories = categories
                             )
                         )
                     }

@@ -1,5 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -52,7 +54,7 @@ fun ReservedFund(
     CouponContainer(
         modifier = modifier,
         segmentsCount = 9,
-        accentColor = categoryColor,
+        accentColor = animateColorAsState(categoryColor, tween(300)).value,
         accentText = categoryName
     ) {
         Column(
@@ -87,7 +89,7 @@ fun ReservedFund(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    modifier = Modifier.alpha(if(accountName.isNullOrEmpty()) 0.35f else 1f),
+                    modifier = Modifier.alpha(if(item.isNullOrEmpty()) 0.35f else 1f),
                     text = item ?: "Item Name",
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Black),
                     color = MaterialTheme.colors.onBackground

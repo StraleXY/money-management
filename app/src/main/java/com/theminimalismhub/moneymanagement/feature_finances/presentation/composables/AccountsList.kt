@@ -86,6 +86,8 @@ fun AccountsChips(
 fun AccountsChipsSelectable(
     modifier: Modifier = Modifier,
     accounts: List<Account>,
+    selectedAccounts: List<Account>,
+    multiple: Boolean,
     listState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 32.dp),
     spacing: Dp = 8.dp,
@@ -94,13 +96,23 @@ fun AccountsChipsSelectable(
 
     val selection: MutableList<Int> = remember { mutableStateListOf() }
     fun accountClicked(id: Int) {
-        if(!selection.remove(id)) selection.add(id)
+        if(!multiple) {
+            if (selection.contains(id)) return
+            selection.clear()
+            selection.add(id)
+        }
+        else if (!selection.remove(id)) selection.add(id)
         selectionChanged(selection.toList())
+    }
+    LaunchedEffect(selectedAccounts) {
+        selection.clear()
+        selection.addAll(selectedAccounts.map { it.accountId!! })
     }
 
     LazyRow(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
         contentPadding = contentPadding,
         horizontalArrangement = Arrangement.Start,
         state = listState

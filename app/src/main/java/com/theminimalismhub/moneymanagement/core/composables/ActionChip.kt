@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.core.composables
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -68,6 +69,7 @@ fun ActionChip(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = if(enabled) LocalIndication.current else null
                 ) { if(enabled) onClick() }
+                .animateContentSize(tween(200))
         ) {
             if (icon != null) {
                 Icon(

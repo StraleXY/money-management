@@ -65,9 +65,20 @@ class ManageFundsViewModel @Inject constructor(
                         categories = listOf(_state.value.categories.random()),
                         accounts = listOf(_state.value.accounts.random())
                     ))
-                    Log.d("Fund", "Inserted a fund with id: $id")
                 }
             }
+            is ManageFundsEvent.SelectFundType -> {
+                _state.value = _state.value.copy(sFundType = event.type)
+                onEvent(ManageFundsEvent.SelectCategories(emptyList()))
+                onEvent(ManageFundsEvent.SelectAccounts(emptyList()))
+            }
+            is ManageFundsEvent.SelectAccounts -> {
+                _state.value = _state.value.copy(sAccounts = _state.value.accounts.filter { event.ids.contains(it.accountId) })
+            }
+            is ManageFundsEvent.SelectCategories -> {
+                _state.value = _state.value.copy(sCategories = _state.value.categories.filter { event.ids.contains(it.categoryId) })
+            }
+
         }
     }
 

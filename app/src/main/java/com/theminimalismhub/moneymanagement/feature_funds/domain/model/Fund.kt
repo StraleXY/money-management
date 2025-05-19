@@ -3,6 +3,7 @@ package com.theminimalismhub.moneymanagement.feature_funds.domain.model
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
+import com.theminimalismhub.moneymanagement.core.enums.FundType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
@@ -32,4 +33,17 @@ data class Fund(
         associateBy = Junction(FundFinanceCrossRef::class)
     )
     val finances: List<FinanceItem> = emptyList()
-) : Serializable
+) : Serializable {
+
+    companion object {
+        fun getEmpty(): Fund {
+            return Fund(
+                item = FundItem(
+                    name = "",
+                    amount = 0.0,
+                    type = FundType.BUDGET
+                )
+            )
+        }
+    }
+}

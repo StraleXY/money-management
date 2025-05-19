@@ -20,9 +20,10 @@ fun DisplayFundCard(
         FundType.BUDGET -> BudgetFund(
             modifier = modifier,
             recurring = fund.item.recurringType?.toString()?.uppercase(),
-            remaining = if(fund.item.amount > 0.0) 0.0 else null,
+            remaining = fund.item.amount.takeIf { it > 0.0 },
             amount = fund.item.amount.takeIf { it > 0.0 },
-            name = fund.item.name.ifEmpty { null }
+            name = fund.item.name.ifEmpty { null },
+            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
         )
         FundType.RESERVATION -> ReservedFund(
             modifier = modifier,
