@@ -20,6 +20,8 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.use_cases.
 import com.theminimalismhub.moneymanagement.feature_finances.data.repository.FinanceRepoImpl
 import com.theminimalismhub.moneymanagement.feature_finances.domain.repository.FinanceRepo
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.*
+import com.theminimalismhub.moneymanagement.feature_funds.data.repository.FundRepoImpl
+import com.theminimalismhub.moneymanagement.feature_funds.domain.repository.FundRepo
 import com.theminimalismhub.moneymanagement.feature_settings.data.PreferencesImpl
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import dagger.Module
@@ -36,10 +38,10 @@ object AppModule {
     @Provides @Singleton fun providesPreferences(context: Context) : Preferences = PreferencesImpl.getInstance(context)
     @Provides @Singleton fun providesMoneyDatabase(app: Application): MoneyDatabase = MoneyDatabase.getDatabase(app)
 
-    @Provides @Singleton fun provideCategoryRepo(db: MoneyDatabase): CategoryRepo =  CategoryRepoImpl(db.categoryDao)
-    @Provides @Singleton fun provideFinanceRepo(db: MoneyDatabase): FinanceRepo =  FinanceRepoImpl(db.financeDao)
-    @Provides @Singleton fun providesAccountRepo(db: MoneyDatabase): AccountRepo =  AccountRepoImpl(db.accountDao)
-    @Provides @Singleton fun providesBillRepo(db: MoneyDatabase) : BillRepo =  BillRepoImpl(db.billDao)
-
+    @Provides @Singleton fun provideCategoryRepo(db: MoneyDatabase): CategoryRepo = CategoryRepoImpl(db.categoryDao)
+    @Provides @Singleton fun provideFinanceRepo(db: MoneyDatabase): FinanceRepo = FinanceRepoImpl(db.financeDao)
+    @Provides @Singleton fun providesAccountRepo(db: MoneyDatabase): AccountRepo = AccountRepoImpl(db.accountDao)
+    @Provides @Singleton fun providesBillRepo(db: MoneyDatabase) : BillRepo = BillRepoImpl(db.billDao)
+    @Provides @Singleton fun providesFundRepo(db: MoneyDatabase) : FundRepo = FundRepoImpl(db.fundDao)
 
 }

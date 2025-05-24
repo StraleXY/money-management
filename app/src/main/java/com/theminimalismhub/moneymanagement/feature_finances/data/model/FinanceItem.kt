@@ -12,7 +12,7 @@ data class FinanceItem(
     val amount: Double,
     val timestamp: Long,
     val type: FinanceType,
-    @PrimaryKey val id: Int? = null,
+    @PrimaryKey val financeId: Int? = null,
     val financeCategoryId: Int? = null,
     val financeAccountId: Int,
     @ColumnInfo(name = "financeAccountIdFrom", defaultValue = "NULL") val financeAccountIdFrom: Int? = null,
