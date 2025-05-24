@@ -54,18 +54,46 @@ class ManageFundsViewModel @Inject constructor(
         when (event) {
             is ManageFundsEvent.ToggleAddEdit -> {
                 _state.value = _state.value.copy(isAddEditOpen = !_state.value.isAddEditOpen)
+                if(event.item == null) {
+                    _state.value = _state.value.copy(
+                        sFundItem = null,
+                        sFundType = FundType.BUDGET,
+                        sRecurring = null,
+                        sAccounts = emptyList(),
+                        sCategories = emptyList()
+                    )
+                    addEditFormState.fields[0].change("")
+                    addEditFormState.fields[1].change("")
+                }
+                else {
+                    _state.value = _state.value.copy(
+                        sFundItem = event.item.item,
+                        sFundType = event.item.item.type,
+                        sRecurring = event.item.item.recurringType,
+                        sAccounts = _state.value.accounts.filter { event.item.accounts.map { ia -> ia.accountId }.contains(it.accountId) },
+                        sCategories = _state.value.categories.filter { event.item.categories.map { ic -> ic.categoryId }.contains(it.categoryId) }
+                    )
+                    addEditFormState.fields[0].change(event.item.item.name)
+                    addEditFormState.fields[1].change(event.item.item.amount.toInt().toString()) // TODO Double to Int
+                }
             }
             is ManageFundsEvent.SaveFund -> {
                 viewModelScope.launch {
-                    val id = useCases.addFund(Fund(
-                        item = FundItem(
-                            name = "Test Reservation",
-                            type = FundType.RESERVATION,
-                            amount = Random(System.currentTimeMillis()).nextDouble(5000.0, 50000.0)
-                        ),
-                        categories = listOf(_state.value.categories.random()),
-                        accounts = listOf(_state.value.accounts.random())
-                    ))
+                    useCases.addFund(
+                        Fund(
+                            item = FundItem(
+                                fundId = _state.value.sFundItem?.fundId,
+                                name = addEditFormState.fields[0].value,
+                                amount = addEditFormState.fields[1].value.toDoubleOrNull() ?: 0.0,
+                                type = _state.value.sFundType,
+                                recurringType = _state.value.sRecurring,
+                                startDate = _state.value.sFundItem?.startDate ?: System.currentTimeMillis()
+                            ),
+                            categories = _state.value.sCategories,
+                            accounts = _state.value.sAccounts
+                        )
+                    )
+                    onEvent(ManageFundsEvent.ToggleAddEdit())
                 }
             }
             is ManageFundsEvent.SelectFundType -> {

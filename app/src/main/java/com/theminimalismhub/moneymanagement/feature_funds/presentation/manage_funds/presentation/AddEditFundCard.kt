@@ -13,7 +13,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.traceEventEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
@@ -37,6 +36,7 @@ import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_fu
 @Composable
 fun AddEditFundCard(
     isOpen: Boolean,
+    isNew: Boolean,
     fundType: FundType,
     onTypeFundSelected: (FundType) -> Unit,
     accounts: List<Account>,
@@ -47,7 +47,9 @@ fun AddEditFundCard(
     onCategoryIdsSelected: (List<Int>) -> Unit,
     selectedRecurring: RecurringType?,
     onRecurringSelected: (RecurringType) -> Unit,
-    form: FormState<TextFieldState>
+    form: FormState<TextFieldState>,
+    requestCardToClose: () -> Unit,
+    onSave: () -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -63,6 +65,8 @@ fun AddEditFundCard(
                 accounts = selectedAccounts,
                 categories = selectedCategories,
                 recurring = selectedRecurring,
+                initialType = fundType,
+                enabled = isNew,
                 onTypeFundSelected = { onTypeFundSelected(it) }
             )
         }
@@ -138,16 +142,13 @@ fun AddEditFundCard(
         )
         Spacer(modifier = Modifier.height(12.dp))
         CRUDButtons(
-            onSave = {
-
-            },
+            onSave = { onSave() },
             deleteEnabled = false,
             onDelete = {
 
+                requestCardToClose()
             },
-            onCancel = {
-
-            }
+            onCancel = { requestCardToClose() }
         )
         Spacer(modifier = Modifier.height((9.5).dp))
     }

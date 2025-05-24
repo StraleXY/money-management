@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,8 @@ fun FundSelectorPager(
     accounts: List<Account>,
     categories: List<Category>,
     recurring: RecurringType?,
+    initialType: FundType,
+    enabled: Boolean = true,
     minAlpha: Float = 1f,
     initialCardScale: Float = 1.05f,
     selectedCardScale: Float = 1.15f,
@@ -66,7 +69,8 @@ fun FundSelectorPager(
     onTypeFundSelected: (FundType) -> Unit
 ) {
 
-    val pagerState = rememberPagerState(3, 0)
+    val pagerState = rememberPagerState(3, initialType.value)
+    var initialScroll: Boolean by remember { mutableStateOf(true) }
     val width = with(LocalDensity.current) { LocalView.current.width.toDp() }
 
     val messages = listOf(
@@ -76,7 +80,8 @@ fun FundSelectorPager(
     )
 
     LaunchedEffect(pagerState.currentPage) {
-        onTypeFundSelected(FundType.get(pagerState.currentPage) ?: FundType.BUDGET)
+        if (!initialScroll) onTypeFundSelected(FundType.get(pagerState.currentPage) ?: FundType.BUDGET)
+        else initialScroll = false
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -97,7 +102,8 @@ fun FundSelectorPager(
             modifier = modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .padding(top = 40.dp, bottom = 40.dp)
+                .padding(top = 40.dp, bottom = 40.dp),
+            dragEnabled = enabled
         ) { idx ->
             Box(
                 modifier = Modifier

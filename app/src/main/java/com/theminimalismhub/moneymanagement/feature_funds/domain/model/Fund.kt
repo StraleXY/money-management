@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import com.theminimalismhub.moneymanagement.core.enums.FundType
+import com.theminimalismhub.moneymanagement.core.enums.RecurringType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
@@ -44,6 +45,17 @@ data class Fund(
                     type = FundType.BUDGET
                 )
             )
+        }
+    }
+
+    fun getRemaining() : Double {
+        if (item.type != FundType.BUDGET) return 0.0
+        return when(item.recurringType!!) {
+            RecurringType.UNTIL_SPENT -> item.amount - finances.sumOf { it.amount }
+            else -> {
+                val range = item.recurringType.getTimeSpan()
+                item.amount - finances.sumOf { if(range!!.first <= it.timestamp && it.timestamp <= range.second) it.amount else 0.0}
+            }
         }
     }
 }

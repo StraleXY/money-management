@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_f
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.theminimalismhub.moneymanagement.core.composables.CancelableFAB
 import com.theminimalismhub.moneymanagement.core.composables.ScreenHeader
 import com.theminimalismhub.moneymanagement.core.composables.TranslucentOverlay
+import com.theminimalismhub.moneymanagement.core.effects.alphaClickEffect
+import com.theminimalismhub.moneymanagement.core.effects.scaledClickEffect
 import com.theminimalismhub.moneymanagement.core.transitions.BaseTransition
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.AddEditFundCard
@@ -51,22 +54,16 @@ fun ManageFundsScreen(
                     hint = "Use Funds to budget, save or reserve money!",
                     spacerHeight = 48.dp
                 )
-
-                Button(
-                    modifier = Modifier.offset(x = 24.dp),
-                    onClick = {vm.onEvent(ManageFundsEvent.SaveFund)}
-                ) {
-                    Text(
-                        text = "ADD TEST FUND",
-                        style = MaterialTheme.typography.button
-                    )
-                }
                 Spacer(Modifier.height(24.dp))
             }
             items(vm.state.value.funds) { fund ->
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
+                        .scaledClickEffect()
+                        .clickable {
+                            vm.onEvent(ManageFundsEvent.ToggleAddEdit(fund))
+                        }
                 ) {
                     DisplayFundCard(
                         fund = fund
@@ -78,6 +75,7 @@ fun ManageFundsScreen(
         TranslucentOverlay(vm.state.value.isAddEditOpen)
         AddEditFundCard(
             isOpen = vm.state.value.isAddEditOpen,
+            isNew = vm.state.value.sFundItem == null,
             form = vm.addEditFormState,
             fundType = vm.state.value.sFundType,
             onTypeFundSelected = { vm.onEvent(ManageFundsEvent.SelectFundType(it)) },
@@ -88,7 +86,9 @@ fun ManageFundsScreen(
             selectedCategories = vm.state.value.sCategories,
             onCategoryIdsSelected = { vm.onEvent(ManageFundsEvent.SelectCategories(it)) },
             selectedRecurring = vm.state.value.sRecurring,
-            onRecurringSelected = { vm.onEvent(ManageFundsEvent.SelectRecurring(it)) }
+            onRecurringSelected = { vm.onEvent(ManageFundsEvent.SelectRecurring(it)) },
+            requestCardToClose = { vm.onEvent(ManageFundsEvent.ToggleAddEdit(null)) },
+            onSave = { vm.onEvent(ManageFundsEvent.SaveFund) }
         )
     }
 }
