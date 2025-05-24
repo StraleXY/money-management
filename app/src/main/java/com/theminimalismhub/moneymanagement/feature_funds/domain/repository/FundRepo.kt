@@ -10,4 +10,5 @@ import kotlinx.coroutines.flow.Flow
 interface FundRepo {
     fun getAll() : Flow<List<Fund>>
     suspend fun insert(item: FundItem, categories: List<Category> = emptyList(), accounts: List<Account> = emptyList(), finances: List<FinanceItem> = emptyList()) : Int
+    suspend fun delete(id: Int)
 }

@@ -6,6 +6,7 @@ import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 
 sealed class ManageFundsEvent {
     object SaveFund : ManageFundsEvent()
+    object DeleteFund : ManageFundsEvent()
     data class ToggleAddEdit(val item: Fund? = null) : ManageFundsEvent()
     data class SelectFundType(val type: FundType) : ManageFundsEvent()
     data class SelectAccounts(val ids: List<Int> = emptyList()) : ManageFundsEvent()

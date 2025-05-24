@@ -8,5 +8,6 @@ data class ManageFundsUseCases @Inject constructor(
     val getCategories: GetCategories,
     val getAccounts: GetAccounts,
     val getFunds: GetFunds,
-    val addFund: AddFund
+    val addFund: AddFund,
+    val deleteFund: DeleteFund
 )

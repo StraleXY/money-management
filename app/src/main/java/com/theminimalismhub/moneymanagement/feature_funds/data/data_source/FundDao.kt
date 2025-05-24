@@ -19,6 +19,9 @@ interface FundDao {
     @Insert
     suspend fun insertFund(fund: FundItem): Long
 
+    @Query("DELETE FROM Fund WHERE fundId = :id")
+    suspend fun deleteFundItemById(id: Int)
+
     @Update
     suspend fun updateFund(fund: FundItem)
 

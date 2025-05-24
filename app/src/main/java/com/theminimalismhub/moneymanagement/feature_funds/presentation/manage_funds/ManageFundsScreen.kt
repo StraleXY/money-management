@@ -60,7 +60,6 @@ fun ManageFundsScreen(
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
-                        .scaledClickEffect()
                         .clickable {
                             vm.onEvent(ManageFundsEvent.ToggleAddEdit(fund))
                         }
@@ -88,7 +87,8 @@ fun ManageFundsScreen(
             selectedRecurring = vm.state.value.sRecurring,
             onRecurringSelected = { vm.onEvent(ManageFundsEvent.SelectRecurring(it)) },
             requestCardToClose = { vm.onEvent(ManageFundsEvent.ToggleAddEdit(null)) },
-            onSave = { vm.onEvent(ManageFundsEvent.SaveFund) }
+            onSave = { vm.onEvent(ManageFundsEvent.SaveFund) },
+            onDelete = { vm.onEvent(ManageFundsEvent.DeleteFund) }
         )
     }
 }

@@ -49,7 +49,8 @@ fun AddEditFundCard(
     onRecurringSelected: (RecurringType) -> Unit,
     form: FormState<TextFieldState>,
     requestCardToClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    onDelete: () -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -143,11 +144,8 @@ fun AddEditFundCard(
         Spacer(modifier = Modifier.height(12.dp))
         CRUDButtons(
             onSave = { onSave() },
-            deleteEnabled = false,
-            onDelete = {
-
-                requestCardToClose()
-            },
+            deleteEnabled = !isNew,
+            onDelete = { onDelete() },
             onCancel = { requestCardToClose() }
         )
         Spacer(modifier = Modifier.height((9.5).dp))

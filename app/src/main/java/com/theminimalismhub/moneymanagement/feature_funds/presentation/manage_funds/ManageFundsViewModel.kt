@@ -96,6 +96,14 @@ class ManageFundsViewModel @Inject constructor(
                     onEvent(ManageFundsEvent.ToggleAddEdit())
                 }
             }
+            is ManageFundsEvent.DeleteFund -> {
+                viewModelScope.launch {
+                    _state.value.sFundItem?.fundId?.let {
+                        useCases.deleteFund(it)
+                    }
+                    onEvent(ManageFundsEvent.ToggleAddEdit())
+                }
+            }
             is ManageFundsEvent.SelectFundType -> {
                 _state.value = _state.value.copy(sFundType = event.type)
                 onEvent(ManageFundsEvent.SelectAccounts())

@@ -51,4 +51,11 @@ class FundRepoImpl (
         }
         return fundId
     }
+
+    override suspend fun delete(id: Int) {
+        dao.deleteCategoryRefs(id)
+        dao.deleteAccountRefs(id)
+        dao.deleteFinanceRefs(id)
+        dao.deleteFundItemById(id)
+    }
 }
