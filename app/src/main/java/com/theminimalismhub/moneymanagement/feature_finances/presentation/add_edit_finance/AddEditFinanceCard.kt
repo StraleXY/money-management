@@ -122,6 +122,7 @@ fun AddEditFinanceCard(
             temp.removeAt(0)
             temp.add(temp.lastIndex + 1, null)
         }
+        linkFund(temp[temp.lastIndex])
         budgets = temp.toList()
     }
 
@@ -167,7 +168,7 @@ fun AddEditFinanceCard(
                                     if (fund == null) CompactBudgetFundNoUse()
                                     else CompactBudgetFund(
                                         recurring = fund.item.recurringType?.label?.uppercase(),
-                                        remaining = fund.item.amount.takeIf { it > 0.0 },
+                                        remaining = fund.getRemaining(),
                                         amount = fund.item.amount.takeIf { it > 0.0 },
                                         name = fund.item.name.ifEmpty { null },
                                         colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }

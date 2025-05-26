@@ -149,6 +149,7 @@ class AddEditFinanceService(
             }
             is AddEditFinanceEvent.DeleteFinance -> {
                 scope.launch {
+                    _state.value.linkedFundId?.let { unlinkBudget(it, state.value.currentFinanceId) }
                     useCases.delete(state.value.currentFinanceId!!)
                     useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.INCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
                 }
@@ -206,7 +207,7 @@ class AddEditFinanceService(
     private suspend fun handleLinkedBudget(item: FinanceItem) {
         if (_state.value.currentFinanceId != null) {
             val linkedFund = _state.value.funds.firstOrNull { it.finances.contains(item) }
-            if (linkedFund != null && linkedFund.item.fundId != _state.value.linkedFundId) { unlinkBudget(linkedFund.item.fundId!!, item) }
+            if (linkedFund != null && linkedFund.item.fundId != _state.value.linkedFundId) { unlinkBudget(linkedFund.item.fundId!!, item.financeId) }
             _state.value.linkedFundId?.let { linkBudget(it, item) }
         }
         else { _state.value.linkedFundId?.let { linkBudget(it, item) } }
@@ -218,10 +219,10 @@ class AddEditFinanceService(
             useCases.addFund(it.copy(finances = finances.toList()))
         }
     }
-    private suspend fun unlinkBudget(id: Int, item: FinanceItem) {
+    private suspend fun unlinkBudget(id: Int, financeId: Int?) {
         _state.value.funds.firstOrNull { it.item.fundId == id }?.let {
             val finances: MutableList<FinanceItem> = it.finances.toMutableList()
-            finances.remove(item)
+            finances.removeIf { it.financeId == financeId }
             useCases.addFund(it.copy(finances = finances.toList()))
         }
     }

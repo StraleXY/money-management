@@ -50,7 +50,8 @@ data class Fund(
 
     fun getRemaining() : Double {
         if (item.type != FundType.BUDGET) return 0.0
-        return when(item.recurringType!!) {
+        if (item.recurringType == null) return item.amount
+        return when(item.recurringType) {
             RecurringType.UNTIL_SPENT -> item.amount - finances.sumOf { it.amount }
             else -> {
                 val range = item.recurringType.getTimeSpan()
