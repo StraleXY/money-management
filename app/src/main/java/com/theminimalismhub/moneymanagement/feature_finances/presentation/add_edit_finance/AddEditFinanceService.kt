@@ -3,7 +3,6 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_e
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
@@ -12,6 +11,7 @@ import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
+import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
@@ -21,7 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.HashMap
 
 class AddEditFinanceService(
     private val scope: CoroutineScope,
@@ -63,7 +62,9 @@ class AddEditFinanceService(
                     selectedRecommendedFinance = null
                     _state.value = _state.value.copy(
                         currentType = FinanceType.OUTCOME,
-                        currentFinanceId = null
+                        currentFinanceId = null,
+                        linkedFundId = null,
+                        selectedCategoryId = null
                     )
                     selectCategoryType(_state.value.currentType)
                     formState.fields[0].change("")
@@ -122,19 +123,20 @@ class AddEditFinanceService(
             }
             is AddEditFinanceEvent.AddFinance -> {
                 scope.launch {
-                    val financeId = useCases.add(
-                        FinanceItem(
-                            name = formState.fields[0].value,
-                            amount = (formState.fields[1].value).toDouble(),
-                            timestamp = _state.value.timestamp,
-                            type = _state.value.currentType,
-                            financeId = _state.value.currentFinanceId,
-                            financeCategoryId = _state.value.selectedCategoryId!!,
-                            financeAccountId = _state.value.selectedAccountId!!,
-                            trackable = _state.value.currentTrackable
-                        )
+                    var item = FinanceItem(
+                        name = formState.fields[0].value,
+                        amount = (formState.fields[1].value).toDouble(),
+                        timestamp = _state.value.timestamp,
+                        type = _state.value.currentType,
+                        financeId = _state.value.currentFinanceId,
+                        financeCategoryId = _state.value.selectedCategoryId!!,
+                        financeAccountId = _state.value.selectedAccountId!!,
+                        trackable = _state.value.currentTrackable
                     )
+                    val financeId = useCases.add(item)
+                    item = item.copy(financeId = financeId)
                     handleRecommendedFinance(financeId)
+                    handleLinkedBudget(item)
                     if (_state.value.currentFinanceId == null) useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.OUTCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
                     else if (_state.value.currentFinanceId != null && initialAccountId == _state.value.selectedAccountId) {
                         useCases.updateAccountBalance(if (_state.value.currentType == FinanceType.OUTCOME) -((formState.fields[1].value).toDouble() - initialAmount) else ((formState.fields[1].value).toDouble() - initialAmount), _state.value.selectedAccountId!!)
@@ -151,6 +153,7 @@ class AddEditFinanceService(
                     useCases.updateAccountBalance(if(_state.value.currentType == FinanceType.INCOME) -(formState.fields[1].value).toDouble() else (formState.fields[1].value).toDouble(), _state.value.selectedAccountId!!)
                 }
             }
+            is AddEditFinanceEvent.SelectBudget -> { _state.value = _state.value.copy(linkedFundId = event.budget?.item?.fundId) }
         }
     }
     private fun selectCategoryType(type: FinanceType) {
@@ -198,6 +201,28 @@ class AddEditFinanceService(
     private suspend fun handleRecommendedFinance(financeId: Int) {
         selectedRecommendedFinance?.let {
             useCases.add(it.copy(recommended = it.recommended.copy(financeItemId = financeId)).recommended)
+        }
+    }
+    private suspend fun handleLinkedBudget(item: FinanceItem) {
+        if (_state.value.currentFinanceId != null) {
+            val linkedFund = _state.value.funds.firstOrNull { it.finances.contains(item) }
+            if (linkedFund != null && linkedFund.item.fundId != _state.value.linkedFundId) { unlinkBudget(linkedFund.item.fundId!!, item) }
+            _state.value.linkedFundId?.let { linkBudget(it, item) }
+        }
+        else { _state.value.linkedFundId?.let { linkBudget(it, item) } }
+    }
+    private suspend fun linkBudget(id: Int, item: FinanceItem) {
+        _state.value.funds.firstOrNull { it.item.fundId == id }?.let {
+            val finances: MutableList<FinanceItem> = it.finances.toMutableList()
+            finances.add(item)
+            useCases.addFund(it.copy(finances = finances.toList()))
+        }
+    }
+    private suspend fun unlinkBudget(id: Int, item: FinanceItem) {
+        _state.value.funds.firstOrNull { it.item.fundId == id }?.let {
+            val finances: MutableList<FinanceItem> = it.finances.toMutableList()
+            finances.remove(item)
+            useCases.addFund(it.copy(finances = finances.toList()))
         }
     }
 }

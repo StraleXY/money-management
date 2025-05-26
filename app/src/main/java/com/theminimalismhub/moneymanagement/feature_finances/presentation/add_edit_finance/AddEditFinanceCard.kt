@@ -85,8 +85,8 @@ fun AddEditFinanceCard(
     addFinance: () -> Unit,
     deleteFinance: () -> Unit,
     dateChanged: (Long) -> Unit,
-    trackableToggled: () -> Unit
-
+    trackableToggled: () -> Unit,
+    linkFund: (Fund?) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val name: TextFieldState = form.getState("name")
@@ -105,17 +105,27 @@ fun AddEditFinanceCard(
             val items = budgets.toMutableList()
             val first = items.removeAt(items.lastIndex)
             items.add(0, first)
+            linkFund(items[items.lastIndex])
             budgets = items.toList()
         }
     }
     suspend fun setNewBudgetItems(items: List<Fund>) {
         val temp: MutableList<Fund?> = items.toMutableList()
         temp.add(0, null)
-        if(temp.size == 1) delay(150)
+        if (temp.size == 1) delay(150)
+        val fundIdx = temp.indexOfFirst { it?.finances?.map { it.financeId }?.contains(state.currentFinanceId) ?: false }
+        if (fundIdx != -1) {
+            val selectedBudget = temp.removeAt(fundIdx)
+            temp.add(temp.lastIndex + 1, selectedBudget)
+        }
+        else if (state.currentFinanceId != null) {
+            temp.removeAt(0)
+            temp.add(temp.lastIndex + 1, null)
+        }
         budgets = temp.toList()
     }
 
-    LaunchedEffect(state.selectedCategoryId, state.funds) {
+    LaunchedEffect(state.selectedCategoryId, state.funds, state.currentFinanceId) {
         if(state.selectedCategoryId == null) return@LaunchedEffect
         if(state.funds.isNotEmpty()) setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId)})
         if(state.categories.isEmpty()) return@LaunchedEffect

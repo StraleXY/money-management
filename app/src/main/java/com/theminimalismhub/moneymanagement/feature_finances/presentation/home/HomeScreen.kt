@@ -242,13 +242,14 @@ fun HomeScreen(
                         isOpen = state.isAddEditOpen,
                         form = vm.addEditService.formState,
                         cardToggled = { vm.onEvent(HomeEvent.ToggleAddEditCard(it)) },
-                        accountSelected = { vm.onEvent(AddEditFinanceEvent.AccountSelected(it))},
+                        accountSelected = { vm.onEvent(AddEditFinanceEvent.AccountSelected(it)) },
                         typeToggled = { vm.onEvent(AddEditFinanceEvent.ToggleType) },
                         categorySelected = { vm.onEvent(AddEditFinanceEvent.CategorySelected(it)) },
                         addFinance = { vm.onEvent(AddEditFinanceEvent.AddFinance) },
-                        deleteFinance = { vm.onEvent(AddEditFinanceEvent.DeleteFinance)},
+                        deleteFinance = { vm.onEvent(AddEditFinanceEvent.DeleteFinance) },
                         dateChanged = { vm.onEvent(AddEditFinanceEvent.DateChanged(it)) },
-                        trackableToggled = { vm.onEvent(AddEditFinanceEvent.TrackableToggled) }
+                        trackableToggled = { vm.onEvent(AddEditFinanceEvent.TrackableToggled) },
+                        linkFund = { vm.onEvent(AddEditFinanceEvent.SelectBudget(it)) },
                     )
                 }
             }

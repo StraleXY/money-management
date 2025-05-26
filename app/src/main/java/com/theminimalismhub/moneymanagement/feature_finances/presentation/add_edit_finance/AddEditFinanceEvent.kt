@@ -4,6 +4,7 @@ import com.theminimalismhub.moneymanagement.feature_categories.presentation.mana
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.HomeEvent
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 
 sealed class AddEditFinanceEvent {
     data class ToggleAddEditCard(val finance: Finance?, val recommended: RecommendedFinance? = null): AddEditFinanceEvent()
@@ -14,4 +15,5 @@ sealed class AddEditFinanceEvent {
     object AddFinance: AddEditFinanceEvent()
     object DeleteFinance: AddEditFinanceEvent()
     object TrackableToggled: AddEditFinanceEvent()
+    data class SelectBudget(val budget: Fund?) : AddEditFinanceEvent()
 }

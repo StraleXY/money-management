@@ -10,6 +10,7 @@ data class AddEditFinanceState(
     val currency: String = "",
     val categories: List<Category> = emptyList(),
     val funds: List<Fund> = emptyList(),
+    val linkedFundId: Int? = null,
     val currentFinanceId: Int? = null,
 
     val selectedCategoryId: Int? = null,
