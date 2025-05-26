@@ -100,52 +100,49 @@ fun AddEditFinanceCard(
     FloatingCard(
         visible = isOpen,
         header = {
-            BoxWithConstraints {
-                val fullHeight = maxHeight
-
-                Column(
-                    modifier = Modifier
-                        .heightIn(500.dp, fullHeight)
-                        .padding(top = 48.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier
+                    .height(464.dp)
+                    .padding(top = 48.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 24.dp)
                 ) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(horizontal = 24.dp)
-                    ) {
-                        items(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) { fund ->
-                            CompactBudgetFund(
-                                recurring = fund.item.recurringType?.label?.uppercase(),
-                                remaining = fund.item.amount.takeIf { it > 0.0 },
-                                amount = fund.item.amount.takeIf { it > 0.0 },
-                                name = fund.item.name.ifEmpty { null },
-                                colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
-                            )
-                        }
-                    }
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        SwipeableAccountsPager(
-                            accounts = state.accounts.filter { it.active },
-                            currency = state.currency,
-                            balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
-                            pagerState = accountPagerState,
-                            minAlpha = 0.5f,
-                            initialCardScale = 1.025f,
-                            selectedCardStartScale = 0.875f,
-                            selectedCardScale = 1.085f,
-                            cardSpacing = 0.dp,
-                            onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
-                        )
-                        DashedLine(
-                            modifier = Modifier
-                                .offset(y = 17.dp)
-                                .zIndex(100f),
-                            dashLength = 8.dp,
-                            gapLength = 4.dp
+                    items(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) { fund ->
+                        CompactBudgetFund(
+                            recurring = fund.item.recurringType?.label?.uppercase(),
+                            remaining = fund.item.amount.takeIf { it > 0.0 },
+                            amount = fund.item.amount.takeIf { it > 0.0 },
+                            name = fund.item.name.ifEmpty { null },
+                            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
                         )
                     }
                 }
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    SwipeableAccountsPager(
+                        accounts = state.accounts.filter { it.active },
+                        currency = state.currency,
+                        balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
+                        pagerState = accountPagerState,
+                        minAlpha = 0.5f,
+                        initialCardScale = 1.025f,
+                        selectedCardStartScale = 0.875f,
+                        selectedCardScale = 1.085f,
+                        cardSpacing = 0.dp,
+                        onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
+                    )
+                    DashedLine(
+                        modifier = Modifier
+                            .offset(y = 17.dp)
+                            .zIndex(100f),
+                        dashLength = 8.dp,
+                        gapLength = 4.dp
+                    )
+                }
             }
+
         }
     ) {
         Spacer(modifier = Modifier.height(8.dp))
