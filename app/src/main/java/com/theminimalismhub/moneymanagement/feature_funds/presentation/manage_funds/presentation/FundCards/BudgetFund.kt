@@ -180,24 +180,24 @@ fun CompactBudgetFund(
                     size = Size(widthPx, heightPx),
                 )
             }
-            if (count == 1) {
+            else if (count == 1) {
                 drawRect(
                     color = colors.first(),
                     topLeft = Offset(0f, 0f),
                     size = Size(widthPx, heightPx),
                 )
             }
-            if (count <= 1)return@Canvas
+            else {
+                val radius = (widthPx / count) * 1.25f
+                val spacing = widthPx / count
 
-            val radius = (widthPx / count) * 1.25f
-            val spacing = widthPx / count
-
-            for(i in 0 until count) {
-                drawCircle(
-                    color = colors[i],
-                    radius = radius,
-                    center = Offset(spacing * (i + 1), if(i % 2 == 0) radius / 3 + heightPx else -radius / 3)
-                )
+                for(i in 0 until count) {
+                    drawCircle(
+                        color = colors[i],
+                        radius = radius,
+                        center = Offset(spacing * (i + 1), if(i % 2 == 0) radius / 3 + heightPx else -radius / 3)
+                    )
+                }
             }
 
             drawRect(

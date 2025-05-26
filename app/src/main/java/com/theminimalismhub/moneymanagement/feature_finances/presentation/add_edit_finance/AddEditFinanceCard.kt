@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
 import android.app.DatePickerDialog
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +42,9 @@ import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
+import com.theminimalismhub.moneymanagement.core.composables.CardStack
 import com.theminimalismhub.moneymanagement.core.composables.DashedLine
+import com.theminimalismhub.moneymanagement.core.composables.DraggableCardWithThreshold
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
 import com.theminimalismhub.moneymanagement.core.enums.FundType
@@ -56,6 +59,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Financ
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.BudgetFund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayCompactFundCard
@@ -88,13 +92,27 @@ fun AddEditFinanceCard(
         initialOffscreenLimit = 2,
     )
 
+    var budgets: List<Fund> by remember { mutableStateOf(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) }
     LaunchedEffect(state.selectedCategoryId) {
         if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
         categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
+        budgets = state.funds.filter { it.item.type == FundType.BUDGET }
     }
     LaunchedEffect(state.selectedAccountId) {
         if(state.selectedAccountId == null || state.accounts.filter { it.active }.isEmpty()) return@LaunchedEffect
         accountPagerState.scrollToPage(state.accounts.filter { it.active }.indexOf(state.accounts.filter { it.active }.first { it.accountId == state.selectedAccountId } ))
+    }
+
+    fun shuffleBudgets() {
+        Log.d("SHUFFLE BUDGET Before Shuffle", budgets.map { it.item.name }.toString())
+        if (budgets.isNotEmpty()) {
+            val items = budgets.toMutableList()
+            val first = items.removeAt(items.lastIndex)
+            items.add(0, first)
+            budgets = items.toList()
+            Log.d("SHUFFLE ITEMS", items.map { it.item.name }.toString())
+            Log.d("SHUFFLE BUDGET", budgets.map { it.item.name }.toString())
+        }
     }
 
     FloatingCard(
@@ -106,20 +124,39 @@ fun AddEditFinanceCard(
                     .padding(top = 48.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 24.dp)
+                CardStack(
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 ) {
-                    items(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) { fund ->
-                        CompactBudgetFund(
-                            recurring = fund.item.recurringType?.label?.uppercase(),
-                            remaining = fund.item.amount.takeIf { it > 0.0 },
-                            amount = fund.item.amount.takeIf { it > 0.0 },
-                            name = fund.item.name.ifEmpty { null },
-                            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
-                        )
+                    budgets.forEach { fund ->
+                        DraggableCardWithThreshold(
+                            swap = {
+                                shuffleBudgets()
+                            }
+                        ) {
+                            CompactBudgetFund(
+                                recurring = fund.item.recurringType?.label?.uppercase(),
+                                remaining = fund.item.amount.takeIf { it > 0.0 },
+                                amount = fund.item.amount.takeIf { it > 0.0 },
+                                name = fund.item.name.ifEmpty { null },
+                                colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+                            )
+                        }
                     }
                 }
+//                LazyColumn(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    contentPadding = PaddingValues(horizontal = 24.dp)
+//                ) {
+//                    items(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) { fund ->
+//                        CompactBudgetFund(
+//                            recurring = fund.item.recurringType?.label?.uppercase(),
+//                            remaining = fund.item.amount.takeIf { it > 0.0 },
+//                            amount = fund.item.amount.takeIf { it > 0.0 },
+//                            name = fund.item.name.ifEmpty { null },
+//                            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+//                        )
+//                    }
+//                }
                 Column(modifier = Modifier.fillMaxWidth()) {
                     SwipeableAccountsPager(
                         accounts = state.accounts.filter { it.active },
