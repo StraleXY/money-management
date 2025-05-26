@@ -2,6 +2,10 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_e
 
 import android.app.DatePickerDialog
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -62,6 +66,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.compos
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.BudgetFund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFund
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFundNoUse
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayCompactFundCard
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayFundCard
 import kotlinx.coroutines.delay
@@ -92,27 +97,33 @@ fun AddEditFinanceCard(
         initialOffscreenLimit = 2,
     )
 
-    var budgets: List<Fund> by remember { mutableStateOf(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) }
-    LaunchedEffect(state.selectedCategoryId) {
-        if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
-        categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
-        budgets = state.funds.filter { it.item.type == FundType.BUDGET }
-    }
-    LaunchedEffect(state.selectedAccountId) {
-        if(state.selectedAccountId == null || state.accounts.filter { it.active }.isEmpty()) return@LaunchedEffect
-        accountPagerState.scrollToPage(state.accounts.filter { it.active }.indexOf(state.accounts.filter { it.active }.first { it.accountId == state.selectedAccountId } ))
-    }
+    var budgets: List<Fund?> by remember { mutableStateOf(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) }
+    var lastOffset: Float by remember { mutableStateOf(0f) }
 
     fun shuffleBudgets() {
-        Log.d("SHUFFLE BUDGET Before Shuffle", budgets.map { it.item.name }.toString())
         if (budgets.isNotEmpty()) {
             val items = budgets.toMutableList()
             val first = items.removeAt(items.lastIndex)
             items.add(0, first)
             budgets = items.toList()
-            Log.d("SHUFFLE ITEMS", items.map { it.item.name }.toString())
-            Log.d("SHUFFLE BUDGET", budgets.map { it.item.name }.toString())
         }
+    }
+    suspend fun setNewBudgetItems(items: List<Fund>) {
+        val temp: MutableList<Fund?> = items.toMutableList()
+        temp.add(0, null)
+        if(temp.size == 1) delay(150)
+        budgets = temp.toList()
+    }
+
+    LaunchedEffect(state.selectedCategoryId, state.funds) {
+        if(state.selectedCategoryId == null) return@LaunchedEffect
+        if(state.funds.isNotEmpty()) setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId)})
+        if(state.categories.isEmpty()) return@LaunchedEffect
+        categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
+    }
+    LaunchedEffect(state.selectedAccountId) {
+        if(state.selectedAccountId == null || state.accounts.filter { it.active }.isEmpty()) return@LaunchedEffect
+        accountPagerState.scrollToPage(state.accounts.filter { it.active }.indexOf(state.accounts.filter { it.active }.first { it.accountId == state.selectedAccountId } ))
     }
 
     FloatingCard(
@@ -124,22 +135,35 @@ fun AddEditFinanceCard(
                     .padding(top = 48.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                CardStack(
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                ) {
-                    budgets.forEach { fund ->
-                        DraggableCardWithThreshold(
-                            swap = {
-                                shuffleBudgets()
-                            }
+                Column(modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)) {
+                    AnimatedVisibility(
+                        visible = state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }.isNotEmpty(),
+                        enter = fadeIn(tween(150)),
+                        exit = fadeOut(tween(150))
+                    ) {
+                        CardStack(
+                            modifier = Modifier.padding(horizontal = 24.dp)
                         ) {
-                            CompactBudgetFund(
-                                recurring = fund.item.recurringType?.label?.uppercase(),
-                                remaining = fund.item.amount.takeIf { it > 0.0 },
-                                amount = fund.item.amount.takeIf { it > 0.0 },
-                                name = fund.item.name.ifEmpty { null },
-                                colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
-                            )
+                            budgets.forEach { fund ->
+                                DraggableCardWithThreshold(
+                                    idx = budgets.indexOf(fund),
+                                    lastIdx = budgets.size - 1,
+                                    lastOffset = lastOffset,
+                                    swap = {
+                                        lastOffset = it
+                                        if(it != 0f) shuffleBudgets()
+                                    }
+                                ) {
+                                    if (fund == null) CompactBudgetFundNoUse()
+                                    else CompactBudgetFund(
+                                        recurring = fund.item.recurringType?.label?.uppercase(),
+                                        remaining = fund.item.amount.takeIf { it > 0.0 },
+                                        amount = fund.item.amount.takeIf { it > 0.0 },
+                                        name = fund.item.name.ifEmpty { null },
+                                        colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+                                    )
+                                }
+                            }
                         }
                     }
                 }

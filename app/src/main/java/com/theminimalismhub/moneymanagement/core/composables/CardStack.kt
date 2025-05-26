@@ -1,5 +1,6 @@
 package com.theminimalismhub.moneymanagement.core.composables
 
+import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -74,20 +77,38 @@ fun CardStack(
 
 @Composable
 fun DraggableCardWithThreshold(
-    swap: () -> Unit,
+    swap: (Float) -> Unit,
+    idx: Int,
+    lastIdx: Int,
+    lastOffset: Float,
     content: @Composable () -> Unit
 ) {
 
     val scope = rememberCoroutineScope()
 
-    val maxOffset = 60.dp
-    val threshold = 30.dp
+    val maxOffset = 80.dp
+    val threshold = 60.dp
 
     val density = LocalDensity.current
     val maxOffsetPx = with(density) { maxOffset.toPx() }
     val thresholdPx = with(density) { threshold.toPx() }
 
     val offsetY = remember { Animatable(0f) }
+
+    LaunchedEffect(lastOffset) {
+        if(lastOffset == 0f) return@LaunchedEffect
+        if (idx == 0) {
+            offsetY.snapTo(lastOffset)
+            delay(10)
+            offsetY.animateTo(0f, animationSpec = spring())
+            swap(0f)
+        }
+        else {
+            offsetY.snapTo(-8f)
+            delay(10)
+            offsetY.animateTo(0f, animationSpec = tween())
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -100,15 +121,16 @@ fun DraggableCardWithThreshold(
                     detectDragGestures(
                         onDrag = { _, dragAmount ->
                             val newOffset = (offsetY.value + dragAmount.y).coerceIn(-maxOffsetPx, maxOffsetPx)
-                            scope.launch {
-                                offsetY.snapTo(newOffset)
-                            }
+                            scope.launch { offsetY.snapTo(newOffset) }
                         },
                         onDragEnd = {
-                            if(offsetY.value > thresholdPx || offsetY.value < -thresholdPx) swap()
-                            scope.launch {
-                                offsetY.animateTo(0f, animationSpec = spring())
+                            if (offsetY.value > thresholdPx || offsetY.value < -thresholdPx) {
+                                scope.launch {
+                                    swap(offsetY.value)
+                                    if(idx == lastIdx) offsetY.snapTo(-8f)
+                                }
                             }
+                            else scope.launch { offsetY.animateTo(0f, animationSpec = spring()) }
                         }
                     )
                 }
@@ -122,6 +144,6 @@ fun DraggableCardWithThreshold(
 
 object CardStack {
     const val EXTRA_PADDING = 10
-    const val Y_POSITION = 7
+    const val Y_POSITION = 8
     const val X_POSITION = 0
 }

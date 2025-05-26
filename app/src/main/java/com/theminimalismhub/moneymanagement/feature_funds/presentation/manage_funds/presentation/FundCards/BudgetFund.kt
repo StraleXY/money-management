@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -37,6 +38,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +49,7 @@ import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
 import com.theminimalismhub.moneymanagement.core.enums.RecurringType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.getShadedColor
 import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 
 @Composable
@@ -161,7 +164,6 @@ fun CompactBudgetFund(
            .fillMaxWidth()
            .height(64.dp)
            .clip(RoundedCornerShape(100))
-//           .border(2.dp, colors.firstOrNull() ?: Color.LightGray, RoundedCornerShape(100))
            .shadedBackground(Shade.LIGHT, RoundedCornerShape(100))
     ) {
         Canvas(
@@ -245,6 +247,34 @@ fun CompactBudgetFund(
                 text = name ?: "Unknown",
                 style = MaterialTheme.typography.h4,
                 color = MaterialTheme.colors.onBackground
+            )
+        }
+    }
+}
+
+@Composable
+fun CompactBudgetFundNoUse(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .clip(RoundedCornerShape(100))
+            .shadedBackground(Shade.LIGHT, RoundedCornerShape(100))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                modifier = Modifier.alpha(0.75f),
+                text = "Budgeting Disabled",
+                style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Medium),
+                color = colors.onBackground
             )
         }
     }
