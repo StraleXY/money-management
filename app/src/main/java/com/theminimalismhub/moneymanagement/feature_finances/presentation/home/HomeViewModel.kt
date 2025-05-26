@@ -8,6 +8,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.theminimalismhub.jobmanagerv2.utils.Dater
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.RangeType
@@ -58,6 +59,7 @@ class HomeViewModel @Inject constructor(
             swipeableNavigation = preferences.getSwipeableNavigation()
         )
         getCategories()
+        getFunds()
         initDateRange()
         initAverages()
         getFinances()
@@ -272,5 +274,17 @@ class HomeViewModel @Inject constructor(
             _state.value.accountStates.forEach { (id, state) -> state.value = id == accountId }
             selectedAccountId = accountId
         }
+    }
+
+    // Budgets
+    private var getFundsJob: Job? = null
+    private fun getFunds() {
+        getFundsJob?.cancel()
+        getFundsJob = useCases.getFunds()
+            .onEach {
+                _state.value = _state.value.copy(funds = it)
+                addEditService.setFunds(it)
+            }
+            .launchIn(viewModelScope)
     }
 }

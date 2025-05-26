@@ -2,9 +2,12 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_e
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -40,7 +44,10 @@ import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.core.enums.FundType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
@@ -49,6 +56,10 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Financ
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.BudgetFund
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFund
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayCompactFundCard
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayFundCard
 import kotlinx.coroutines.delay
 import java.util.*
 
@@ -89,25 +100,52 @@ fun AddEditFinanceCard(
     FloatingCard(
         visible = isOpen,
         header = {
-            SwipeableAccountsPager(
-                accounts = state.accounts.filter { it.active },
-                currency = state.currency,
-                balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
-                pagerState = accountPagerState,
-                minAlpha = 0.5f,
-                initialCardScale = 1.025f,
-                selectedCardStartScale = 0.875f,
-                selectedCardScale = 1.085f,
-                cardSpacing = 0.dp,
-                onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
-            )
-            DashedLine(
-                modifier = Modifier
-                    .offset(y = 17.dp)
-                    .zIndex(100f),
-                dashLength = 8.dp,
-                gapLength = 4.dp
-            )
+            BoxWithConstraints {
+                val fullHeight = maxHeight
+
+                Column(
+                    modifier = Modifier
+                        .heightIn(500.dp, fullHeight)
+                        .padding(top = 48.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 24.dp)
+                    ) {
+                        items(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) { fund ->
+                            CompactBudgetFund(
+                                recurring = fund.item.recurringType?.label?.uppercase(),
+                                remaining = fund.item.amount.takeIf { it > 0.0 },
+                                amount = fund.item.amount.takeIf { it > 0.0 },
+                                name = fund.item.name.ifEmpty { null },
+                                colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+                            )
+                        }
+                    }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        SwipeableAccountsPager(
+                            accounts = state.accounts.filter { it.active },
+                            currency = state.currency,
+                            balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
+                            pagerState = accountPagerState,
+                            minAlpha = 0.5f,
+                            initialCardScale = 1.025f,
+                            selectedCardStartScale = 0.875f,
+                            selectedCardScale = 1.085f,
+                            cardSpacing = 0.dp,
+                            onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
+                        )
+                        DashedLine(
+                            modifier = Modifier
+                                .offset(y = 17.dp)
+                                .zIndex(100f),
+                            dashLength = 8.dp,
+                            gapLength = 4.dp
+                        )
+                    }
+                }
+            }
         }
     ) {
         Spacer(modifier = Modifier.height(8.dp))

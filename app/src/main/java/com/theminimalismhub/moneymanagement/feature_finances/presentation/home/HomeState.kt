@@ -8,6 +8,7 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.GraphEntry
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import java.util.Currency
 
 data class HomeState(
@@ -15,6 +16,7 @@ data class HomeState(
     val results: List<Finance> = emptyList(),
     val recommended: List<RecommendedFinance> = emptyList(),
     val categories: List<Category> = emptyList(),
+    val funds: List<Fund> = emptyList(),
 
     val dateRange: Pair<Long, Long> = Pair(System.currentTimeMillis(), System.currentTimeMillis()),
     val isToday: Boolean = true,

@@ -4,10 +4,12 @@ import androidx.compose.runtime.MutableState
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Category
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 
 data class AddEditFinanceState(
     val currency: String = "",
     val categories: List<Category> = emptyList(),
+    val funds: List<Fund> = emptyList(),
     val currentFinanceId: Int? = null,
 
     val selectedCategoryId: Int? = null,

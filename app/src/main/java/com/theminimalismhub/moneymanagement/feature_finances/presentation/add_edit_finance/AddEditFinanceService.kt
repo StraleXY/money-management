@@ -1,7 +1,9 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
@@ -12,6 +14,7 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -23,7 +26,7 @@ import java.util.HashMap
 class AddEditFinanceService(
     private val scope: CoroutineScope,
     private val useCases: AddEditFinanceUseCases,
-    private val preferences: Preferences
+    preferences: Preferences
 ) {
 
     private val _state = mutableStateOf(AddEditFinanceState())
@@ -188,6 +191,9 @@ class AddEditFinanceService(
         accounts.forEach { account ->
             account.accountId?.let { id -> _state.value.accountStates[id] = mutableStateOf(account.accountId == _state.value.selectedAccountId) }
         }
+    }
+    fun setFunds(funds: List<Fund>) {
+        _state.value = _state.value.copy(funds = funds)
     }
     private suspend fun handleRecommendedFinance(financeId: Int) {
         selectedRecommendedFinance?.let {

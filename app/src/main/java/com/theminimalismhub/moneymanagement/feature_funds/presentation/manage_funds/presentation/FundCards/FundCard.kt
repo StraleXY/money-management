@@ -42,3 +42,22 @@ fun DisplayFundCard(
         )
     }
 }
+
+@Composable
+fun DisplayCompactFundCard(
+    modifier: Modifier = Modifier,
+    fund: Fund
+) {
+    when(fund.item.type) {
+        FundType.BUDGET -> CompactBudgetFund(
+            modifier = modifier,
+            recurring = fund.item.recurringType?.label?.uppercase(),
+            remaining = fund.item.amount.takeIf { it > 0.0 },
+            amount = fund.item.amount.takeIf { it > 0.0 },
+            name = fund.item.name.ifEmpty { null },
+            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+        )
+        FundType.RESERVATION -> { }
+        FundType.SAVINGS -> { }
+    }
+}
