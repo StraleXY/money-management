@@ -14,6 +14,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -37,6 +39,7 @@ import kotlin.math.roundToInt
 @Composable
 fun CardStack(
     modifier: Modifier = Modifier,
+    isExpanded: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     Layout(
@@ -68,9 +71,30 @@ fun CardStack(
             placeables.mapIndexed { index, placeable ->
                 placeable.place(
                     x = CardStack.X_POSITION,
-                    y = CardStack.Y_POSITION * index,
+                    y = ((if(isExpanded) 68.dp.toPx() else CardStack.Y_POSITION).toFloat() * index).roundToInt(),
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun AnimatedCardStack(
+    modifier: Modifier = Modifier,
+    isExpanded: Boolean = true,
+    items: List<@Composable () -> Unit>
+) {
+    val defaultOffset = with(LocalDensity.current) { CardStack.Y_POSITION.toDp() }
+
+    Box(modifier = modifier) {
+        items.forEachIndexed { index, content ->
+            val targetOffset = if (isExpanded) 68.dp * index else defaultOffset * index
+            val offsetY by animateDpAsState(
+                targetValue = targetOffset,
+                label = "CardStackOffset"
+            )
+
+            Box(modifier = Modifier.offset(y = offsetY)) { content() }
         }
     }
 }

@@ -1,18 +1,16 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
 import android.app.DatePickerDialog
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,17 +20,19 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,32 +44,26 @@ import com.dsc.form_builder.TextFieldState
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
-import com.theminimalismhub.moneymanagement.core.composables.ActionChip
+import com.theminimalismhub.moneymanagement.core.composables.AnimatedCardStack
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.CardStack
 import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.DraggableCardWithThreshold
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
-import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
 import com.theminimalismhub.moneymanagement.core.enums.FundType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.core.utils.Shade
-import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
-import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
-import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
+import com.theminimalismhub.moneymanagement.core.utils.getShadedColor
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
-import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
-import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.BudgetFund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFundNoUse
-import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayCompactFundCard
-import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayFundCard
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 @OptIn(ExperimentalPagerApi::class)
@@ -88,6 +82,8 @@ fun AddEditFinanceCard(
     trackableToggled: () -> Unit,
     linkFund: (Fund?) -> Unit
 ) {
+    val pageHeight = with(LocalDensity.current) { LocalView.current.height.toDp() }
+    val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val name: TextFieldState = form.getState("name")
     val amount: TextFieldState = form.getState("amount")
@@ -96,10 +92,13 @@ fun AddEditFinanceCard(
         pageCount = state.accounts.filter { it.active }.size,
         initialOffscreenLimit = 2,
     )
-
     var budgets: List<Fund?> by remember { mutableStateOf(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) }
     var lastOffset: Float by remember { mutableStateOf(0f) }
-
+    var showAllBudgets by remember { mutableStateOf(false) }
+    val topHeight by animateDpAsState(
+        targetValue = if (showAllBudgets) pageHeight - 18.dp else 464.dp,
+        label = "CardStackOffset"
+    )
     fun shuffleBudgets() {
         if (budgets.isNotEmpty()) {
             val items = budgets.toMutableList()
@@ -125,6 +124,20 @@ fun AddEditFinanceCard(
         linkFund(temp[temp.lastIndex])
         budgets = temp.toList()
     }
+    fun toggleBudgets() {
+        scope.launch {
+            if(!showAllBudgets) {
+                setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET })
+                delay(50)
+                showAllBudgets = true
+            }
+            else {
+                showAllBudgets = false
+                delay(50)
+                setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId)})
+            }
+        }
+    }
 
     LaunchedEffect(state.selectedCategoryId, state.funds, state.currentFinanceId) {
         if(state.selectedCategoryId == null) return@LaunchedEffect
@@ -142,56 +155,66 @@ fun AddEditFinanceCard(
         header = {
             Column(
                 modifier = Modifier
-                    .height(464.dp)
+                    .height(topHeight)
                     .padding(top = 48.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 64.dp)) {
                     AnimatedVisibility(
                         visible = state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }.isNotEmpty(),
                         enter = fadeIn(tween(150)),
                         exit = fadeOut(tween(150))
                     ) {
-                        CardStack(
-                            modifier = Modifier.padding(horizontal = 24.dp)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            budgets.forEach { fund ->
-                                DraggableCardWithThreshold(
-                                    idx = budgets.indexOf(fund),
-                                    lastIdx = budgets.size - 1,
-                                    lastOffset = lastOffset,
-                                    swap = {
-                                        lastOffset = it
-                                        if(it != 0f) shuffleBudgets()
+                            AnimatedCardStack(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.85f),
+                                isExpanded = showAllBudgets,
+                                items = budgets.map { fund ->
+                                    {
+                                        DraggableCardWithThreshold(
+                                            idx = budgets.indexOf(fund),
+                                            lastIdx = budgets.size - 1,
+                                            lastOffset = lastOffset,
+                                            swap = {
+                                                lastOffset = it
+                                                if (it != 0f) shuffleBudgets()
+                                            }
+                                        ) {
+                                            if (fund == null) CompactBudgetFundNoUse()
+                                            else CompactBudgetFund(
+                                                recurring = fund.item.recurringType?.label?.uppercase(),
+                                                remaining = fund.getRemaining(),
+                                                amount = fund.item.amount.takeIf { it > 0.0 },
+                                                name = fund.item.name.ifEmpty { null },
+                                                colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+                                            )
+                                        }
                                     }
-                                ) {
-                                    if (fund == null) CompactBudgetFundNoUse()
-                                    else CompactBudgetFund(
-                                        recurring = fund.item.recurringType?.label?.uppercase(),
-                                        remaining = fund.getRemaining(),
-                                        amount = fund.item.amount.takeIf { it > 0.0 },
-                                        name = fund.item.name.ifEmpty { null },
-                                        colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
-                                    )
                                 }
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            FilledIconButton(
+                                onClick = { toggleBudgets() },
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = getShadedColor(Shade.LIGHT)
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = ""
+                                )
                             }
                         }
                     }
                 }
-//                LazyColumn(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    contentPadding = PaddingValues(horizontal = 24.dp)
-//                ) {
-//                    items(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) { fund ->
-//                        CompactBudgetFund(
-//                            recurring = fund.item.recurringType?.label?.uppercase(),
-//                            remaining = fund.item.amount.takeIf { it > 0.0 },
-//                            amount = fund.item.amount.takeIf { it > 0.0 },
-//                            name = fund.item.name.ifEmpty { null },
-//                            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
-//                        )
-//                    }
-//                }
                 Column(modifier = Modifier.fillMaxWidth()) {
                     SwipeableAccountsPager(
                         accounts = state.accounts.filter { it.active },
