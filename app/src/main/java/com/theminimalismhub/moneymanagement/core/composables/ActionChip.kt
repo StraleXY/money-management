@@ -1,6 +1,7 @@
 package com.theminimalismhub.moneymanagement.core.composables
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -30,13 +31,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
-import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.getAccountIcon
-import kotlin.math.roundToInt
+import kotlin.math.max
 
 @Composable
 fun ActionChip(
     modifier: Modifier = Modifier.padding(5.dp),
     text: String,
+    contentAlpha: Float = 1f,
     textStyle: TextStyle = MaterialTheme.typography.body1,
     textColor: Color = MaterialTheme.colors.onBackground,
     accentColor: Color = textColor,
@@ -45,6 +46,7 @@ fun ActionChip(
     backgroundTint: Color = MaterialTheme.colors.secondaryVariant,
     borderThickness: Dp = 1.dp,
     backgroundStrength: Float = 0.15f,
+    elevationEnabled: Boolean = true,
     borderStrength: Float = 0.8f,
     icon: ImageVector? = null,
     enabled: Boolean = true,
@@ -57,7 +59,7 @@ fun ActionChip(
             .alpha(animatedAlpha.value),
         shape = RoundedCornerShape(30.dp),
         border = if(borderThickness == 0.dp) null else BorderStroke(borderThickness, Color(ColorUtils.blendARGB(Color.Black.toArgb(), borderColor.toArgb(), borderStrength))),
-        elevation = Dp(if(backgroundStrength == 0f) 0f else 6f),
+        elevation = Dp(if(!elevationEnabled || backgroundStrength == 0f) 0f else 6f),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -67,6 +69,7 @@ fun ActionChip(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = if(enabled) LocalIndication.current else null
                 ) { if(enabled) onClick() }
+                .animateContentSize(tween(200))
         ) {
             if (icon != null) {
                 Icon(
@@ -77,7 +80,7 @@ fun ActionChip(
                         .padding(start = 13.dp)
                         .padding(end = 8.dp)
                         .size(20.dp)
-                        .alpha(0.8f)
+                        .alpha(max(0.2f, contentAlpha - 0.2f))
                 )
             }
             Text(
@@ -87,7 +90,8 @@ fun ActionChip(
                     .padding(vertical = 8.dp)
                     .padding(bottom = 1.dp)
                     .padding(end = if (icon != null) 16.dp else 32.dp)
-                    .padding(start = if (icon != null) 0.dp else 32.dp),
+                    .padding(start = if (icon != null) 0.dp else 32.dp)
+                    .alpha(contentAlpha),
                 textAlign = TextAlign.Center,
                 style = textStyle
             )
@@ -99,8 +103,10 @@ fun ActionChip(
 fun SelectableChip(
     modifier: Modifier = Modifier.widthIn(60.dp, 180.dp),
     label: String,
+    contentAlpha: Float = 1f,
     icon: ImageVector? = null,
     selected: Boolean = false,
+    elevationEnabled: Boolean = true,
     onClick: () -> Unit
 ) {
     val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
@@ -109,10 +115,12 @@ fun SelectableChip(
     ActionChip(
         modifier = modifier,
         text = label,
+        contentAlpha = contentAlpha,
         textColor = textColor.value,
         backgroundColor = backgroundColor.value,
         borderThickness = 0.dp,
         onClick = onClick,
+        elevationEnabled = elevationEnabled,
         backgroundStrength = 1f,
         icon = icon
     )

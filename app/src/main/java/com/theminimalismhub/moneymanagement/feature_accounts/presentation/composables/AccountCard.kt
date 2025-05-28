@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,14 +31,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.CurrencyBitcoin
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.runtime.Composable
@@ -58,17 +63,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.node.modifierElementOf
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import com.theminimalismhub.moneymanagement.R
-import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.DashedBox
 import com.theminimalismhub.moneymanagement.core.composables.SelectableChip
 import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.getShadedColor
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.home.CategoryAmount
 import com.theminimalismhub.moneymanagement.ui.theme.credit_card
@@ -91,6 +99,56 @@ fun AccountChip(
         onClick = onClick,
         selected = selected
     )
+}
+
+@Composable
+fun SelectableAccountChipLarge(
+    modifier: Modifier = Modifier,
+    account: Account,
+    selected: Boolean,
+    currency: String = "RSD",
+    clicked: () -> Unit
+) {
+
+    val backgroundColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.secondaryVariant, tween(durationMillis = 250))
+    val textColor = animateColorAsState(targetValue = if(selected) MaterialTheme.colors.background else MaterialTheme.colors.onBackground, tween(durationMillis = 250))
+//            .border(if(selected) 0.dp else 2.dp, color = if(selected) Color.Transparent else MaterialTheme.colors.secondaryVariant, RoundedCornerShape(100))
+
+    Box(
+        modifier = modifier
+            .height(64.dp)
+            .clip(RoundedCornerShape(100))
+            .background(backgroundColor.value)
+            .clickable { clicked() }
+    ) {
+        Row(
+            modifier = modifier
+                .fillMaxHeight()
+                .padding(end = 24.dp, start = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AccountIcon(
+                modifier = Modifier.scale(1f),
+                type = account.type,
+                color = textColor.value
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    modifier = Modifier.offset(y = 2.dp),
+                    text = account.name,
+                    style = MaterialTheme.typography.h4,
+                    color = textColor.value
+                )
+                Text(
+                    modifier = Modifier.offset(y = -2.dp),
+                    text = if(account.type == AccountType.CRYPTO) "${stringResource(id = R.string.crypto_balance_mask)} $currency" else "${Currencier.formatAmount(account.balance)} $currency",
+                    style = MaterialTheme.typography.body2,
+                    color = textColor.value
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -627,5 +685,6 @@ fun getAccountIcon(type: AccountType) : ImageVector {
         AccountType.HELP -> Icons.Default.SupervisorAccount
         AccountType.INSURANCE -> Icons.Default.MonitorHeart
         AccountType.CRYPTO -> Icons.Default.CurrencyBitcoin
+        AccountType.UNKNOWN -> Icons.Default.AccountBalance
     }
 }

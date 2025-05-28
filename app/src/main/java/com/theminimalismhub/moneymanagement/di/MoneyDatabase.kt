@@ -3,8 +3,6 @@ package com.theminimalismhub.moneymanagement.di
 import android.content.Context
 import androidx.room.*
 import androidx.room.migration.AutoMigrationSpec
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.theminimalismhub.moneymanagement.feature_accounts.data.data_source.AccountDao
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_bills.data.data_source.BillDao
@@ -14,6 +12,11 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 import com.theminimalismhub.moneymanagement.feature_finances.data.data_source.FinanceDao
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.RecommendedFinanceItem
+import com.theminimalismhub.moneymanagement.feature_funds.data.data_source.FundDao
+import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundAccountCrossRef
+import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundCategoryCrossRef
+import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundFinanceCrossRef
+import com.theminimalismhub.moneymanagement.feature_funds.data.model.FundItem
 
 @Database(
     entities = [
@@ -21,21 +24,27 @@ import com.theminimalismhub.moneymanagement.feature_finances.data.model.Recommen
         Account::class,
         FinanceItem::class,
         BillItem::class,
-        RecommendedFinanceItem::class
+        RecommendedFinanceItem::class,
+        FundItem::class,
+        FundCategoryCrossRef::class,
+        FundAccountCrossRef::class,
+        FundFinanceCrossRef::class
     ],
-    version = 11,
+    version = 13,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(1, 2),                                   // account: primary
-        AutoMigration(2, 3),                                   // account: extra fields
-        AutoMigration(3, 4),                                   // account: deleted
-        AutoMigration(4, 5),                                   // finance item: accountTo
-        AutoMigration(5, 6),                                   // finance item: category can be null
-        AutoMigration(6, 7, spec = From6To7Migration::class),  // finance item: renamed financeTo to financeFrom
-        AutoMigration(7, 8),                                   // add: trackable flag to category and finance item
-        AutoMigration(8, 9),                                   // add: BillItem
-        AutoMigration(9, 10),                                  // add: RecommendedFinanceItem
-        AutoMigration(10, 11)                                  // add: Labels to Account
+        AutoMigration(1, 2),                                      // account: primary
+        AutoMigration(2, 3),                                      // account: extra fields
+        AutoMigration(3, 4),                                      // account: deleted
+        AutoMigration(4, 5),                                      // finance item: accountTo
+        AutoMigration(5, 6),                                      // finance item: category can be null
+        AutoMigration(6, 7, spec = From6To7Migration::class),     // finance item: renamed financeTo to financeFrom
+        AutoMigration(7, 8),                                      // add: trackable flag to category and finance item
+        AutoMigration(8, 9),                                      // add: BillItem
+        AutoMigration(9, 10),                                     // add: RecommendedFinanceItem
+        AutoMigration(10, 11),                                    // add: Labels to Account
+        AutoMigration(11, 12, spec = From11To12Migration::class), // finance item: id to financeId
+        AutoMigration(12, 13)                                     // add: Funds *HOPEFULLY*
     ]
 )
 abstract class MoneyDatabase protected constructor() : RoomDatabase() {
@@ -43,6 +52,8 @@ abstract class MoneyDatabase protected constructor() : RoomDatabase() {
     abstract val financeDao: FinanceDao
     abstract val accountDao: AccountDao
     abstract val billDao: BillDao
+    abstract val fundDao: FundDao
+
     companion object {
         @Volatile
         var Instance: MoneyDatabase? = null
@@ -68,6 +79,8 @@ abstract class MoneyDatabase protected constructor() : RoomDatabase() {
 @RenameColumn(tableName = "Finance", fromColumnName = "financeAccountIdTo", toColumnName = "financeAccountIdFrom")
 class From6To7Migration : AutoMigrationSpec
 
+@RenameColumn(tableName = "Finance", fromColumnName = "id", toColumnName = "financeId")
+class From11To12Migration : AutoMigrationSpec
 
 fun query(block: () -> Unit) = MoneyDatabase.Instance?.queryExecutor?.execute(block)
 

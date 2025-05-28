@@ -1,10 +1,18 @@
 package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_edit_finance
 
 import android.app.DatePickerDialog
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,6 +28,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -37,10 +46,15 @@ import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.ActionChip
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
+import com.theminimalismhub.moneymanagement.core.composables.CardStack
 import com.theminimalismhub.moneymanagement.core.composables.DashedLine
+import com.theminimalismhub.moneymanagement.core.composables.DraggableCardWithThreshold
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
 import com.theminimalismhub.moneymanagement.core.composables.HoldableActionButton
+import com.theminimalismhub.moneymanagement.core.enums.FundType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
+import com.theminimalismhub.moneymanagement.core.utils.Shade
+import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.manage_accounts.AccountsPager
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
@@ -49,6 +63,12 @@ import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Financ
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.AccountsList
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.BudgetFund
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFund
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFundNoUse
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayCompactFundCard
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.DisplayFundCard
 import kotlinx.coroutines.delay
 import java.util.*
 
@@ -77,8 +97,28 @@ fun AddEditFinanceCard(
         initialOffscreenLimit = 2,
     )
 
-    LaunchedEffect(state.selectedCategoryId) {
-        if(state.selectedCategoryId == null || state.categories.isEmpty()) return@LaunchedEffect
+    var budgets: List<Fund?> by remember { mutableStateOf(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) }
+    var lastOffset: Float by remember { mutableStateOf(0f) }
+
+    fun shuffleBudgets() {
+        if (budgets.isNotEmpty()) {
+            val items = budgets.toMutableList()
+            val first = items.removeAt(items.lastIndex)
+            items.add(0, first)
+            budgets = items.toList()
+        }
+    }
+    suspend fun setNewBudgetItems(items: List<Fund>) {
+        val temp: MutableList<Fund?> = items.toMutableList()
+        temp.add(0, null)
+        if(temp.size == 1) delay(150)
+        budgets = temp.toList()
+    }
+
+    LaunchedEffect(state.selectedCategoryId, state.funds) {
+        if(state.selectedCategoryId == null) return@LaunchedEffect
+        if(state.funds.isNotEmpty()) setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId)})
+        if(state.categories.isEmpty()) return@LaunchedEffect
         categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
     }
     LaunchedEffect(state.selectedAccountId) {
@@ -89,25 +129,81 @@ fun AddEditFinanceCard(
     FloatingCard(
         visible = isOpen,
         header = {
-            SwipeableAccountsPager(
-                accounts = state.accounts.filter { it.active },
-                currency = state.currency,
-                balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
-                pagerState = accountPagerState,
-                minAlpha = 0.5f,
-                initialCardScale = 1.025f,
-                selectedCardStartScale = 0.875f,
-                selectedCardScale = 1.085f,
-                cardSpacing = 0.dp,
-                onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
-            )
-            DashedLine(
+            Column(
                 modifier = Modifier
-                    .offset(y = 17.dp)
-                    .zIndex(100f),
-                dashLength = 8.dp,
-                gapLength = 4.dp
-            )
+                    .height(464.dp)
+                    .padding(top = 48.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)) {
+                    AnimatedVisibility(
+                        visible = state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }.isNotEmpty(),
+                        enter = fadeIn(tween(150)),
+                        exit = fadeOut(tween(150))
+                    ) {
+                        CardStack(
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        ) {
+                            budgets.forEach { fund ->
+                                DraggableCardWithThreshold(
+                                    idx = budgets.indexOf(fund),
+                                    lastIdx = budgets.size - 1,
+                                    lastOffset = lastOffset,
+                                    swap = {
+                                        lastOffset = it
+                                        if(it != 0f) shuffleBudgets()
+                                    }
+                                ) {
+                                    if (fund == null) CompactBudgetFundNoUse()
+                                    else CompactBudgetFund(
+                                        recurring = fund.item.recurringType?.label?.uppercase(),
+                                        remaining = fund.item.amount.takeIf { it > 0.0 },
+                                        amount = fund.item.amount.takeIf { it > 0.0 },
+                                        name = fund.item.name.ifEmpty { null },
+                                        colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+//                LazyColumn(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    contentPadding = PaddingValues(horizontal = 24.dp)
+//                ) {
+//                    items(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }) { fund ->
+//                        CompactBudgetFund(
+//                            recurring = fund.item.recurringType?.label?.uppercase(),
+//                            remaining = fund.item.amount.takeIf { it > 0.0 },
+//                            amount = fund.item.amount.takeIf { it > 0.0 },
+//                            name = fund.item.name.ifEmpty { null },
+//                            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
+//                        )
+//                    }
+//                }
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    SwipeableAccountsPager(
+                        accounts = state.accounts.filter { it.active },
+                        currency = state.currency,
+                        balanceDelta = 0.0, //try { amount.value.toDouble() } catch (ex: NumberFormatException) { 0.0 },
+                        pagerState = accountPagerState,
+                        minAlpha = 0.5f,
+                        initialCardScale = 1.025f,
+                        selectedCardStartScale = 0.875f,
+                        selectedCardScale = 1.085f,
+                        cardSpacing = 0.dp,
+                        onAccountSelected = { idx -> accountSelected(state.accounts.filter { it.active }[idx].accountId!!) }
+                    )
+                    DashedLine(
+                        modifier = Modifier
+                            .offset(y = 17.dp)
+                            .zIndex(100f),
+                        dashLength = 8.dp,
+                        gapLength = 4.dp
+                    )
+                }
+            }
+
         }
     ) {
         Spacer(modifier = Modifier.height(8.dp))

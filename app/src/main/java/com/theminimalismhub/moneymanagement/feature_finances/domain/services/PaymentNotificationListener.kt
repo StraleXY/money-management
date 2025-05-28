@@ -36,11 +36,11 @@ class PaymentNotificationListener : NotificationListenerService() {
         const val DEBUG = "com.samsung.android.app.smartcapture"
     }
 
-    override fun onListenerConnected() {
-        super.onListenerConnected()
-        val notifications = super.getActiveNotifications()
-        notifications.forEach { processNotification(it) }
-    }
+//    override fun onListenerConnected() {
+//        super.onListenerConnected()
+//        val notifications = super.getActiveNotifications()
+//        notifications.forEach { processNotification(it) }
+//    }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         sbn?.let { processNotification(it) }

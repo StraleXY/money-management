@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.dsc.form_builder.FormState
 import com.dsc.form_builder.TextFieldState
 import com.dsc.form_builder.Validators
-import com.theminimalismhub.moneymanagement.core.enums.AccountType
 import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.utils.Currencier
 import com.theminimalismhub.moneymanagement.feature_accounts.domain.model.Account
@@ -15,10 +14,10 @@ import com.theminimalismhub.moneymanagement.feature_categories.domain.model.Cate
 import com.theminimalismhub.moneymanagement.feature_finances.data.model.FinanceItem
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.RecommendedFinance
 import com.theminimalismhub.moneymanagement.feature_finances.domain.use_cases.AddEditFinanceUseCases
+import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_settings.domain.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -27,7 +26,7 @@ import java.util.HashMap
 class AddEditFinanceService(
     private val scope: CoroutineScope,
     private val useCases: AddEditFinanceUseCases,
-    private val preferences: Preferences
+    preferences: Preferences
 ) {
 
     private val _state = mutableStateOf(AddEditFinanceState())
@@ -77,7 +76,7 @@ class AddEditFinanceService(
                     selectCategoryType(event.finance.category!!.type)
                     event.finance.finance.financeCategoryId?.let { onEvent(AddEditFinanceEvent.CategorySelected(it)) }
                     _state.value = _state.value.copy(
-                        currentFinanceId = event.finance.finance.id,
+                        currentFinanceId = event.finance.finance.financeId,
                         currentType = event.finance.finance.type,
                         timestamp = event.finance.finance.timestamp,
                         selectedAccountId = event.finance.finance.financeAccountId,
@@ -129,7 +128,7 @@ class AddEditFinanceService(
                             amount = (formState.fields[1].value).toDouble(),
                             timestamp = _state.value.timestamp,
                             type = _state.value.currentType,
-                            id = _state.value.currentFinanceId,
+                            financeId = _state.value.currentFinanceId,
                             financeCategoryId = _state.value.selectedCategoryId!!,
                             financeAccountId = _state.value.selectedAccountId!!,
                             trackable = _state.value.currentTrackable
@@ -192,6 +191,9 @@ class AddEditFinanceService(
         accounts.forEach { account ->
             account.accountId?.let { id -> _state.value.accountStates[id] = mutableStateOf(account.accountId == _state.value.selectedAccountId) }
         }
+    }
+    fun setFunds(funds: List<Fund>) {
+        _state.value = _state.value.copy(funds = funds)
     }
     private suspend fun handleRecommendedFinance(financeId: Int) {
         selectedRecommendedFinance?.let {

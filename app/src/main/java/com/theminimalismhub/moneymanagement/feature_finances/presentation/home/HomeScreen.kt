@@ -38,6 +38,7 @@ import com.theminimalismhub.moneymanagement.core.utils.shadedBackground
 import com.theminimalismhub.moneymanagement.destinations.ManageAccountsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageBillsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ManageCategoriesScreenDestination
+import com.theminimalismhub.moneymanagement.destinations.ManageFundsScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.ReportScreenDestination
 import com.theminimalismhub.moneymanagement.destinations.SettingsScreenDestination
 import com.theminimalismhub.moneymanagement.feature_accounts.presentation.composables.AccountCardLarge
@@ -67,7 +68,10 @@ fun HomeScreen(
         vm.onEvent(HomeEvent.ToggleAddEditCard(null))
     }
 
-    LaunchedEffect(Unit) { vm.init() }
+    LaunchedEffect(Unit) {
+        vm.init()
+//        navigator.navigate(ManageFundsScreenDestination())
+    }
 
     val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     BackdropScaffold(

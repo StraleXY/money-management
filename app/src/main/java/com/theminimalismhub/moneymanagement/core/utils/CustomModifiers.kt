@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.core.utils
 
 import androidx.compose.foundation.background
 import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
@@ -20,4 +21,11 @@ fun Modifier.shadedBackground(shade: Shade, shape: Shape? = null): Modifier = co
     else MaterialTheme.colors.surface.copy(1f, shade.dark, shade.dark, shade.dark)
     if(shape != null) this.background(color, shape)
     else this.background(color)
+}
+
+@Composable
+fun getShadedColor(shade: Shade) : Color {
+    val color = if (MaterialTheme.colors.isLight) Color(ColorUtils.blendARGB(MaterialTheme.colors.surface.toArgb(), Color.Black.toArgb(), shade.light))
+    else MaterialTheme.colors.surface.copy(1f, shade.dark, shade.dark, shade.dark)
+    return color
 }
