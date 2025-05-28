@@ -60,7 +60,8 @@ class ManageFundsViewModel @Inject constructor(
                         sFundType = FundType.BUDGET,
                         sRecurring = null,
                         sAccounts = emptyList(),
-                        sCategories = emptyList()
+                        sCategories = emptyList(),
+                        sFinances = emptyList()
                     )
                     addEditFormState.fields[0].change("")
                     addEditFormState.fields[1].change("")
@@ -71,7 +72,8 @@ class ManageFundsViewModel @Inject constructor(
                         sFundType = event.item.item.type,
                         sRecurring = event.item.item.recurringType,
                         sAccounts = _state.value.accounts.filter { event.item.accounts.map { ia -> ia.accountId }.contains(it.accountId) },
-                        sCategories = _state.value.categories.filter { event.item.categories.map { ic -> ic.categoryId }.contains(it.categoryId) }
+                        sCategories = _state.value.categories.filter { event.item.categories.map { ic -> ic.categoryId }.contains(it.categoryId) },
+                        sFinances = event.item.finances
                     )
                     addEditFormState.fields[0].change(event.item.item.name)
                     addEditFormState.fields[1].change(event.item.item.amount.toInt().toString()) // TODO Double to Int
@@ -90,7 +92,8 @@ class ManageFundsViewModel @Inject constructor(
                                 startDate = _state.value.sFundItem?.startDate ?: System.currentTimeMillis()
                             ),
                             categories = _state.value.sCategories,
-                            accounts = _state.value.sAccounts
+                            accounts = _state.value.sAccounts,
+                            finances =  _state.value.sFinances
                         )
                     )
                     onEvent(ManageFundsEvent.ToggleAddEdit())

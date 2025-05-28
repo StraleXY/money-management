@@ -50,7 +50,9 @@ import com.theminimalismhub.moneymanagement.core.composables.AnimatedCardStack
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
 import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.DraggableCardWithThreshold
+import com.theminimalismhub.moneymanagement.core.composables.FadedAnimatedVisibility
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
+import com.theminimalismhub.moneymanagement.core.enums.FinanceType
 import com.theminimalismhub.moneymanagement.core.enums.FundType
 import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.core.utils.Shade
@@ -61,6 +63,7 @@ import com.theminimalismhub.moneymanagement.feature_finances.presentation.compos
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
 import com.theminimalismhub.moneymanagement.feature_funds.domain.model.Fund
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFund
+import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFundNoMatch
 import com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_funds.presentation.FundCards.CompactBudgetFundNoUse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -141,7 +144,7 @@ fun AddEditFinanceCard(
 
     LaunchedEffect(state.selectedCategoryId, state.funds, state.currentFinanceId) {
         if(state.selectedCategoryId == null) return@LaunchedEffect
-        if(state.funds.isNotEmpty()) setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId)})
+        setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId)})
         if(state.categories.isEmpty()) return@LaunchedEffect
         categoryListState.animateScrollToItem(state.categories.indexOf(state.categories.first { it.categoryId == state.selectedCategoryId } ))
     }
@@ -158,60 +161,63 @@ fun AddEditFinanceCard(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.fillMaxWidth().heightIn(min = if(showAllBudgets) topHeight else 64.dp)) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                    ) {
-                        AnimatedCardStack(
+                    FadedAnimatedVisibility(state.currentType == FinanceType.OUTCOME) {
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth(0.85f),
-                            isExpanded = showAllBudgets,
-                            items = budgets.map { fund ->
-                                {
-                                    DraggableCardWithThreshold(
-                                        idx = budgets.indexOf(fund),
-                                        lastIdx = budgets.size - 1,
-                                        lastOffset = lastOffset,
-                                        enabled = !showAllBudgets,
-                                        swap = {
-                                            lastOffset = it
-                                            if (it != 0f) shuffleBudgets()
-                                        }
-                                    ) {
-                                        if (fund == null) CompactBudgetFundNoUse()
-                                        else CompactBudgetFund(
-                                            recurring = fund.item.recurringType?.label?.uppercase(),
-                                            remaining = fund.getRemaining(),
-                                            amount = fund.item.amount.takeIf { it > 0.0 },
-                                            name = fund.item.name.ifEmpty { null },
-                                            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) },
-                                            categories = fund.categories,
-                                            onSelected = {
-                                                categorySelected(it.categoryId!!)
-                                                showAllBudgets = false
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                        ) {
+                            AnimatedCardStack(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.85f),
+                                isExpanded = showAllBudgets,
+                                items = budgets.map { fund ->
+                                    {
+                                        DraggableCardWithThreshold(
+                                            idx = budgets.indexOf(fund),
+                                            lastIdx = budgets.size - 1,
+                                            lastOffset = lastOffset,
+                                            enabled = !showAllBudgets,
+                                            swap = {
+                                                lastOffset = it
+                                                if (it != 0f) shuffleBudgets()
                                             }
-                                        )
+                                        ) {
+                                            if (fund == null && budgets.size == 1) CompactBudgetFundNoMatch()
+                                            else if (fund == null) CompactBudgetFundNoUse()
+                                            else CompactBudgetFund(
+                                                recurring = fund.item.recurringType?.label?.uppercase(),
+                                                remaining = fund.getRemaining(),
+                                                amount = fund.item.amount.takeIf { it > 0.0 },
+                                                name = fund.item.name.ifEmpty { null },
+                                                colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) },
+                                                categories = fund.categories,
+                                                onSelected = {
+                                                    categorySelected(it.categoryId!!)
+                                                    showAllBudgets = false
+                                                }
+                                            )
+                                        }
                                     }
                                 }
-                            }
-                        )
-                        Spacer(Modifier.width(16.dp))
-                        Column(
-                            modifier = Modifier.height(64.dp).offset(y = 48.dp),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            FilledIconButton(
-                                modifier = Modifier.rotate(animateFloatAsState(if(showAllBudgets) 180f else 0f).value),
-                                onClick = { toggleBudgets() },
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = getShadedColor(Shade.LIGHT)
-                                )
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Column(
+                                modifier = Modifier.height(64.dp).offset(y = 48.dp),
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    contentDescription = ""
-                                )
+                                FilledIconButton(
+                                    modifier = Modifier.rotate(animateFloatAsState(if(showAllBudgets) 180f else 0f).value),
+                                    onClick = { toggleBudgets() },
+                                    colors = IconButtonDefaults.filledIconButtonColors(
+                                        containerColor = getShadedColor(Shade.LIGHT)
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = ""
+                                    )
+                                }
                             }
                         }
                     }

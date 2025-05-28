@@ -2,6 +2,7 @@ package com.theminimalismhub.moneymanagement.feature_funds.presentation.manage_f
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -341,6 +342,36 @@ fun CompactBudgetFundNoUse(
             Text(
                 modifier = Modifier.alpha(0.75f),
                 text = "Budgeting Disabled",
+                style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Medium),
+                color = colors.onBackground
+            )
+        }
+    }
+}
+
+
+@Composable
+fun CompactBudgetFundNoMatch(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .clip(RoundedCornerShape(100))
+            .border(2.dp, getShadedColor(Shade.LIGHT), RoundedCornerShape(100))
+            .background(colors.background)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                modifier = Modifier.alpha(0.75f),
+                text = "No Matching Budgets",
                 style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Medium),
                 color = colors.onBackground
             )

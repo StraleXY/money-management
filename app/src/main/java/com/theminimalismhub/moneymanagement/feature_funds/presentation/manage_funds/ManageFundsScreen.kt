@@ -80,7 +80,8 @@ fun ManageFundsScreen(
                 )
                 BudgetFundsPager(
                     modifier = Modifier.background(MaterialTheme.colors.background),
-                    budgets = vm.state.value.funds.filter { it.item.type == FundType.BUDGET }
+                    budgets = vm.state.value.funds.filter { it.item.type == FundType.BUDGET },
+                    onFundSelected = { vm.onEvent(ManageFundsEvent.ToggleAddEdit(it)) }
                 )
                 Spacer(Modifier.height(24.dp))
             }
@@ -130,7 +131,8 @@ fun BudgetFundsPager(
     initialCardScale: Float = 1.05f,
     selectedCardScale: Float = 1.15f,
     selectedCardStartScale: Float = 0.95f,
-    cardSpacing: Dp = 0.dp
+    cardSpacing: Dp = 0.dp,
+    onFundSelected: (Fund) -> Unit
 ) {
 
     val pagerState = rememberPagerState(budgets.size, 0)
@@ -167,6 +169,7 @@ fun BudgetFundsPager(
             ) {
                 Box(
                     modifier = Modifier
+                        .clickable { onFundSelected(budgets[idx]) }
                         .scale(0.85f)
                 ) {
                     if (budgets.size > idx) DisplayFundCard(
