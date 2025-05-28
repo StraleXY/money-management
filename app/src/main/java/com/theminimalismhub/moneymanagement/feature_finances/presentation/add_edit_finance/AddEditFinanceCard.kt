@@ -2,7 +2,9 @@ package com.theminimalismhub.moneymanagement.feature_finances.presentation.add_e
 
 import android.app.DatePickerDialog
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -22,18 +24,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -46,7 +48,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.theminimalismhub.moneymanagement.R
 import com.theminimalismhub.moneymanagement.core.composables.AnimatedCardStack
 import com.theminimalismhub.moneymanagement.core.composables.CRUDButtons
-import com.theminimalismhub.moneymanagement.core.composables.CardStack
 import com.theminimalismhub.moneymanagement.core.composables.DashedLine
 import com.theminimalismhub.moneymanagement.core.composables.DraggableCardWithThreshold
 import com.theminimalismhub.moneymanagement.core.composables.FloatingCard
@@ -55,7 +56,6 @@ import com.theminimalismhub.moneymanagement.core.utils.Colorer
 import com.theminimalismhub.moneymanagement.core.utils.Shade
 import com.theminimalismhub.moneymanagement.core.utils.getShadedColor
 import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.CircularTypeSelector
-import com.theminimalismhub.moneymanagement.feature_categories.presentation.manage_categories.ToggleTracking
 import com.theminimalismhub.moneymanagement.feature_finances.domain.model.Finance
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.CategoryChip
 import com.theminimalismhub.moneymanagement.feature_finances.presentation.composables.SwipeableAccountsPager
@@ -96,7 +96,7 @@ fun AddEditFinanceCard(
     var lastOffset: Float by remember { mutableStateOf(0f) }
     var showAllBudgets by remember { mutableStateOf(false) }
     val topHeight by animateDpAsState(
-        targetValue = if (showAllBudgets) pageHeight - 18.dp else 464.dp,
+        targetValue = if (showAllBudgets) pageHeight else 532.dp,
         label = "CardStackOffset"
     )
     fun shuffleBudgets() {
@@ -108,9 +108,9 @@ fun AddEditFinanceCard(
             budgets = items.toList()
         }
     }
-    suspend fun setNewBudgetItems(items: List<Fund>) {
+    suspend fun setNewBudgetItems(items: List<Fund>, hasDisabled: Boolean = true) {
         val temp: MutableList<Fund?> = items.toMutableList()
-        temp.add(0, null)
+        if(hasDisabled) temp.add(0, null)
         if (temp.size == 1) delay(150)
         val fundIdx = temp.indexOfFirst { it?.finances?.map { it.financeId }?.contains(state.currentFinanceId) ?: false }
         if (fundIdx != -1) {
@@ -127,7 +127,7 @@ fun AddEditFinanceCard(
     fun toggleBudgets() {
         scope.launch {
             if(!showAllBudgets) {
-                setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET })
+                setNewBudgetItems(state.funds.filter { it.item.type == FundType.BUDGET }, false)
                 delay(50)
                 showAllBudgets = true
             }
@@ -154,54 +154,55 @@ fun AddEditFinanceCard(
         visible = isOpen,
         header = {
             Column(
-                modifier = Modifier
-                    .height(topHeight)
-                    .padding(top = 48.dp),
+                modifier = Modifier.height(topHeight),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 64.dp)) {
-                    AnimatedVisibility(
-                        visible = state.funds.filter { it.item.type == FundType.BUDGET && it.categories.map { it.categoryId }.contains(state.selectedCategoryId) }.isNotEmpty(),
-                        enter = fadeIn(tween(150)),
-                        exit = fadeOut(tween(150))
+                Column(modifier = Modifier.fillMaxWidth().heightIn(min = if(showAllBudgets) topHeight else 64.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
                     ) {
-                        Row(
+                        AnimatedCardStack(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AnimatedCardStack(
-                                modifier = Modifier
-                                    .fillMaxWidth(0.85f),
-                                isExpanded = showAllBudgets,
-                                items = budgets.map { fund ->
-                                    {
-                                        DraggableCardWithThreshold(
-                                            idx = budgets.indexOf(fund),
-                                            lastIdx = budgets.size - 1,
-                                            lastOffset = lastOffset,
-                                            swap = {
-                                                lastOffset = it
-                                                if (it != 0f) shuffleBudgets()
-                                            }
-                                        ) {
-                                            if (fund == null) CompactBudgetFundNoUse()
-                                            else CompactBudgetFund(
-                                                recurring = fund.item.recurringType?.label?.uppercase(),
-                                                remaining = fund.getRemaining(),
-                                                amount = fund.item.amount.takeIf { it > 0.0 },
-                                                name = fund.item.name.ifEmpty { null },
-                                                colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) }
-                                            )
+                                .fillMaxWidth(0.85f),
+                            isExpanded = showAllBudgets,
+                            items = budgets.map { fund ->
+                                {
+                                    DraggableCardWithThreshold(
+                                        idx = budgets.indexOf(fund),
+                                        lastIdx = budgets.size - 1,
+                                        lastOffset = lastOffset,
+                                        enabled = !showAllBudgets,
+                                        swap = {
+                                            lastOffset = it
+                                            if (it != 0f) shuffleBudgets()
                                         }
+                                    ) {
+                                        if (fund == null) CompactBudgetFundNoUse()
+                                        else CompactBudgetFund(
+                                            recurring = fund.item.recurringType?.label?.uppercase(),
+                                            remaining = fund.getRemaining(),
+                                            amount = fund.item.amount.takeIf { it > 0.0 },
+                                            name = fund.item.name.ifEmpty { null },
+                                            colors = fund.categories.map { Colorer.getAdjustedDarkColor(it.color) },
+                                            categories = fund.categories,
+                                            onSelected = {
+                                                categorySelected(it.categoryId!!)
+                                                showAllBudgets = false
+                                            }
+                                        )
                                     }
                                 }
-                            )
-                            Spacer(Modifier.width(16.dp))
+                            }
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        Column(
+                            modifier = Modifier.height(64.dp).offset(y = 48.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
                             FilledIconButton(
+                                modifier = Modifier.rotate(animateFloatAsState(if(showAllBudgets) 180f else 0f).value),
                                 onClick = { toggleBudgets() },
                                 colors = IconButtonDefaults.filledIconButtonColors(
                                     containerColor = getShadedColor(Shade.LIGHT)
@@ -215,6 +216,7 @@ fun AddEditFinanceCard(
                         }
                     }
                 }
+
                 Column(modifier = Modifier.fillMaxWidth()) {
                     SwipeableAccountsPager(
                         accounts = state.accounts.filter { it.active },
@@ -308,7 +310,26 @@ fun AddEditFinanceCard(
             isError = amount.hasError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(true) }),
-            shape = RoundedCornerShape(100)
+            shape = RoundedCornerShape(100),
+            trailingIcon = {
+                TextButton(
+                    modifier = Modifier
+                        .scale(0.95f)
+                        .padding(end = 8.dp),
+                    shape = RoundedCornerShape(100),
+                    onClick = { trackableToggled() },
+                    colors = ButtonDefaults.textButtonColors(
+                        backgroundColor = if(state.currentTrackable) getShadedColor(Shade.LIGHTEST) else getShadedColor(Shade.MID)
+                    )
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .animateContentSize()
+                            .padding(horizontal = 8.dp),
+                        text = if(state.currentTrackable) "TRACKED" else "UNTRACKED"
+                    )
+                }
+            }
         )
         ErrorText(
             modifier = Modifier
@@ -317,13 +338,6 @@ fun AddEditFinanceCard(
             message = amount.errorMessage,
             hasError = amount.hasError
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        ToggleTracking(
-            modifier = Modifier.padding(horizontal = 24.dp),
-            action = stringResource(id = R.string.track_finance_action),
-            actionHint = stringResource(id = R.string.track_finance_hint),
-            toggled = state.currentTrackable
-        ) { trackableToggled() }
         Spacer(modifier = Modifier.height(24.dp))
         CRUDButtons(
             onSave = {
@@ -390,7 +404,10 @@ fun MDatePicker(
         textStyle = MaterialTheme.typography.body1,
         label = { Text(text = "Date") },
         trailingIcon = {
-            IconButton(onClick = { mDatePickerDialog.show() }) {
+            IconButton(
+                modifier = Modifier.padding(end = 4.dp),
+                onClick = { mDatePickerDialog.show() }
+            ) {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
                     contentDescription = Icons.Default.CalendarMonth.name

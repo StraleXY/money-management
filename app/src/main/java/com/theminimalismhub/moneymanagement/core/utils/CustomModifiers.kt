@@ -14,6 +14,7 @@ enum class Shade(val dark: Float, val light: Float) {
     DARK(0.08f, 0.04f),
     MID(0.14f, 0.3f),
     LIGHT(0.16f, 0.2f),
+    LIGHTEST(0.32f, 0.1f)
 }
 
 fun Modifier.shadedBackground(shade: Shade, shape: Shape? = null): Modifier = composed {

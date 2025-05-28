@@ -18,9 +18,15 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
@@ -28,6 +34,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
@@ -86,14 +95,34 @@ fun AnimatedCardStack(
 ) {
     val defaultOffset = with(LocalDensity.current) { CardStack.Y_POSITION.toDp() }
 
-    Box(modifier = modifier) {
+    var isExpandedDelayed by remember { mutableStateOf(isExpanded) }
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
+            delay(250)
+            isExpandedDelayed = true
+        }
+        else {
+            isExpandedDelayed = false
+        }
+    }
+
+    if (isExpandedDelayed) LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(top = 48.dp, bottom = 24.dp)
+    ) {
+        items(items) {
+            it()
+            Spacer(Modifier.height(4.dp))
+        }
+    }
+    else Box(modifier = modifier.padding(top = 48.dp)) {
         items.forEachIndexed { index, content ->
             val targetOffset = if (isExpanded) 68.dp * index else defaultOffset * index
             val offsetY by animateDpAsState(
                 targetValue = targetOffset,
+                animationSpec = tween(250),
                 label = "CardStackOffset"
             )
-
             Box(modifier = Modifier.offset(y = offsetY)) { content() }
         }
     }
@@ -105,6 +134,7 @@ fun DraggableCardWithThreshold(
     idx: Int,
     lastIdx: Int,
     lastOffset: Float,
+    enabled: Boolean,
     content: @Composable () -> Unit
 ) {
 
@@ -134,11 +164,15 @@ fun DraggableCardWithThreshold(
         }
     }
 
+    LaunchedEffect(enabled) {
+        Log.d("ENABLED CHANGED", enabled.toString())
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        Card(
+        if(enabled) Card(
             modifier = Modifier
                 .offset { IntOffset(0, offsetY.value.roundToInt()) }
                 .pointerInput(Unit) {
@@ -158,6 +192,14 @@ fun DraggableCardWithThreshold(
                         }
                     )
                 }
+                .fillMaxWidth()
+                .height(64.dp),
+            elevation = 8.dp,
+            shape = RoundedCornerShape(100)
+        ) { content() }
+        else Card(
+            modifier = Modifier
+                .offset { IntOffset(0, offsetY.value.roundToInt()) }
                 .fillMaxWidth()
                 .height(64.dp),
             elevation = 8.dp,

@@ -29,3 +29,16 @@ fun VerticalAnimatedVisibility(
         content = content
     )
 }
+
+@Composable
+fun FadedAnimatedVisibility(
+    visible: Boolean,
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(tween(300)),
+        exit = fadeOut(tween(300)),
+        content = content
+    )
+}
